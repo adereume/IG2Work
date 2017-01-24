@@ -1,3 +1,19 @@
 <resources>
     <string name="app_name">IG2Work</string>
+
+    <!-- Variable globlal -->
+    <string name="URL">http://projetmobile.alwaysdata.net/projet_mobile/data.php</string>
+    <string name="ROLE">user_role</string>
+    <string name="USER_NAME">user_name</string>
+    <string name="EMAIL">user_email</string>
+    <string name="connect">connection</string>
+    <string name="inscription">Inscription</string>
+
+    <string name="error_field_required">Le champs est obligatoire</string>
+    <string name="error_confirmation_password">Les mot de passe ne sont pas identique</string>
+    <string name="error_champ">Ce champ semble incorrect</string>
+    <string name="password">password</string>
+    <string name="firstname">firstname</string>
+    <string name="lastname">lastname</string>
+    <string name="confirmer_le_mot_de_passe">Confirmer le mot de passe</string>
 </resources>
