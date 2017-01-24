@@ -27,7 +27,6 @@ import android.widget.Toast;
 import com.example.anais.ig2work.DataBase.RequestActivity;
 import com.example.anais.ig2work.Utils.StringUtils;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -251,12 +250,10 @@ public class SignInActivity extends AppCompatActivity implements LoaderCallbacks
     public void userSignIn(final String firstname, final String lastname, final String password) {
         new RequestActivity() {
             @Override
-            public void traiteReponse(JSONArray o, String action) {
+            public void traiteReponse(JSONObject json_data, String action) {
                 showProgress(false);
 
                 try {
-                    JSONObject json_data = o.getJSONObject(0);
-
                     if(json_data.getString("Pseudo") != null) {
                         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(SignInActivity.this);
                         SharedPreferences.Editor editor = preferences.edit();

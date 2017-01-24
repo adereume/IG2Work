@@ -16,6 +16,7 @@ import android.preference.PreferenceManager;
 import android.provider.ContactsContract;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
@@ -30,7 +31,6 @@ import android.widget.Toast;
 import com.example.anais.ig2work.DataBase.RequestActivity;
 import com.example.anais.ig2work.Utils.StringUtils;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -94,13 +94,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             }
         });
 
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-        String user = preferences.getString(getString(R.string.USER_NAME), null);
-        if(user != null) {
-            showProgress(true);
-            userCheck(user);
-        }
-
         Button mEmailSignInButton = (Button) findViewById(R.id.email_sign_in_button);
         mEmailSignInButton.setOnClickListener(new OnClickListener() {
             @Override
@@ -146,6 +139,11 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 return false;
             }
         });
+
+        if(firstname != null && lastname != null && lastPwd != null) {
+            showProgress(true);
+            userLogin(firstname, lastname, lastPwd);
+        }
     }
 
     private void attemptLogin() {
@@ -271,19 +269,28 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     public void userLogin(final String firstname, final String lastname, final String password) {
         new RequestActivity() {
             @Override
-            public void traiteReponse(JSONArray o, String action) {
+            public void traiteReponse(JSONObject o, String action) {
                 showProgress(false);
 
                 try {
-                    JSONObject json_data = o.getJSONObject(0);
+                    if(!o.isNull("feedback")) {
+                        Toast.makeText(LoginActivity.this, "Erreur: le pseudo ou le mot de passe est incorrecte", Toast.LENGTH_LONG).show();
+                        mFirstnameView.setError(StringUtils.error_champ.toString());
+                        mLastnameView.setError(StringUtils.error_champ.toString());
+                        mPasswordView.setError(StringUtils.error_champ.toString());
+                        mPasswordView.requestFocus();
+                        return;
+                    }
 
-                    String role = json_data.getString("Role");
+                    String role = o.getString("role");
+                    Log.d("role", role);
 
                     SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(LoginActivity.this);
                     SharedPreferences.Editor editor = preferences.edit();
                     editor.putString(StringUtils.FIRSTNAME.toString(), firstname);
                     editor.putString(StringUtils.LASTNAME.toString(), lastname);
                     editor.putString(StringUtils.PASSWORD.toString(), password);
+                    editor.putString(StringUtils.ROLE.toString(), role);
                     editor.apply();
 
                     Toast.makeText(LoginActivity.this, "Connection en cours", Toast.LENGTH_SHORT).show();
@@ -305,32 +312,5 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         }.envoiRequete("login", "action=connexion&firstname="+firstname+"&lastname="+lastname+"&password="+password);
     }
 
-    public void userCheck(final String userPseudo) {
-        showProgress(false);
-
-        new RequestActivity() {
-            @Override
-            public void traiteReponse(JSONArray o, String action) {
-                try {
-                    JSONObject json_data = o.getJSONObject(0);
-
-                    if(json_data.getString("Pseudo").equals(userPseudo)) {
-                        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                        LoginActivity.this.startActivity(intent);
-                        LoginActivity.this.finish();
-                    }
-                } catch (JSONException e) {
-                    e.printStackTrace();
-
-                    Toast.makeText(LoginActivity.this, "Utilisateur inconnu", Toast.LENGTH_LONG).show();
-                    mFirstnameView.setError(getString(R.string.error_champ));
-                    mLastnameView.setError(getString(R.string.error_champ));
-                    mPasswordView.setError(getString(R.string.error_champ));
-                    mPasswordView.requestFocus();
-                }
-            }
-        }.envoiRequete("check", "action=existingUser&pseudo="+ userPseudo);
-    }
 }
 

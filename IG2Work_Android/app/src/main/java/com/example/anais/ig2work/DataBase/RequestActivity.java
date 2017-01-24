@@ -2,10 +2,10 @@ package com.example.anais.ig2work.DataBase;
 
 import android.support.v7.app.AppCompatActivity;
 
-import org.json.JSONArray;
+import org.json.JSONObject;
 
 /**
- * Created by Utilisateur on 24/11/2016.
+ * Created by Anais on 24/01/2016.
  */
 
 public abstract class RequestActivity extends AppCompatActivity {
@@ -16,6 +16,6 @@ public abstract class RequestActivity extends AppCompatActivity {
         req.execute(paramPost, action);
     }
 
-    public abstract void traiteReponse(JSONArray o, String action);
+    public abstract void traiteReponse(JSONObject o, String action);
     // devra être implémenté dans la classe fille
 }

@@ -3,11 +3,10 @@ package com.example.anais.ig2work.DataBase;
 import android.os.AsyncTask;
 import android.util.Log;
 
-import com.example.anais.ig2work.GlobalState;
-import com.example.anais.ig2work.R;
+import com.example.anais.ig2work.Utils.StringUtils;
 
-import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
@@ -20,10 +19,10 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 
 /**
- * Created by Utilisateur on 24/11/2016.
+ * Created by Anais on 24/01/2016.
  */
 
-public class ExecuteRequest extends AsyncTask<String, Void, JSONArray> {
+public class ExecuteRequest extends AsyncTask<String, Void, JSONObject> {
     private RequestActivity mAct;
     private String action = null;
     // Une tâche ne peut être exécutée qu'une seule fois
@@ -39,7 +38,7 @@ public class ExecuteRequest extends AsyncTask<String, Void, JSONArray> {
     }
 
     @Override
-    protected JSONArray doInBackground(String... qs) {
+    protected JSONObject doInBackground(String... qs) {
 
         action = qs[1];
 
@@ -50,7 +49,7 @@ public class ExecuteRequest extends AsyncTask<String, Void, JSONArray> {
         String result = "";
 
         try {
-            URL url = new URL("http://projetmobile.alwaysdata.net/projet_mobile/data.php");
+            URL url = new URL(StringUtils.URL.toString());
             Log.i("ExecuteRequest","url utilisée : " + url.toString());
             Log.i("ExecuteRequest","param utilisée : " + qs[0]);
             HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
@@ -75,19 +74,19 @@ public class ExecuteRequest extends AsyncTask<String, Void, JSONArray> {
         }
 
         //Convertion en JSON
-        JSONArray json;
+        JSONObject json;
         try {
-            json = new JSONArray(result);
+            json = new JSONObject(result);
 
         } catch (JSONException e) {
             e.printStackTrace();
-            json = new JSONArray();
+            json = new JSONObject();
         }
 
         return json;
     }
 
-    protected void onPostExecute(JSONArray result) {
+    protected void onPostExecute(JSONObject result) {
         mAct.traiteReponse(result, action);
     }
 

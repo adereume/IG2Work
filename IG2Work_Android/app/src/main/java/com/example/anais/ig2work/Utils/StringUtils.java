@@ -5,10 +5,11 @@ package com.example.anais.ig2work.Utils;
  */
 
 public enum StringUtils {
-    URL("http://projetmobile.alwaysdata.net/projet_mobile/data.php"),
+    URL("http://projetmobile.alwaysdata.net/data.php"),
     FIRSTNAME("firstname"),
     LASTNAME("lastname"),
     PASSWORD("password"),
+    ROLE("role"),
 
     error_champ("Ce champ semble incorrect"),
     error_pseudo_existing("Ce pseudo est déjà utilisé"),
