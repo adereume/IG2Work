@@ -294,7 +294,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                     editor.apply();
 
                     Toast.makeText(LoginActivity.this, "Connection en cours", Toast.LENGTH_SHORT).show();
-                    Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                    Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
                     intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                     LoginActivity.this.startActivity(intent);
                     LoginActivity.this.finish();
