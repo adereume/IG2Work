@@ -3,8 +3,6 @@ package com.example.anais.ig2work;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.support.design.widget.TabLayout;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 
@@ -14,8 +12,6 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -23,8 +19,14 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.example.anais.ig2work.Model.Seance;
+import com.example.anais.ig2work.Model.SeanceAdapter;
 import com.example.anais.ig2work.Utils.StringUtils;
 
+import java.sql.Date;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.List;
 
 public class HomeActivity extends AppCompatActivity {
@@ -86,8 +88,21 @@ public class HomeActivity extends AppCompatActivity {
 
             switch (getArguments().getInt(ARG_SECTION_NUMBER)) {
                 case 1:
-                    String[] listStrings = new String[] { "Anglais", "Chaîne logistique"};
-                    ArrayAdapter<String> adapter = new ArrayAdapter<String>(PlaceholderFragment.super.getActivity(), android.R.layout.simple_list_item_1, listStrings);
+                    SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
+                    List<Seance> listSeances = new ArrayList<Seance>();
+                    String role = PreferenceManager.getDefaultSharedPreferences(getContext()).getString(StringUtils.ROLE.toString(), "");
+
+                    try {
+                        listSeances.add(new Seance(1, "Anglais", "Mr Husson", "LA2", formatter.parse("2017-01-26T08:00:00+0100"), "SS04", role));
+                        listSeances.add(new Seance(2, "Anglais", "Ms Taylor", "LA2", formatter.parse("2017-01-26T10:15:00+0100"), "SS06", role));
+                        listSeances.add(new Seance(3, "Chaîne logistique", "Mr Mesghouni", "LA2", formatter.parse("2017-01-26T13:30:00+0100"), "305", role));
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                    }
+
+                    SeanceAdapter adapter = new SeanceAdapter(getContext(),
+                            listSeances,
+                            PreferenceManager.getDefaultSharedPreferences(getContext()).getString(StringUtils.ROLE.toString(), ""));
 
                     listView.setAdapter(adapter);
                     break;
