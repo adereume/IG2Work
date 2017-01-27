@@ -3,7 +3,6 @@ package com.example.anais.ig2work;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.support.design.widget.TabLayout;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 
 import android.support.v4.app.Fragment;
@@ -11,6 +10,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -94,12 +94,16 @@ public class HomeActivity extends RestActivity {
             listView = (ListView) rootView.findViewById(R.id.section_listView);
 
             switch (getArguments().getInt(ARG_SECTION_NUMBER)) {
+
+                // Onglet Séances
                 case 1:
-                    // TODO Récupérer l'idUser afin d'obtenir les séances associées
-                    //getAllSeances(idUser);
-                    getAllSeances(5);
+
+                    // Récupération de la liste complète des séances de l'utilisateur
+                    int idUser = PreferenceManager.getDefaultSharedPreferences(getContext()).getInt(StringUtils.IDUSER.toString(), 0);
+                    getAllSeances(idUser);
                     break;
 
+                // Onglet Devoirs
                 case 2:
                     textView.setText("Aucun devoir à faire...");
                     break;
@@ -114,15 +118,19 @@ public class HomeActivity extends RestActivity {
                 public void traiteReponse(JSONObject o, String action) {
 
                     if(!o.isNull("feedback")) {
-                        Toast.makeText(getBaseContext(), "L'utilisateur n'est pas reconnu", Toast.LENGTH_LONG).show();
+                        Toast.makeText(getBaseContext(), "Utilisateur non reconnu...", Toast.LENGTH_LONG).show();
                         return;
                     }
 
                     try {
                         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.FRANCE);
                         List<Seance> listSeances = new ArrayList<Seance>();
-                        String role = PreferenceManager.getDefaultSharedPreferences(getContext()).getString(StringUtils.ROLE.toString(), "");
 
+                        // Le rôle de l'utilisateur est utilisé pour instancier l'objet Seance
+                        // On s'en sert dans la gestion de l'affichage (affichage du nom de l'enseignant ou de la promo)
+                        String target = PreferenceManager.getDefaultSharedPreferences(getContext()).getString(StringUtils.ROLE.toString(), "");
+
+                        // Liste des séances
                         JSONArray seances = o.getJSONArray("seances");
 
                         for (int i = 0; i < seances.length(); i++) {
@@ -130,28 +138,25 @@ public class HomeActivity extends RestActivity {
                             JSONObject seance = seances.getJSONObject(i);
 
                             int id = seance.getInt("id");
-                            int idModule = seance.getInt("id");
-                            int idTeacher = seance.getInt("idTeacher");
-                            int idPromo = seance.getInt("idPromo");
+                            String moduleName = seance.getString("moduleName");
+                            String teacherFName = seance.getString("teacherFirstName");
+                            String teacherLName = seance.getString("teacherLastName");
+                            String promoName = seance.getString("promoName");
                             String dayTime = seance.getString("dayTime");
                             String room = seance.getString("room");
 
-                            // TODO Récupérer le module, l'enseignant et la promo via des requêtes en base
-                            Seance s = new Seance(id, "Module", "Enseignant", "Promo", formatter.parse(dayTime), room, role);
+                            Seance s = new Seance(id, moduleName, teacherFName + " " + teacherLName, promoName, formatter.parse(dayTime), room, target);
                             listSeances.add(s);
-
                         }
 
                         SeanceAdapter adapter = new SeanceAdapter(getContext(), listSeances);
                         listView.setAdapter(adapter);
 
-                        Toast.makeText(getContext(), "Récupération des séances", Toast.LENGTH_SHORT).show();
-
                     } catch (JSONException | ParseException e) {
                         e.printStackTrace();
                     }
                 }
-            }.envoiRequete("getAllSeance", "action=getAllSeance&idUser="+idUser);
+            }.envoiRequete("getAllSeance", "action=getAllSeance&idUser=" + idUser);
         }
     }
 
@@ -172,10 +177,11 @@ public class HomeActivity extends RestActivity {
         public int getCount() {
             preferences = PreferenceManager.getDefaultSharedPreferences(HomeActivity.this);
 
+            // Les étudiants voient 2 onglets (séances & devoirs)
+            // Les enseignants n'ont que l'onglet des séances
             switch (preferences.getString(StringUtils.ROLE.toString(), "")) {
                 case "student" :
                     return 2;
-
                 case "teacher" :
                     return 1;
             }
@@ -188,7 +194,6 @@ public class HomeActivity extends RestActivity {
             switch (position) {
                 case 0:
                     return "Séances";
-
                 case 1:
                     return "Devoirs";
             }

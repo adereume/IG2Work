@@ -15,6 +15,7 @@
     <string name="connect">connection</string>
     <string name="inscription">Inscription</string>
     <string name="logout">Se déconnecter</string>
+    <string name="exit">Fermer</string>
 
     <string name="error_field_required">Le champs est obligatoire</string>
     <string name="error_confirmation_password">Les mot de passe ne sont pas identique</string>
