@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.content.Loader;
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -16,19 +17,31 @@ import android.preference.PreferenceManager;
 import android.provider.ContactsContract;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.WindowManager;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.SimpleAdapter;
+import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.anais.ig2work.DataBase.RequestActivity;
 import com.example.anais.ig2work.Utils.StringUtils;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -39,7 +52,11 @@ public class SignInActivity extends AppCompatActivity implements LoaderCallbacks
     private EditText mFirstnameView;
     private EditText mLastnameView;
     private EditText mPasswordView;
-    private EditText mPasswordConfView;
+    //Pour la vérification du rôle
+    private Spinner mRoleView;
+    private TextView mSpinnerText;
+    private Spinner mTPView;
+
     private View mProgressView;
     private View mLoginFormView;
 
@@ -82,29 +99,42 @@ public class SignInActivity extends AppCompatActivity implements LoaderCallbacks
             }
         });
 
-        mPasswordConfView = (EditText) findViewById(R.id.passwordConf);
-        mPasswordConfView.setOnTouchListener(new View.OnTouchListener() {
-            public boolean onTouch(View v, MotionEvent event) {
-                //Keyboard don't resize view
-                mPasswordConfView.requestLayout();
-                SignInActivity.this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
-                return false;
+        mRoleView = (Spinner) findViewById(R.id.role);
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this, R.array.role_array, android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        mRoleView.setAdapter(adapter);
+        mRoleView.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                mSpinnerText.setVisibility(View.GONE);
+                if(position == 2) {
+                    findViewById(R.id.layout_promo).setVisibility(View.VISIBLE);
+                    getPromo();
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
             }
         });
+        mSpinnerText = (TextView) findViewById(R.id.error_role);
 
-        Button mEmailSignInButton = (Button) findViewById(R.id.incription);
-        mEmailSignInButton.setOnClickListener(new OnClickListener() {
+        Button button = (Button) findViewById(R.id.incription);
+        button.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
                 attemptSignIn();
             }
         });
 
+        mTPView = (Spinner) findViewById(R.id.tp) ;
+
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
 
-        Button button = (Button) findViewById(R.id.login);
-        button.setOnClickListener(new OnClickListener() {
+        Button buttonLogin = (Button) findViewById(R.id.login);
+        buttonLogin.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(SignInActivity.this, LoginActivity.class);
@@ -120,17 +150,19 @@ public class SignInActivity extends AppCompatActivity implements LoaderCallbacks
      * errors are presented and no actual login attempt is made.
      */
     private void attemptSignIn() {
+        mSpinnerText.setVisibility(View.GONE);
         // Reset errors.
         mFirstnameView.setError(null);
         mLastnameView.setError(null);
         mPasswordView.setError(null);
-        mPasswordConfView.setError(null);
+        mSpinnerText.setError(null);
 
         // Store values at the time of the login attempt.
         String firstname = mFirstnameView.getText().toString();
         String lastname = mLastnameView.getText().toString();
         String password = mPasswordView.getText().toString();
-        String passwordConf = mPasswordConfView.getText().toString();
+        String role = mRoleView.getSelectedItem().toString();
+        String tp = mTPView.getSelectedItem().toString();
 
         boolean cancel = false;
         View focusView = null;
@@ -151,15 +183,17 @@ public class SignInActivity extends AppCompatActivity implements LoaderCallbacks
             focusView = mPasswordView;
             cancel = true;
         }
-        if(TextUtils.isEmpty(passwordConf)) {
-            mPasswordConfView.setError(getString(R.string.error_field_required));
-            focusView = mPasswordConfView;
+        if (role.equals(getString(R.string.ROLE_EMPTY))) {
+            mSpinnerText.setError(getString(R.string.error_field_required));
+            mSpinnerText.setText(getString(R.string.error_role_required));
+            mSpinnerText.setTextColor(Color.RED);
+            mSpinnerText.setVisibility(View.VISIBLE);
+            focusView = mSpinnerText;
             cancel = true;
         }
-
-        if(!password.equals(passwordConf)) {
-            mPasswordConfView.setError(getString(R.string.error_confirmation_password));
-            focusView = mPasswordConfView;
+        if (TextUtils.isEmpty(tp) && role.equals("Etudiant")) {
+            //TODO: dialogAlert
+            focusView = mTPView;
             cancel = true;
         }
 
@@ -167,7 +201,7 @@ public class SignInActivity extends AppCompatActivity implements LoaderCallbacks
             focusView.requestFocus();
         } else {
             showProgress(true);
-            userSignIn(firstname, lastname, password);
+            userSignIn(firstname, lastname, password, role);
         }
     }
 
@@ -247,7 +281,7 @@ public class SignInActivity extends AppCompatActivity implements LoaderCallbacks
         };
     }
 
-    public void userSignIn(final String firstname, final String lastname, final String password) {
+    public void userSignIn(final String firstname, final String lastname, final String password, final String role) {
         new RequestActivity() {
             @Override
             public void traiteReponse(JSONObject json_data, String action) {
@@ -273,8 +307,183 @@ public class SignInActivity extends AppCompatActivity implements LoaderCallbacks
                 Toast.makeText(SignInActivity.this, "Une erreur est survenu", Toast.LENGTH_LONG).show();
                 }
             }
-        }.envoiRequete("login", "action=inscription&firstname="+firstname+"&lastname="+lastname+"&password="+password);
+        }.envoiRequete("login", "action=inscription&firstname="+firstname+"&lastname="+lastname+"&password="+password+"&type="+role);
     }
 
+    public void userSignIn(final String firstname, final String lastname, final String password, final String role, final int idTP) {
+        new RequestActivity() {
+            @Override
+            public void traiteReponse(JSONObject json_data, String action) {
+                showProgress(false);
+
+                try {
+                    if(!json_data.isNull("retour")) {
+                        Log.i("Inscription", json_data.getString("retour"));
+                        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(SignInActivity.this);
+                        SharedPreferences.Editor editor = preferences.edit();
+                        editor.putString(StringUtils.FIRSTNAME.toString(), firstname);
+                        editor.putString(StringUtils.LASTNAME.toString(), lastname);
+                        editor.putString(StringUtils.PASSWORD.toString(), password);
+                        editor.apply();
+
+                        Toast.makeText(SignInActivity.this, "Connection en cours", Toast.LENGTH_LONG).show();
+                        Intent intent = new Intent(SignInActivity.this, MainActivity.class);
+                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                        SignInActivity.this.startActivity(intent);
+                        finish();
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    Toast.makeText(SignInActivity.this, "Une erreur est survenu", Toast.LENGTH_LONG).show();
+                }
+            }
+        }.envoiRequete("login", "action=inscription&firstname="+firstname+"&lastname="+lastname+"&password="+password+"&type="+role+"&idPromo="+idTP);
+    }
+
+    public void getPromo() {
+        final Spinner promoSpinner = (Spinner) findViewById(R.id.promo);
+
+        new RequestActivity() {
+            @Override
+            public void traiteReponse(JSONObject json_data, String action) {
+                ArrayList<HashMap<String, Object>> array = new ArrayList<>();
+                HashMap nullItem = new HashMap<>();
+                nullItem.put("Id", null);
+                nullItem.put("Nom", null);
+                array.add(nullItem);
+
+                try {
+                    if(!json_data.isNull("retour")) {
+                        JSONArray json = json_data.getJSONArray("retour");
+                        for(int i = 0; i < json.length(); i++) {
+                            JSONObject promo = json.getJSONObject(i);
+                            HashMap map = new HashMap<>();
+                            map.put("Id", promo.getString("id"));
+                            map.put("Nom", promo.getString("name"));
+
+                            array.add(map);
+                        }
+
+                        SimpleAdapter adapter = new SimpleAdapter(SignInActivity.this, array, R.layout.spinner_signin,
+                                new String[]{"Nom", "Id"}, new int[]{ R.id.Nom, R.id.id});
+                        adapter.setDropDownViewResource(R.layout.spinner_signin);
+                        promoSpinner.setAdapter(adapter);
+                        promoSpinner.setAdapter(adapter);
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    Toast.makeText(SignInActivity.this, "Une erreur est survenu", Toast.LENGTH_LONG).show();
+                }
+            }
+        }.envoiRequete("login", "action=getPromo");
+
+        promoSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                if(position != 0) {
+                    findViewById(R.id.layout_td).setVisibility(View.VISIBLE);
+
+                    HashMap<String, String> item = (HashMap<String, String>) parent.getItemAtPosition(position);
+                    getTD(item.get("Id"));
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+    }
+
+    public void getTD(String idPromo) {
+        final Spinner tdSpinner = (Spinner) findViewById(R.id.td);
+
+        new RequestActivity() {
+            @Override
+            public void traiteReponse(JSONObject json_data, String action) {
+                ArrayList<HashMap<String, Object>> array = new ArrayList<>();
+                HashMap nullItem = new HashMap<>();
+                nullItem.put("Id", null);
+                nullItem.put("Nom", null);
+                array.add(nullItem);
+
+                try {
+                    if(!json_data.isNull("retour")) {
+                        JSONArray json = json_data.getJSONArray("retour");
+                        for(int i = 0; i < json.length(); i++) {
+                            JSONObject promo = json.getJSONObject(i);
+                            HashMap map = new HashMap<>();
+                            map.put("Id", promo.getString("id"));
+                            map.put("Nom", promo.getString("name"));
+
+                            array.add(map);
+                        }
+
+                        SimpleAdapter adapter = new SimpleAdapter(SignInActivity.this, array, R.layout.spinner_signin,
+                                new String[]{"Nom", "Id"}, new int[]{ R.id.Nom, R.id.id});
+                        adapter.setDropDownViewResource(R.layout.spinner_signin);
+                        tdSpinner.setAdapter(adapter);
+                        tdSpinner.setAdapter(adapter);
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    Toast.makeText(SignInActivity.this, "Une erreur est survenu", Toast.LENGTH_LONG).show();
+                }
+            }
+        }.envoiRequete("login", "action=getTD&idPromo="+idPromo);
+
+        tdSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                if(position != 0) {
+                    findViewById(R.id.layout_tp).setVisibility(View.VISIBLE);
+
+                    HashMap<String, String> item = (HashMap<String, String>) parent.getItemAtPosition(position);
+                    getTP(item.get("Id"));
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+    }
+
+    public void getTP(String idTD) {
+        new RequestActivity() {
+            @Override
+            public void traiteReponse(JSONObject json_data, String action) {
+                ArrayList<HashMap<String, Object>> array = new ArrayList<>();
+                HashMap nullItem = new HashMap<>();
+                nullItem.put("Id", null);
+                nullItem.put("Nom", null);
+                array.add(nullItem);
+
+                try {
+                    if(!json_data.isNull("retour")) {
+                        JSONArray json = json_data.getJSONArray("retour");
+                        for(int i = 0; i < json.length(); i++) {
+                            JSONObject promo = json.getJSONObject(i);
+                            HashMap map = new HashMap<>();
+                            map.put("Id", promo.getString("id"));
+                            map.put("Nom", promo.getString("name"));
+
+                            array.add(map);
+                        }
+
+                        SimpleAdapter adapter = new SimpleAdapter(SignInActivity.this, array, R.layout.spinner_signin,
+                                new String[]{"Nom", "Id"}, new int[]{ R.id.Nom, R.id.id});
+                        adapter.setDropDownViewResource(R.layout.spinner_signin);
+                        mTPView.setAdapter(adapter);
+                        mTPView.setAdapter(adapter);
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    Toast.makeText(SignInActivity.this, "Une erreur est survenu", Toast.LENGTH_LONG).show();
+                }
+            }
+        }.envoiRequete("login", "action=getTP&idTD="+idTD);
+    }
 }
 

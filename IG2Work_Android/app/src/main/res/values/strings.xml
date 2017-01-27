@@ -1,6 +1,13 @@
 <resources>
     <string name="app_name">IG2Work</string>
 
+    <string-array name="role_array">
+        <item>Votre rôle</item>
+        <item>Enseignant</item>
+        <item>Etudiant</item>
+    </string-array>
+    <string name="ROLE_EMPTY">Votre rôle</string>
+
     <!-- Variable globlal -->
     <string name="ROLE">user_role</string>
     <string name="USER_NAME">user_name</string>
@@ -15,4 +22,8 @@
     <string name="firstname">Prenom</string>
     <string name="lastname">Nom</string>
     <string name="confirmer_le_mot_de_passe">Confirmer le mot de passe</string>
+    <string name="error_role_required">Veuillez renseignez votre rôle</string>
+    <string name="promo">Promo :</string>
+    <string name="td">TD :</string>
+    <string name="tp">TP :</string>
 </resources>
