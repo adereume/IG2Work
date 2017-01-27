@@ -6,6 +6,7 @@ package com.example.anais.ig2work.Utils;
 
 public enum StringUtils {
     URL("http://projetmobile.alwaysdata.net/data.php"),
+    IDUSER("idUser"),
     FIRSTNAME("firstname"),
     LASTNAME("lastname"),
     PASSWORD("password"),

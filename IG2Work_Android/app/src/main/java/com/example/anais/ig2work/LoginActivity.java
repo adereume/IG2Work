@@ -31,8 +31,11 @@ import android.widget.Toast;
 import com.example.anais.ig2work.DataBase.RequestActivity;
 import com.example.anais.ig2work.Utils.StringUtils;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.HashMap;
 
 
 /**
@@ -273,7 +276,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 showProgress(false);
 
                 try {
-                    if(!o.isNull("feedback")) {
+                    if(o.isNull("retour")) {
                         Toast.makeText(LoginActivity.this, "Erreur: le pseudo ou le mot de passe est incorrecte", Toast.LENGTH_LONG).show();
                         mFirstnameView.setError(StringUtils.error_champ.toString());
                         mLastnameView.setError(StringUtils.error_champ.toString());
@@ -282,11 +285,15 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                         return;
                     }
 
-                    String role = o.getString("role");
-                    Log.d("role", role);
+                    JSONArray json = o.getJSONArray("retour");
+                    JSONObject retour = json.getJSONObject(0);
+
+                    String role = retour.getString("role");
+                    int idUser = retour.getInt("id");
 
                     SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(LoginActivity.this);
                     SharedPreferences.Editor editor = preferences.edit();
+                    editor.putInt(StringUtils.IDUSER.toString(), idUser);
                     editor.putString(StringUtils.FIRSTNAME.toString(), firstname);
                     editor.putString(StringUtils.LASTNAME.toString(), lastname);
                     editor.putString(StringUtils.PASSWORD.toString(), password);
