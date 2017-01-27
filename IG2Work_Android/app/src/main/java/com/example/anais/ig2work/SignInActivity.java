@@ -327,7 +327,7 @@ public class SignInActivity extends AppCompatActivity implements LoaderCallbacks
                         editor.apply();
 
                         Toast.makeText(SignInActivity.this, "Connection en cours", Toast.LENGTH_LONG).show();
-                        Intent intent = new Intent(SignInActivity.this, MainActivity.class);
+                        Intent intent = new Intent(SignInActivity.this, HomeActivity.class);
                         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                         SignInActivity.this.startActivity(intent);
                         finish();
