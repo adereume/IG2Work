@@ -32,6 +32,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.anais.ig2work.DataBase.RequestActivity;
+import com.example.anais.ig2work.Utils.RestActivity;
 import com.example.anais.ig2work.Utils.StringUtils;
 
 import org.json.JSONArray;
@@ -47,7 +48,7 @@ import java.util.Map;
 /**
  * A login screen that offers login via pseudo/password.
  */
-public class SignInActivity extends AppCompatActivity implements LoaderCallbacks<Cursor> {
+public class SignInActivity extends RestActivity implements LoaderCallbacks<Cursor> {
     // UI references.
     private EditText mFirstnameView;
     private EditText mLastnameView;
@@ -327,7 +328,7 @@ public class SignInActivity extends AppCompatActivity implements LoaderCallbacks
                         editor.apply();
 
                         Toast.makeText(SignInActivity.this, "Connection en cours", Toast.LENGTH_LONG).show();
-                        Intent intent = new Intent(SignInActivity.this, MainActivity.class);
+                        Intent intent = new Intent(SignInActivity.this, HomeActivity.class);
                         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                         SignInActivity.this.startActivity(intent);
                         finish();

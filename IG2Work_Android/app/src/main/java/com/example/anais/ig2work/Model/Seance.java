@@ -65,4 +65,17 @@ public class Seance {
     public String getTarget() {
         return target;
     }
+
+    @Override
+    public String toString() {
+        return "Seance{" +
+                "id=" + id +
+                ", module='" + module + '\'' +
+                ", teacher='" + teacher + '\'' +
+                ", promo='" + promo + '\'' +
+                ", dayTime=" + dayTime +
+                ", room='" + room + '\'' +
+                ", target='" + target + '\'' +
+                '}';
+    }
 }

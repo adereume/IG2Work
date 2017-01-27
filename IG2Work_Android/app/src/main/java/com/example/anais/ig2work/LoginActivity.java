@@ -29,6 +29,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.anais.ig2work.DataBase.RequestActivity;
+import com.example.anais.ig2work.Utils.RestActivity;
 import com.example.anais.ig2work.Utils.StringUtils;
 
 import org.json.JSONArray;
@@ -41,7 +42,7 @@ import java.util.HashMap;
 /**
  * A login screen that offers login via pseudo/password.
  */
-public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<Cursor> {
+public class LoginActivity extends RestActivity implements LoaderCallbacks<Cursor> {
    // private UserLoginTask mAuthTask = null;
 
     // UI references.

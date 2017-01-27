@@ -19,7 +19,7 @@ import java.util.Locale;
 
 public class SeanceAdapter extends ArrayAdapter<Seance> {
 
-    public SeanceAdapter(Context context, List<Seance> seances, String role) {
+    public SeanceAdapter(Context context, List<Seance> seances) {
         super(context, 0, seances);
     }
 

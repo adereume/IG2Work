@@ -15,21 +15,27 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.example.anais.ig2work.DataBase.RequestActivity;
 import com.example.anais.ig2work.Model.Seance;
 import com.example.anais.ig2work.Model.SeanceAdapter;
+import com.example.anais.ig2work.Utils.RestActivity;
 import com.example.anais.ig2work.Utils.StringUtils;
 
-import java.sql.Date;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
-public class HomeActivity extends AppCompatActivity {
+public class HomeActivity extends RestActivity {
 
     private SectionsPagerAdapter mSectionsPagerAdapter;
     private ViewPager mViewPager;
@@ -63,6 +69,7 @@ public class HomeActivity extends AppCompatActivity {
     public static class PlaceholderFragment extends Fragment {
 
         private static final String ARG_SECTION_NUMBER = "section_number";
+        private ListView listView;
 
         public PlaceholderFragment() {
         }
@@ -84,27 +91,13 @@ public class HomeActivity extends AppCompatActivity {
 
             View rootView = inflater.inflate(R.layout.fragment_home, container, false);
             TextView textView = (TextView) rootView.findViewById(R.id.section_label);
-            ListView listView = (ListView) rootView.findViewById(R.id.section_listView);
+            listView = (ListView) rootView.findViewById(R.id.section_listView);
 
             switch (getArguments().getInt(ARG_SECTION_NUMBER)) {
                 case 1:
-                    SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
-                    List<Seance> listSeances = new ArrayList<Seance>();
-                    String role = PreferenceManager.getDefaultSharedPreferences(getContext()).getString(StringUtils.ROLE.toString(), "");
-
-                    try {
-                        listSeances.add(new Seance(1, "Anglais", "Mr Husson", "LA2", formatter.parse("2017-01-26T08:00:00+0100"), "SS04", role));
-                        listSeances.add(new Seance(2, "Anglais", "Ms Taylor", "LA2", formatter.parse("2017-01-26T10:15:00+0100"), "SS06", role));
-                        listSeances.add(new Seance(3, "Chaîne logistique", "Mr Mesghouni", "LA2", formatter.parse("2017-01-26T13:30:00+0100"), "305", role));
-                    } catch (ParseException e) {
-                        e.printStackTrace();
-                    }
-
-                    SeanceAdapter adapter = new SeanceAdapter(getContext(),
-                            listSeances,
-                            PreferenceManager.getDefaultSharedPreferences(getContext()).getString(StringUtils.ROLE.toString(), ""));
-
-                    listView.setAdapter(adapter);
+                    // TODO Récupérer l'idUser afin d'obtenir les séances associées
+                    //getAllSeances(idUser);
+                    getAllSeances(5);
                     break;
 
                 case 2:
@@ -113,6 +106,52 @@ public class HomeActivity extends AppCompatActivity {
             }
 
             return rootView;
+        }
+
+        public void getAllSeances(final int idUser) {
+            new RequestActivity() {
+                @Override
+                public void traiteReponse(JSONObject o, String action) {
+
+                    if(!o.isNull("feedback")) {
+                        Toast.makeText(getBaseContext(), "L'utilisateur n'est pas reconnu", Toast.LENGTH_LONG).show();
+                        return;
+                    }
+
+                    try {
+                        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.FRANCE);
+                        List<Seance> listSeances = new ArrayList<Seance>();
+                        String role = PreferenceManager.getDefaultSharedPreferences(getContext()).getString(StringUtils.ROLE.toString(), "");
+
+                        JSONArray seances = o.getJSONArray("seances");
+
+                        for (int i = 0; i < seances.length(); i++) {
+
+                            JSONObject seance = seances.getJSONObject(i);
+
+                            int id = seance.getInt("id");
+                            int idModule = seance.getInt("id");
+                            int idTeacher = seance.getInt("idTeacher");
+                            int idPromo = seance.getInt("idPromo");
+                            String dayTime = seance.getString("dayTime");
+                            String room = seance.getString("room");
+
+                            // TODO Récupérer le module, l'enseignant et la promo via des requêtes en base
+                            Seance s = new Seance(id, "Module", "Enseignant", "Promo", formatter.parse(dayTime), room, role);
+                            listSeances.add(s);
+
+                        }
+
+                        SeanceAdapter adapter = new SeanceAdapter(getContext(), listSeances);
+                        listView.setAdapter(adapter);
+
+                        Toast.makeText(getContext(), "Récupération des séances", Toast.LENGTH_SHORT).show();
+
+                    } catch (JSONException | ParseException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }.envoiRequete("getAllSeance", "action=getAllSeance&idUser="+idUser);
         }
     }
 
