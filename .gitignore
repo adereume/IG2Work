@@ -45,3 +45,6 @@ $RECYCLE.BIN/
 Network Trash Folder
 Temporary Items
 .apdisk
+
+IG2Work_Android/.idea/*.xml
+IG2Work_Android/build.gradle
