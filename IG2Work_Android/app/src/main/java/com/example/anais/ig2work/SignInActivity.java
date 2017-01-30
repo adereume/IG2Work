@@ -15,6 +15,9 @@ import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.provider.ContactsContract;
+import android.support.design.widget.TextInputEditText;
+import android.support.design.widget.TextInputLayout;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
@@ -50,9 +53,9 @@ import java.util.Map;
  */
 public class SignInActivity extends RestActivity implements LoaderCallbacks<Cursor> {
     // UI references.
-    private EditText mFirstnameView;
-    private EditText mLastnameView;
-    private EditText mPasswordView;
+    private TextInputLayout mFirstnameView;
+    private TextInputLayout mLastnameView;
+    private TextInputLayout mPasswordView;
     //Pour la vérification du rôle
     private Spinner mRoleView;
     private TextView mSpinnerText;
@@ -72,7 +75,7 @@ public class SignInActivity extends RestActivity implements LoaderCallbacks<Curs
         //Hidden the keyboard
         this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 
-        mFirstnameView = (EditText) findViewById(R.id.firstname);
+        mFirstnameView = (TextInputLayout) findViewById(R.id.firstname);
         mFirstnameView.setOnTouchListener(new View.OnTouchListener() {
             public boolean onTouch(View v, MotionEvent event) {
                 mFirstnameView.requestLayout();
@@ -81,7 +84,7 @@ public class SignInActivity extends RestActivity implements LoaderCallbacks<Curs
             }
         });
 
-        mLastnameView = (EditText) findViewById(R.id.lastname);
+        mLastnameView = (TextInputLayout) findViewById(R.id.lastname);
         mLastnameView.setOnTouchListener(new View.OnTouchListener() {
             public boolean onTouch(View v, MotionEvent event) {
                 mLastnameView.requestLayout();
@@ -90,7 +93,7 @@ public class SignInActivity extends RestActivity implements LoaderCallbacks<Curs
             }
         });
 
-        mPasswordView = (EditText) findViewById(R.id.password);
+        mPasswordView = (TextInputLayout) findViewById(R.id.password);
         mPasswordView.setOnTouchListener(new View.OnTouchListener() {
             public boolean onTouch(View v, MotionEvent event) {
                 //Keyboard don't resize view
@@ -159,11 +162,10 @@ public class SignInActivity extends RestActivity implements LoaderCallbacks<Curs
         mSpinnerText.setError(null);
 
         // Store values at the time of the login attempt.
-        String firstname = mFirstnameView.getText().toString();
-        String lastname = mLastnameView.getText().toString();
-        String password = mPasswordView.getText().toString();
+        String firstname = mFirstnameView.getEditText().getText().toString();
+        String lastname = mLastnameView.getEditText().getText().toString();
+        String password = mPasswordView.getEditText().getText().toString();
         String role = mRoleView.getSelectedItem().toString();
-        String tp = mTPView.getSelectedItem().toString();
 
         boolean cancel = false;
         View focusView = null;
@@ -185,17 +187,26 @@ public class SignInActivity extends RestActivity implements LoaderCallbacks<Curs
             cancel = true;
         }
         if (role.equals(getString(R.string.ROLE_EMPTY))) {
-            mSpinnerText.setError(getString(R.string.error_field_required));
+            //mSpinnerText.setError(getString(R.string.error_field_required));
             mSpinnerText.setText(getString(R.string.error_role_required));
             mSpinnerText.setTextColor(Color.RED);
             mSpinnerText.setVisibility(View.VISIBLE);
             focusView = mSpinnerText;
             cancel = true;
         }
-        if (TextUtils.isEmpty(tp) && role.equals("Etudiant")) {
-            //TODO: dialogAlert
-            focusView = mTPView;
-            cancel = true;
+        if (role.equals("Etudiant")) {
+            String tp = mTPView.getSelectedItem().toString();
+
+            if(tp.equals(getString(R.string.TP_EMPTY))) {
+                new AlertDialog.Builder(this)
+                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .setMessage("Vous n'avez pas renseigner tous vos groupe.")
+                        .setPositiveButton("OK", null)
+                        .show();
+
+                focusView = mTPView;
+                cancel = true;
+            }
         }
 
         if (cancel) {
@@ -350,7 +361,7 @@ public class SignInActivity extends RestActivity implements LoaderCallbacks<Curs
                 ArrayList<HashMap<String, Object>> array = new ArrayList<>();
                 HashMap nullItem = new HashMap<>();
                 nullItem.put("Id", null);
-                nullItem.put("Nom", null);
+                nullItem.put("Nom", getString(R.string.PROMO_EMPTY));
                 array.add(nullItem);
 
                 try {
@@ -405,7 +416,7 @@ public class SignInActivity extends RestActivity implements LoaderCallbacks<Curs
                 ArrayList<HashMap<String, Object>> array = new ArrayList<>();
                 HashMap nullItem = new HashMap<>();
                 nullItem.put("Id", null);
-                nullItem.put("Nom", null);
+                nullItem.put("Nom", getString(R.string.TD_EMPTY));
                 array.add(nullItem);
 
                 try {
@@ -458,7 +469,7 @@ public class SignInActivity extends RestActivity implements LoaderCallbacks<Curs
                 ArrayList<HashMap<String, Object>> array = new ArrayList<>();
                 HashMap nullItem = new HashMap<>();
                 nullItem.put("Id", null);
-                nullItem.put("Nom", null);
+                nullItem.put("Nom", getString(R.string.TP_EMPTY));
                 array.add(nullItem);
 
                 try {

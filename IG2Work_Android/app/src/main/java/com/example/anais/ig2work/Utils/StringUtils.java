@@ -11,6 +11,9 @@ public enum StringUtils {
     LASTNAME("lastname"),
     PASSWORD("password"),
     ROLE("role"),
+    //Les différents rôles
+    ENSEIGNANT("TEACHER"),
+    ETUDIANT("STUDENT"),
 
     error_champ("Ce champ semble incorrect"),
     error_pseudo_existing("Ce pseudo est déjà utilisé"),

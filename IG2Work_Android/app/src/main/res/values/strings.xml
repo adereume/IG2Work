@@ -7,6 +7,9 @@
         <item>Etudiant</item>
     </string-array>
     <string name="ROLE_EMPTY">Votre rôle</string>
+    <string name="PROMO_EMPTY">Sélectionner votre promo</string>
+    <string name="TD_EMPTY">Sélectionner votre groupe TD</string>
+    <string name="TP_EMPTY">Sélectionner votre groupe TP</string>
 
     <!-- Variable globlal -->
     <string name="ROLE">user_role</string>
