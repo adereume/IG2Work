@@ -42,7 +42,7 @@ import java.util.HashMap;
 /**
  * A login screen that offers login via pseudo/password.
  */
-public class LoginActivity extends RestActivity implements LoaderCallbacks<Cursor> {
+public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<Cursor> {
    // private UserLoginTask mAuthTask = null;
 
     // UI references.
@@ -144,7 +144,9 @@ public class LoginActivity extends RestActivity implements LoaderCallbacks<Curso
             }
         });
 
-        if(firstname != null && lastname != null && lastPwd != null) {
+        String attempt = preferences.getString(StringUtils.ATTEMPT_CONNEXION.toString(), null);
+
+        if(firstname != null && lastname != null && lastPwd != null && attempt == null) {
             showProgress(true);
             userLogin(firstname, lastname, lastPwd);
         }
@@ -299,6 +301,7 @@ public class LoginActivity extends RestActivity implements LoaderCallbacks<Curso
                     editor.putString(StringUtils.LASTNAME.toString(), lastname);
                     editor.putString(StringUtils.PASSWORD.toString(), password);
                     editor.putString(StringUtils.ROLE.toString(), role);
+                    editor.putString(StringUtils.ATTEMPT_CONNEXION.toString(), null);
                     editor.apply();
 
                     Toast.makeText(LoginActivity.this, "Connection en cours", Toast.LENGTH_SHORT).show();

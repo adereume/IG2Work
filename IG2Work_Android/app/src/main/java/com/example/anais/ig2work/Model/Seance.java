@@ -15,15 +15,6 @@ public class Seance {
     private String room;
     private String target;
 
-    public Seance(int id, String module, String teacher, String promo, Date dayTime, String room) {
-        this.id = id;
-        this.module = module;
-        this.teacher = teacher;
-        this.promo = promo;
-        this.dayTime = dayTime;
-        this.room = room;
-    }
-
     public Seance(int id, String module, String teacher, String promo, Date dayTime, String room, String target) {
         this.id = id;
         this.module = module;

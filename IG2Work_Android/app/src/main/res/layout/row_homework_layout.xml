@@ -5,40 +5,32 @@
     android:layout_height="match_parent"
     android:padding="10dp">
 
+    <CheckBox
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="10dp"
+        android:id="@+id/checkBox"
+        android:duplicateParentState="false"
+        android:focusable="false" />
+
     <TextView
-        android:id="@+id/module"
+        android:id="@+id/title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textColor="@android:color/black"
-        android:layout_marginLeft="10dp"
+        android:layout_toRightOf="@+id/checkBox"
+        android:layout_alignBaseline="@+id/checkBox"
         android:textStyle="bold"
-        tools:text="Module"
+        tools:text="Titre"
         />
 
     <TextView
-        android:id="@+id/teacherOrPromo"
+        android:id="@+id/dueDate"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        tools:text="Enseignant/Promotion"
-        android:layout_toRightOf="@+id/module"
-        android:layout_marginLeft="10dp"
-        android:layout_alignParentTop="true" />
-
-    <TextView
-        android:id="@+id/dayTime"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="20dp"
+        android:layout_alignLeft="@+id/title"
         tools:text="Date"
-        android:layout_below="@+id/module" />
-
-    <TextView
-        android:id="@+id/room"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        tools:text="Salle"
-        android:layout_below="@+id/dayTime"
-        android:layout_alignStart="@+id/dayTime" />
+        android:layout_below="@+id/title" />
 
     <TextView
         android:text=">"
@@ -46,7 +38,7 @@
         android:layout_height="wrap_content"
         android:id="@+id/arrow"
         android:textAppearance="@style/TextAppearance.AppCompat.Display1"
-        android:layout_alignBottom="@+id/room"
+        android:layout_alignBottom="@+id/dueDate"
         android:layout_marginRight="10dp"
         android:layout_alignParentEnd="true" />
 
