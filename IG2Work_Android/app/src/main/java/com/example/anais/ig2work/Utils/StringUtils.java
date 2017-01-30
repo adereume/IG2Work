@@ -1,6 +1,7 @@
-﻿package com.example.anais.ig2work.Utils;
+package com.example.anais.ig2work.Utils;
 
 /**
+ * Enumeration des constantes
  * Created by Utilisateur on 24/11/2016.
  */
 
@@ -11,9 +12,11 @@ public enum StringUtils {
     LASTNAME("lastname"),
     PASSWORD("password"),
     ROLE("role"),
+    
     //Les différents rôles
     ENSEIGNANT("TEACHER"),
     ETUDIANT("STUDENT"),
+	
     ATTEMPT_CONNEXION("attempt_connexion"),
 
     error_champ("Ce champ semble incorrect"),
