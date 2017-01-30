@@ -166,6 +166,7 @@ public class SignInActivity extends RestActivity implements LoaderCallbacks<Curs
         String lastname = mLastnameView.getEditText().getText().toString();
         String password = mPasswordView.getEditText().getText().toString();
         String role = mRoleView.getSelectedItem().toString();
+        String idTp = null;
 
         boolean cancel = false;
         View focusView = null;
@@ -194,10 +195,14 @@ public class SignInActivity extends RestActivity implements LoaderCallbacks<Curs
             focusView = mSpinnerText;
             cancel = true;
         }
-        if (role.equals("Etudiant")) {
-            String tp = mTPView.getSelectedItem().toString();
+        if(role.equals("Etudiant")) {
+            role = StringUtils.ETUDIANT.toString();
+        } else {
+            role = StringUtils.ENSEIGNANT.toString();
+        }
 
-            if(tp.equals(getString(R.string.TP_EMPTY))) {
+        if (role.equals(StringUtils.ETUDIANT.toString())) {
+            if(findViewById(R.id.layout_tp).getVisibility() == View.GONE) {
                 new AlertDialog.Builder(this)
                         .setIcon(android.R.drawable.ic_dialog_alert)
                         .setMessage("Vous n'avez pas renseigner tous vos groupe.")
@@ -206,6 +211,21 @@ public class SignInActivity extends RestActivity implements LoaderCallbacks<Curs
 
                 focusView = mTPView;
                 cancel = true;
+            } else {
+                try {
+                    JSONObject json = new JSONObject(mTPView.getSelectedItem().toString());
+                    idTp = json.getString("Id");
+                } catch (JSONException e) {
+                    new AlertDialog.Builder(this)
+                            .setIcon(android.R.drawable.ic_dialog_alert)
+                            .setMessage("Vous n'avez pas renseigner tous vos groupe.")
+                            .setPositiveButton("OK", null)
+                            .show();
+
+                    focusView = mTPView;
+                    cancel = true;
+                }
+
             }
         }
 
@@ -213,7 +233,7 @@ public class SignInActivity extends RestActivity implements LoaderCallbacks<Curs
             focusView.requestFocus();
         } else {
             showProgress(true);
-            userSignIn(firstname, lastname, password, role);
+            userSignIn(firstname, lastname, password, role, idTp);
         }
     }
 
@@ -293,36 +313,7 @@ public class SignInActivity extends RestActivity implements LoaderCallbacks<Curs
         };
     }
 
-    public void userSignIn(final String firstname, final String lastname, final String password, final String role) {
-        new RequestActivity() {
-            @Override
-            public void traiteReponse(JSONObject json_data, String action) {
-                showProgress(false);
-
-                try {
-                    if(json_data.getString("Pseudo") != null) {
-                        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(SignInActivity.this);
-                        SharedPreferences.Editor editor = preferences.edit();
-                        editor.putString(StringUtils.FIRSTNAME.toString(), firstname);
-                        editor.putString(StringUtils.LASTNAME.toString(), lastname);
-                        editor.putString(StringUtils.PASSWORD.toString(), password);
-                        editor.apply();
-                    }
-
-                    Toast.makeText(SignInActivity.this, "Connection en cours", Toast.LENGTH_LONG).show();
-                    Intent intent = new Intent(SignInActivity.this, HomeActivity.class);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                    SignInActivity.this.startActivity(intent);
-                    finish();
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                Toast.makeText(SignInActivity.this, "Une erreur est survenu", Toast.LENGTH_LONG).show();
-                }
-            }
-        }.envoiRequete("login", "action=inscription&firstname="+firstname+"&lastname="+lastname+"&password="+password+"&type="+role);
-    }
-
-    public void userSignIn(final String firstname, final String lastname, final String password, final String role, final int idTP) {
+    public void userSignIn(final String firstname, final String lastname, final String password, final String role, final String idTP) {
         new RequestActivity() {
             @Override
             public void traiteReponse(JSONObject json_data, String action) {
@@ -336,6 +327,8 @@ public class SignInActivity extends RestActivity implements LoaderCallbacks<Curs
                         editor.putString(StringUtils.FIRSTNAME.toString(), firstname);
                         editor.putString(StringUtils.LASTNAME.toString(), lastname);
                         editor.putString(StringUtils.PASSWORD.toString(), password);
+                        editor.putString(StringUtils.ROLE.toString(), role);
+                        editor.putString(StringUtils.ATTEMPT_CONNEXION.toString(), null);
                         editor.apply();
 
                         Toast.makeText(SignInActivity.this, "Connection en cours", Toast.LENGTH_LONG).show();
@@ -358,10 +351,10 @@ public class SignInActivity extends RestActivity implements LoaderCallbacks<Curs
         new RequestActivity() {
             @Override
             public void traiteReponse(JSONObject json_data, String action) {
-                ArrayList<HashMap<String, Object>> array = new ArrayList<>();
+                ArrayList<HashMap<String, String>> array = new ArrayList<>();
                 HashMap nullItem = new HashMap<>();
-                nullItem.put("Id", null);
-                nullItem.put("Nom", getString(R.string.PROMO_EMPTY));
+                nullItem.put("Id", 0);
+                nullItem.put("Nom", StringUtils.PROMO_EMPTY.toString());
                 array.add(nullItem);
 
                 try {
@@ -397,6 +390,8 @@ public class SignInActivity extends RestActivity implements LoaderCallbacks<Curs
 
                     HashMap<String, String> item = (HashMap<String, String>) parent.getItemAtPosition(position);
                     getTD(item.get("Id"));
+                } else {
+                    findViewById(R.id.layout_td).setVisibility(View.GONE);
                 }
             }
 
@@ -413,10 +408,10 @@ public class SignInActivity extends RestActivity implements LoaderCallbacks<Curs
         new RequestActivity() {
             @Override
             public void traiteReponse(JSONObject json_data, String action) {
-                ArrayList<HashMap<String, Object>> array = new ArrayList<>();
+                ArrayList<HashMap<String, String>> array = new ArrayList<>();
                 HashMap nullItem = new HashMap<>();
-                nullItem.put("Id", null);
-                nullItem.put("Nom", getString(R.string.TD_EMPTY));
+                nullItem.put("Id", 0);
+                nullItem.put("Nom", StringUtils.TD_EMPTY.toString());
                 array.add(nullItem);
 
                 try {
@@ -452,6 +447,8 @@ public class SignInActivity extends RestActivity implements LoaderCallbacks<Curs
 
                     HashMap<String, String> item = (HashMap<String, String>) parent.getItemAtPosition(position);
                     getTP(item.get("Id"));
+                } else {
+                    findViewById(R.id.layout_tp).setVisibility(View.GONE);
                 }
             }
 
@@ -466,10 +463,10 @@ public class SignInActivity extends RestActivity implements LoaderCallbacks<Curs
         new RequestActivity() {
             @Override
             public void traiteReponse(JSONObject json_data, String action) {
-                ArrayList<HashMap<String, Object>> array = new ArrayList<>();
+                ArrayList<HashMap<String, String>> array = new ArrayList<>();
                 HashMap nullItem = new HashMap<>();
-                nullItem.put("Id", null);
-                nullItem.put("Nom", getString(R.string.TP_EMPTY));
+                nullItem.put("Id", 0);
+                nullItem.put("Nom", StringUtils.TP_EMPTY.toString());
                 array.add(nullItem);
 
                 try {

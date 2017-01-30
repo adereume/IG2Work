@@ -21,7 +21,11 @@ public enum StringUtils {
 
     error_champ("Ce champ semble incorrect"),
     error_pseudo_existing("Ce pseudo est déjà utilisé"),
-    error_email_existing("L'email est utilisé par un autre compte");
+    error_email_existing("L'email est utilisé par un autre compte"),
+
+    PROMO_EMPTY("Sélectionner votre promo"),
+    TD_EMPTY("Sélectionner votre groupe TD"),
+    TP_EMPTY("Sélectionner votre groupe TP");
 
     private String name = "";
 

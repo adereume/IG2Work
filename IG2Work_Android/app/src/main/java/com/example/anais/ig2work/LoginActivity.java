@@ -14,6 +14,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.provider.ContactsContract;
+import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
@@ -46,9 +47,9 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
    // private UserLoginTask mAuthTask = null;
 
     // UI references.
-    private EditText mFirstnameView;
-    private EditText mLastnameView;
-    private EditText mPasswordView;
+    private TextInputLayout mFirstnameView;
+    private TextInputLayout mLastnameView;
+    private TextInputLayout mPasswordView;
     private View mProgressView;
     private View mLoginFormView;
 
@@ -72,7 +73,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
 
-        mFirstnameView = (EditText) findViewById(R.id.firstname);
+        mFirstnameView = (TextInputLayout) findViewById(R.id.firstname);
         mFirstnameView.setOnTouchListener(new View.OnTouchListener() {
             public boolean onTouch(View v, MotionEvent event) {
                 mFirstnameView.requestLayout();
@@ -80,7 +81,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 return false;
             }
         });
-        mLastnameView = (EditText) findViewById(R.id.lastname);
+        mLastnameView = (TextInputLayout) findViewById(R.id.lastname);
         mLastnameView.setOnTouchListener(new View.OnTouchListener() {
             public boolean onTouch(View v, MotionEvent event) {
                 mLastnameView.requestLayout();
@@ -89,7 +90,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             }
         });
 
-        mPasswordView = (EditText) findViewById(R.id.password);
+        mPasswordView = (TextInputLayout) findViewById(R.id.password);
         mPasswordView.setOnTouchListener(new View.OnTouchListener() {
             public boolean onTouch(View v, MotionEvent event) {
                 mPasswordView.requestLayout();
@@ -124,16 +125,16 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         String firstname = preferences.getString(StringUtils.FIRSTNAME.toString(), null);
         if(firstname != null)
-            mFirstnameView.setText(firstname);
+            mFirstnameView.getEditText().setText(firstname);
 
         String lastname = preferences.getString(StringUtils.LASTNAME.toString(), null);
         if(lastname != null)
-            mLastnameView.setText(lastname);
+            mLastnameView.getEditText().setText(lastname);
 
         String lastPwd = preferences.getString(StringUtils.PASSWORD.toString(), null);
         if(lastPwd != null)
-            mPasswordView.setText(lastPwd);
-        mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            mPasswordView.getEditText().setText(lastPwd);
+        mPasswordView.getEditText().setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
                 if (id == R.id.login || id == EditorInfo.IME_NULL) {
@@ -159,9 +160,9 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         mPasswordView.setError(null);
 
         // Store values at the time of the login attempt.
-        String firstName = mFirstnameView.getText().toString();
-        String lastName = mLastnameView.getText().toString();
-        String password = mPasswordView.getText().toString();
+        String firstName = mFirstnameView.getEditText().getText().toString();
+        String lastName = mLastnameView.getEditText().getText().toString();
+        String password = mPasswordView.getEditText().getText().toString();
 
         boolean cancel = false;
         View focusView = null;
