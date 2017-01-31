@@ -13,6 +13,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.example.anais.ig2work.DataBase.RequestActivity;
+import com.example.anais.ig2work.Model.Homework;
 import com.example.anais.ig2work.Utils.RestActivity;
 import com.example.anais.ig2work.Utils.StringUtils;
 
@@ -20,8 +21,11 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class SeanceActivity extends RestActivity {
 
@@ -46,7 +50,7 @@ public class SeanceActivity extends RestActivity {
         listViewNotes = (ListView) findViewById(R.id.list_notes);
 
         if (preferences.getString(StringUtils.ROLE.toString(), "").equals("student")) {
-            progressBar.setVisibility(View.INVISIBLE);
+            progressBar.setVisibility(View.GONE);
         }
 
         int idSeance = this.getIntent().getExtras().getInt("idSeance");
@@ -59,6 +63,7 @@ public class SeanceActivity extends RestActivity {
             public void traiteReponse(JSONObject o, String action) {
 
                 try {
+                    SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.FRANCE);
 
                     JSONArray infos = o.getJSONArray("info");
                     JSONObject info = infos.getJSONObject(0);
@@ -69,6 +74,9 @@ public class SeanceActivity extends RestActivity {
 
                     textView.setText(moduleName + " - " + teacherName + " - " + promoName);
 
+                    // ***** TÂCHES *****
+
+                    List<String> listTasks = new ArrayList<String>();
                     JSONArray tasks = o.getJSONArray("seance");
 
                     for (int i = 0; i < tasks.length(); i++) {
@@ -77,20 +85,44 @@ public class SeanceActivity extends RestActivity {
 
                         // Instancier objet tâche
                         // Remplir liste de tâches
-                        // Instancier Adapter -> listView
                     }
 
+                    listTasks.add("Tâche 1");
+                    listTasks.add("Tâche 2");
+                    listTasks.add("Tâche 3");
+
+                    ArrayAdapter<String> adapterTasks = new ArrayAdapter<String>(SeanceActivity.this, android.R.layout.simple_list_item_1, listTasks);
+                    listViewTasks.setAdapter(adapterTasks);
+                    ListUtils.setDynamicHeight(listViewTasks);
+
+                    // ***** DEVOIRS *****
+
+                    List<Homework> listHomeworks = new ArrayList<Homework>();
                     JSONArray homeworks = o.getJSONArray("homework");
 
                     for (int i = 0; i < homeworks.length(); i++) {
 
                         JSONObject homework = homeworks.getJSONObject(i);
 
-                        // Instancier objet homework
-                        // Remplir liste de homeworks
-                        // Instancier Adapter -> listView
+                        int id = homework.getInt("id");
+                        String module = homework.getString("module");
+                        String title = homework.getString("titre");
+                        String description = homework.getString("description");
+                        String dueDate = homework.getString("dueDate");
+                        boolean realized = homework.getBoolean("realized");
+
+                        Homework h = new Homework(id, module, title, description, formatter.parse(dueDate), realized);
+
+                        listHomeworks.add(h);
                     }
 
+                    ArrayAdapter<Homework> adapterHomeworks = new ArrayAdapter<Homework>(SeanceActivity.this, android.R.layout.simple_list_item_1, listHomeworks);
+                    listViewHomeworks.setAdapter(adapterHomeworks);
+                    ListUtils.setDynamicHeight(listViewHomeworks);
+
+                    // ***** NOTES *****
+
+                    List<String> listNotes = new ArrayList<String>();
                     JSONArray notes = o.getJSONArray("note");
 
                     for (int i = 0; i < notes.length(); i++) {
@@ -99,38 +131,17 @@ public class SeanceActivity extends RestActivity {
 
                         // Instancier objet note
                         // Remplir liste de notes
-                        // Instancier Adapter -> listView
                     }
 
-                    List<String> listTasks = new ArrayList<String>();
-                    listTasks.add("Tâche 1");
-                    listTasks.add("Tâche 2");
-                    listTasks.add("Tâche 3");
-
-                    ArrayAdapter<String> adapterTasks = new ArrayAdapter<String>(SeanceActivity.this, android.R.layout.simple_list_item_1, listTasks);
-                    listViewTasks.setAdapter(adapterTasks);
-
-                    List<String> listHomeworks = new ArrayList<String>();
-                    listHomeworks.add("Devoir 1");
-                    listHomeworks.add("Devoir 2");
-                    listHomeworks.add("Devoir 3");
-
-                    ArrayAdapter<String> adapterHomeworks = new ArrayAdapter<String>(SeanceActivity.this, android.R.layout.simple_list_item_1, listHomeworks);
-                    listViewHomeworks.setAdapter(adapterHomeworks);
-
-                    List<String> listNotes = new ArrayList<String>();
                     listNotes.add("Note 1");
                     listNotes.add("Note 2");
                     listNotes.add("Note 3");
 
                     ArrayAdapter<String> adapterNotes = new ArrayAdapter<String>(SeanceActivity.this, android.R.layout.simple_list_item_1, listNotes);
                     listViewNotes.setAdapter(adapterNotes);
-
-                    ListUtils.setDynamicHeight(listViewTasks);
-                    ListUtils.setDynamicHeight(listViewHomeworks);
                     ListUtils.setDynamicHeight(listViewNotes);
 
-                } catch (JSONException e) {
+                } catch (JSONException | ParseException e) {
                     e.printStackTrace();
                 }
             }

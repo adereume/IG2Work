@@ -17,7 +17,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import android.widget.ExpandableListView;
-import android.widget.ListView;
+
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -180,7 +180,7 @@ public class HomeActivity extends RestActivity {
                             Seance s = new Seance(id, moduleName, teacherFName + " " + teacherLName, promoName, formatter.parse(dayTime), room, target);
 
                             Date dateSeance = formatter.parse(dayTime);
-                            Date dateNow = formatter.parse("2017-01-16 00:00:00");//new Date();
+                            Date dateNow = new Date();
                             long diffDate = (dateSeance.getTime() - dateNow.getTime()) / (24 * 60 * 60 * 1000);
 
                             if (diffDate == 0) {
@@ -251,7 +251,7 @@ public class HomeActivity extends RestActivity {
                         listFilter.add("Ce mois-ci");
 
                         // Liste des séances
-                        /*JSONArray homeworks = o.getJSONArray("homeworks");
+                        JSONArray homeworks = o.getJSONArray("seance");
 
                         for (int i = 0; i < homeworks.length(); i++) {
 
@@ -259,15 +259,15 @@ public class HomeActivity extends RestActivity {
 
                             int id = homework.getInt("id");
                             String moduleName = homework.getString("moduleName");
-                            String title = homework.getString("title");
+                            String title = homework.getString("titre");
                             String description = homework.getString("description");
                             String dueDate = homework.getString("dueDate");
-                            Boolean realized = homework.getBoolean("realized");
+                            Boolean realized = false;//homework.getBoolean("realized");
 
                             Homework h = new Homework(id, moduleName, title, description, formatter.parse(dueDate), realized);
 
                             Date dateHomework = formatter.parse(dueDate);
-                            Date dateNow = formatter.parse("2017-01-16 00:00:00");//new Date();
+                            Date dateNow = new Date();//formatter.parse("2017-01-16 00:00:00");
                             long diffDate = (dateHomework.getTime() - dateNow.getTime()) / (24 * 60 * 60 * 1000);
 
                             if (diffDate == 0) {
@@ -280,17 +280,7 @@ public class HomeActivity extends RestActivity {
                             } else {
                                 listHomeworksMonth.add(h);
                             }
-                        }*/
-
-                        Homework h1 = new Homework(1, "Projet Mobile", "Rédiger la doc fonctionnelle", "", formatter.parse("2017-01-18 08:00:00"), false);
-                        Homework h2 = new Homework(2, "Projet Mobile", "Commencer les dévs", "", formatter.parse("2017-01-22 13:30:00"), true);
-                        Homework h3 = new Homework(3, "Anglais", "Préparer oral technique", "", formatter.parse("2017-01-31 15:45:00"), false);
-
-                        listHomeworksWeek.add(h1);
-                        listHomeworksWeek.add(h2);
-                        listHomeworksMonth.add(h1);
-                        listHomeworksMonth.add(h2);
-                        listHomeworksMonth.add(h3);
+                        }
 
                         HashMap<String, List<Homework>> mapHomeworks = new HashMap<String, List<Homework>>();
                         mapHomeworks.put(listFilter.get(0), listHomeworksDay);
@@ -316,11 +306,11 @@ public class HomeActivity extends RestActivity {
                             }
                         });
 
-                    } catch (ParseException e) {
+                    } catch (ParseException | JSONException e) {
                         e.printStackTrace();
                     }
                 }
-            }.envoiRequete("getAllHomeworks", "action=getAllSeances&idUser=" + idUser);//"action=getAllHomeworks&idUser=" + idUser);
+            }.envoiRequete("getHomeWorkByUser", "action=getHomeWorkByUser&idUser=" + idUser);//"action=getAllHomeworks&idUser=" + idUser);
         }
     }
 
