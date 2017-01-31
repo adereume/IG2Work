@@ -11,6 +11,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:onClick="onClick"
             android:id="@+id/lost"
             android:src="@drawable/logo_lost" />
 
@@ -18,6 +19,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:onClick="onClick"
             android:id="@+id/addNote"
             android:src="@drawable/logo_note"/>
     </LinearLayout>

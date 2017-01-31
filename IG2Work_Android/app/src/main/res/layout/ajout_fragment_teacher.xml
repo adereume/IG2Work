@@ -11,6 +11,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:onClick="onClick"
             android:id="@+id/addtask"
             android:src="@drawable/add_task" />
 
@@ -18,6 +19,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:onClick="onClick"
             android:id="@+id/addHomework"
             android:src="@drawable/logo_work"/>
     </LinearLayout>
@@ -30,6 +32,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:onClick="onClick"
             android:id="@+id/addQuestion"
             android:src="@drawable/logo_question"/>
 
@@ -37,6 +40,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:onClick="onClick"
             android:id="@+id/addNote"
             android:src="@drawable/logo_note"/>
     </LinearLayout>
