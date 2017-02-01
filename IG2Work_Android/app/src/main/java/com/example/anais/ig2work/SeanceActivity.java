@@ -1,12 +1,14 @@
 package com.example.anais.ig2work;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.ExpandableListView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.ProgressBar;
@@ -14,6 +16,7 @@ import android.widget.TextView;
 
 import com.example.anais.ig2work.DataBase.RequestActivity;
 import com.example.anais.ig2work.Model.Homework;
+import com.example.anais.ig2work.Model.HomeworkAdapter;
 import com.example.anais.ig2work.Utils.RestActivity;
 import com.example.anais.ig2work.Utils.StringUtils;
 
@@ -57,6 +60,19 @@ public class SeanceActivity extends RestActivity {
         getSeance(idSeance);
     }
 
+    public void onClickChangeActivity(String activity, Bundle data) {
+        Intent intent = new Intent();
+
+        switch (activity) {
+            case "homework":
+                intent = new Intent(SeanceActivity.this, HomeworkActivity.class);
+                break;
+        }
+
+        intent.putExtras(data);
+        startActivity(intent);
+    }
+
     public void getSeance(final int idSeance) {
         new RequestActivity() {
             @Override
@@ -72,7 +88,14 @@ public class SeanceActivity extends RestActivity {
                     String teacherName = info.getString("teacherFirstName") + " " + info.getString("teacherLastName");
                     String promoName = info.getString("promoName");
 
-                    textView.setText(moduleName + " - " + teacherName + " - " + promoName);
+                    switch (preferences.getString(StringUtils.ROLE.toString(), "")) {
+                        case "student":
+                            textView.setText(moduleName + " - " + teacherName);
+                            break;
+                        case "teacher":
+                            textView.setText(moduleName + " - " + promoName);
+                            break;
+                    }
 
                     // ***** TÂCHES *****
 
@@ -105,20 +128,38 @@ public class SeanceActivity extends RestActivity {
                         JSONObject homework = homeworks.getJSONObject(i);
 
                         int id = homework.getInt("id");
-                        String module = homework.getString("module");
                         String title = homework.getString("titre");
                         String description = homework.getString("description");
                         String dueDate = homework.getString("dueDate");
-                        boolean realized = homework.getBoolean("realized");
+                        Boolean realized = false;
 
-                        Homework h = new Homework(id, module, title, description, formatter.parse(dueDate), realized);
+                        if (!homework.isNull("realized")) {
+                            realized = homework.getString("realized").equals("1") ? true : false;
+                        }
+
+                        Homework h = new Homework(id, moduleName, title, description, formatter.parse(dueDate), realized);
 
                         listHomeworks.add(h);
                     }
 
-                    ArrayAdapter<Homework> adapterHomeworks = new ArrayAdapter<Homework>(SeanceActivity.this, android.R.layout.simple_list_item_1, listHomeworks);
+                    HomeworkAdapter adapterHomeworks = new HomeworkAdapter(SeanceActivity.this, listHomeworks);
                     listViewHomeworks.setAdapter(adapterHomeworks);
                     ListUtils.setDynamicHeight(listViewHomeworks);
+
+                    listViewHomeworks.setOnItemClickListener(new ListView.OnItemClickListener() {
+
+                        @Override
+                        public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+
+                            Homework homeworkChoice = (Homework) listViewHomeworks.getAdapter().getItem(i);
+
+                            Bundle data = new Bundle();
+                            data.putInt("idHomework", homeworkChoice.getId());
+
+                            SeanceActivity.this.onClickChangeActivity("homework", data);
+                        }
+                    });
+
 
                     // ***** NOTES *****
 

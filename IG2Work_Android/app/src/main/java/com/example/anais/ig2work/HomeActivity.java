@@ -11,8 +11,9 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -23,7 +24,7 @@ import android.widget.Toast;
 
 import com.example.anais.ig2work.DataBase.RequestActivity;
 import com.example.anais.ig2work.Model.Homework;
-import com.example.anais.ig2work.Model.HomeworkAdapter;
+import com.example.anais.ig2work.Model.HomeworkExpandableAdapter;
 import com.example.anais.ig2work.Model.Seance;
 import com.example.anais.ig2work.Model.SeanceAdapter;
 import com.example.anais.ig2work.Utils.RestActivity;
@@ -41,6 +42,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
+/*
+La classe HomeActivity gère la page d'accueil de l'application, une fois l'utilisateur connecté.
+Cette page comporte deux onglets : séances & devoirs (l'onglet devoirs n'est disponible que pour
+les étudiants).
+Dans chacun des onglets, on récupère et on affiche les données sous forme de liste.  L'utilisateur
+peut choisir de voir les séances/devoirs du jour courant, des 7 prochains jours ou du mois courant.
+Lorsque l'utilisateur clique sur une séance ou un devoir, il accède à la page détaillée.
+ */
 public class HomeActivity extends RestActivity {
 
     private SectionsPagerAdapter mSectionsPagerAdapter;
@@ -69,6 +78,28 @@ public class HomeActivity extends RestActivity {
         preferences = PreferenceManager.getDefaultSharedPreferences(HomeActivity.this);
     }
 
+    /*@Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu, menu);
+
+
+        return true;
+    }*/
+
+    /*@Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.menu_search:
+
+                return true;
+            case R.id.menu_create:
+
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }*/
+
     public void onClickChangeActivity(String activity, Bundle data) {
         Intent intent = new Intent();
 
@@ -76,7 +107,6 @@ public class HomeActivity extends RestActivity {
             case "seance":
                 intent = new Intent(HomeActivity.this, SeanceActivity.class);
                 break;
-
             case "homework":
                 intent = new Intent(HomeActivity.this, HomeworkActivity.class);
                 break;
@@ -119,14 +149,10 @@ public class HomeActivity extends RestActivity {
             int idUser = PreferenceManager.getDefaultSharedPreferences(getContext()).getInt(StringUtils.IDUSER.toString(), 0);
 
             switch (getArguments().getInt(ARG_SECTION_NUMBER)) {
-
-                // Onglet Séances
-                case 1:
+                case 1: // Onglet Séances
                     getAllSeances(idUser);
                     break;
-
-                // Onglet Devoirs
-                case 2:
+                case 2: // Onglet Devoirs
                     getAllHomeworks(idUser);
                     break;
             }
@@ -183,14 +209,15 @@ public class HomeActivity extends RestActivity {
                             Date dateNow = new Date();
                             long diffDate = (dateSeance.getTime() - dateNow.getTime()) / (24 * 60 * 60 * 1000);
 
+                            // En fonction de la date de la séance, on l'ajoute dans les listes qui correspondent
                             if (diffDate == 0) {
                                 listSeancesDay.add(s);
                                 listSeancesWeek.add(s);
                                 listSeancesMonth.add(s);
-                            } else if (diffDate < 7) {
+                            } else if (diffDate > 0 && diffDate < 7) {
                                 listSeancesWeek.add(s);
                                 listSeancesMonth.add(s);
-                            } else {
+                            } else if (diffDate >= 7) {
                                 listSeancesMonth.add(s);
                             }
                         }
@@ -251,7 +278,7 @@ public class HomeActivity extends RestActivity {
                         listFilter.add("Ce mois-ci");
 
                         // Liste des séances
-                        JSONArray homeworks = o.getJSONArray("seance");
+                        JSONArray homeworks = o.getJSONArray("retour");
 
                         for (int i = 0; i < homeworks.length(); i++) {
 
@@ -262,22 +289,27 @@ public class HomeActivity extends RestActivity {
                             String title = homework.getString("titre");
                             String description = homework.getString("description");
                             String dueDate = homework.getString("dueDate");
-                            Boolean realized = false;//homework.getBoolean("realized");
+                            Boolean realized = false;
+
+                            if (!homework.isNull("realized")) {
+                                realized = homework.getString("realized").equals("1") ? true : false;
+                            }
 
                             Homework h = new Homework(id, moduleName, title, description, formatter.parse(dueDate), realized);
 
                             Date dateHomework = formatter.parse(dueDate);
-                            Date dateNow = new Date();//formatter.parse("2017-01-16 00:00:00");
+                            Date dateNow = new Date();
                             long diffDate = (dateHomework.getTime() - dateNow.getTime()) / (24 * 60 * 60 * 1000);
 
+                            // En fonction de la date d'échéance du devoir, on l'ajoute dans les listes qui correspondent
                             if (diffDate == 0) {
                                 listHomeworksDay.add(h);
                                 listHomeworksWeek.add(h);
                                 listHomeworksMonth.add(h);
-                            } else if (diffDate < 7) {
+                            } else if (diffDate > 0 && diffDate < 7) {
                                 listHomeworksWeek.add(h);
                                 listHomeworksMonth.add(h);
-                            } else {
+                            } else if (diffDate >= 7) {
                                 listHomeworksMonth.add(h);
                             }
                         }
@@ -287,7 +319,7 @@ public class HomeActivity extends RestActivity {
                         mapHomeworks.put(listFilter.get(1), listHomeworksWeek);
                         mapHomeworks.put(listFilter.get(2), listHomeworksMonth);
 
-                        HomeworkAdapter adapter = new HomeworkAdapter(getContext(), listView, listFilter, mapHomeworks);
+                        HomeworkExpandableAdapter adapter = new HomeworkExpandableAdapter(getContext(), listView, listFilter, mapHomeworks);
                         listView.setAdapter(adapter);
 
                         listView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
@@ -347,9 +379,9 @@ public class HomeActivity extends RestActivity {
         public CharSequence getPageTitle(int position) {
             switch (position) {
                 case 0:
-                    return "Séances";
+                    return getString(R.string.seances);
                 case 1:
-                    return "Devoirs";
+                    return getString(R.string.homeworks);
             }
 
             return null;

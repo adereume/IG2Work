@@ -31,4 +31,17 @@
     <string name="promo">Promo :</string>
     <string name="td">TD :</string>
     <string name="tp">TP :</string>
+
+    <string name="filter1">Aujourd\'hui</string>
+    <string name="filter2">7 prochains jours</string>
+    <string name="filter3">Ce mois-ci</string>
+
+    <string name="seances">Séances</string>
+    <string name="homeworks">Devoirs</string>
+
+    <string name="menu_create">Nouveau</string>
+    <string name="menu_edit">Éditer</string>
+    <string name="menu_delete">Supprimer</string>
+    <string name="menu_search">Rechercher</string>
+
 </resources>

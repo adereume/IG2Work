@@ -5,11 +5,13 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
 import com.example.anais.ig2work.DataBase.RequestActivity;
 import com.example.anais.ig2work.GlobalState;
+import com.example.anais.ig2work.HomeActivity;
 import com.example.anais.ig2work.LoginActivity;
 import com.example.anais.ig2work.R;
 
@@ -22,6 +24,7 @@ import org.json.JSONObject;
 
 public abstract class RestActivity extends AppCompatActivity {
     protected GlobalState gs;
+    private SharedPreferences preferences;
     private FinishAllReceiver fa;
 
     @Override
@@ -30,6 +33,8 @@ public abstract class RestActivity extends AppCompatActivity {
 
         // Instanciation de la classe GlobalState
         gs = (GlobalState) getApplication();
+
+        preferences = PreferenceManager.getDefaultSharedPreferences(RestActivity.this);
 
         // Instanciation de la classe FinishAllReceiver
         fa = new FinishAllReceiver(this);
@@ -46,6 +51,28 @@ public abstract class RestActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu, menu);
+
+        String role = preferences.getString(StringUtils.ROLE.toString(), "");
+
+        switch (this.getClass().getSimpleName()) {
+            case "HomeActivity" :
+                switch (role) {
+                    case "student":
+                        getMenuInflater().inflate(R.menu.menu_home_student, menu);
+                        break;
+                    case "teacher":
+                        getMenuInflater().inflate(R.menu.menu_home_teacher, menu);
+                        break;
+                }
+                break;
+
+            case "HomeworkActivity" :
+                if (role.equals("teacher")) {
+                    getMenuInflater().inflate(R.menu.menu_homework, menu);
+                }
+                break;
+        }
+
         return true;
     }
 
@@ -54,6 +81,22 @@ public abstract class RestActivity extends AppCompatActivity {
         int id = item.getItemId();
 
         switch (id) {
+
+            case R.id.menu_search_seance:
+                Log.d("action", "Recherche séance");
+                return true;
+
+            case R.id.menu_create_seance:
+                Log.d("action", "Création séance");
+                return true;
+
+            case R.id.menu_edit_homework:
+                Log.d("action", "Edition devoir");
+                return true;
+
+            case R.id.menu_delete_homework:
+                Log.d("action", "Suppression devoir");
+                return true;
 
             // Menu 'Se déconnecter'
             case R.id.action_logout:

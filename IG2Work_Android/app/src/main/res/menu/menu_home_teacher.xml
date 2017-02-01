@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/menu_search_seance"
+        android:icon="@drawable/ic_action_search_dark"
+        app:showAsAction="ifRoom"
+        android:title="@string/menu_search"/>
+    <item
+        android:id="@+id/menu_create_seance"
+        android:icon="@drawable/ic_action_create_dark"
+        app:showAsAction="ifRoom"
+        android:title="@string/menu_create"/>
+
+</menu>
