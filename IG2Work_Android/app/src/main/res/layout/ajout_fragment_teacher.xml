@@ -3,46 +3,66 @@
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/background_popup">
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:weightSum="2"
-        android:layout_height="wrap_content">
-        <ImageButton
+    <RelativeLayout
+        android:layout_width="270dp"
+        android:layout_height="170dp"
+        android:gravity="center">
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:onClick="onClick"
-            android:id="@+id/addtask"
-            android:src="@drawable/add_task" />
+            android:id="@+id/layout"
+            android:weightSum="2"
+            android:layout_height="wrap_content">
+            <Button
+                android:id="@+id/addtask"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginLeft="5dp"
+                android:text="Tâche"
+                android:textColor="#FFFFFF"
+                android:drawableLeft="@drawable/add_task"/>
 
-        <ImageButton
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:onClick="onClick"
-            android:id="@+id/addHomework"
-            android:src="@drawable/logo_work"/>
-    </LinearLayout>
+            <Button
+                android:id="@+id/addHomework"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginLeft="20dp"
+                android:layout_marginRight="5dp"
+                android:text="Devoir"
+                android:textColor="#FFFFFF"
+                android:drawableLeft="@drawable/logo_work"/>
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:weightSum="2">
-        <ImageButton
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:onClick="onClick"
-            android:id="@+id/addQuestion"
-            android:src="@drawable/logo_question"/>
 
-        <ImageButton
+        </LinearLayout>
+
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:onClick="onClick"
-            android:id="@+id/addNote"
-            android:src="@drawable/logo_note"/>
-    </LinearLayout>
+            android:layout_below="@id/layout"
+            android:layout_marginTop="10dp"
+            android:weightSum="2"
+            android:layout_height="wrap_content">
+            <Button
+                android:id="@+id/addQuestion"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginLeft="5dp"
+                android:text="Question"
+                android:textColor="#FFFFFF"
+                android:drawableLeft="@drawable/logo_question"/>
+
+            <Button
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:id="@+id/addNote"
+                android:layout_marginLeft="20dp"
+                android:layout_marginRight="5dp"
+                android:text="Note"
+                android:textColor="#FFFFFF"
+                android:drawableLeft="@drawable/logo_note"/>
+        </LinearLayout>
+    </RelativeLayout>
 
 </LinearLayout>

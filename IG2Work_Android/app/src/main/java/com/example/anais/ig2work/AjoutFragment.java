@@ -1,6 +1,9 @@
 package com.example.anais.ig2work;
 
 import android.app.DialogFragment;
+import android.content.Intent;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -21,6 +24,9 @@ import org.json.JSONObject;
 public class AjoutFragment extends DialogFragment {
     private String idUser;
     private String idSeance;
+
+    private SeanceActivity callingActivity;
+
     protected View v;
 
     /**
@@ -49,31 +55,60 @@ public class AjoutFragment extends DialogFragment {
         idUser = getArguments().getString("idUser");
         idSeance = getArguments().getString("idSeance");
 
-        if(getArguments().getString("role").equals(StringUtils.ENSEIGNANT)) {
+        callingActivity = (SeanceActivity) getActivity();
+
+        if(getArguments().getString("role").equals("teacher")) {
             v = inflater.inflate(R.layout.ajout_fragment_teacher, container, false);
+
+            v.findViewById(R.id.addtask).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent();
+                    intent = new Intent(callingActivity, AddTaskActivity.class);
+                    startActivity(intent);
+                }
+            });
+
+            v.findViewById(R.id.addHomework).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    /*Intent intent = new Intent();
+                    intent = new Intent(callingActivity, .class);
+                    startActivity(intent);*/
+                }
+            });
+
+            v.findViewById(R.id.addQuestion).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent();
+                    intent = new Intent(callingActivity, AddQuestionActivity.class);
+                    startActivity(intent);
+                }
+            });
         } else {
             v = inflater.inflate(R.layout.ajout_fragment, container, false);
 
             isLost(idSeance, idUser);
+
+            v.findViewById(R.id.lost).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    setLost(idSeance, idUser);
+                }
+            });
         }
+
+        v.findViewById(R.id.addNote).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //Intent intent = new Intent();
+                //intent = new Intent(callingActivity, AddTaskActivity.class);
+                //startActivity(intent);
+            }
+        });
 
         return v;
-    }
-
-    public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.addtask:
-                break;
-            case R.id.addHomework:
-                break;
-            case R.id.addQuestion:
-                break;
-            case R.id.addNote:
-                break;
-            case R.id.lost:
-                setLost(idSeance, idUser);
-                break;
-        }
     }
 
     public void isLost(final String idSeance, final String idUser) {

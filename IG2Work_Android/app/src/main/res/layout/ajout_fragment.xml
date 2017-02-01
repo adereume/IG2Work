@@ -1,27 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="match_parent">
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:weightSum="2"
-        android:layout_height="wrap_content">
-        <ImageButton
+    android:layout_height="match_parent"
+    android:background="@color/background_popup">
+    <RelativeLayout
+        android:layout_width="270dp"
+        android:layout_height="170dp"
+        android:gravity="center">
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:onClick="onClick"
-            android:id="@+id/lost"
-            android:src="@drawable/logo_lost" />
+            android:weightSum="2"
+            android:layout_height="wrap_content">
+            <Button
+                android:id="@+id/lost"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginLeft="5dp"
+                android:text="Perdu !"
+                android:textColor="#FFFFFF"
+                android:drawableLeft="@drawable/logo_lost"/>
 
-        <ImageButton
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:onClick="onClick"
-            android:id="@+id/addNote"
-            android:src="@drawable/logo_note"/>
-    </LinearLayout>
+            <Button
+                android:id="@+id/addNote"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginLeft="20dp"
+                android:layout_marginRight="5dp"
+                android:text="Note"
+                android:textColor="#FFFFFF"
+                android:drawableLeft="@drawable/logo_note"/>
 
+
+        </LinearLayout>
+    </RelativeLayout>
 </LinearLayout>
