@@ -1,5 +1,6 @@
 package com.example.anais.ig2work.Utils;
 
+import android.app.FragmentManager;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -9,6 +10,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.example.anais.ig2work.AjoutFragment;
 import com.example.anais.ig2work.DataBase.RequestActivity;
 import com.example.anais.ig2work.GlobalState;
 import com.example.anais.ig2work.HomeActivity;
@@ -71,6 +73,10 @@ public abstract class RestActivity extends AppCompatActivity {
                     getMenuInflater().inflate(R.menu.menu_homework, menu);
                 }
                 break;
+
+            case "SeanceActivity" :
+                getMenuInflater().inflate(R.menu.menu_seance, menu);
+                break;
         }
 
         return true;
@@ -96,6 +102,23 @@ public abstract class RestActivity extends AppCompatActivity {
 
             case R.id.menu_delete_homework:
                 Log.d("action", "Suppression devoir");
+                return true;
+
+            case R.id.menu_seance:
+                Log.d("action", "Séance");
+
+                FragmentManager fragmentManager = getFragmentManager();
+
+                Bundle data = new Bundle();
+                data.putString("idSeance", "1");
+                data.putString("idUser", String.valueOf(preferences.getInt(StringUtils.IDUSER.toString(), 0)));
+                data.putString("role", preferences.getString(StringUtils.ROLE.toString(), ""));
+
+                AjoutFragment ajoutFragment = new AjoutFragment();
+                ajoutFragment.setArguments(data);
+                ajoutFragment.setRetainInstance(true);
+                ajoutFragment.show(fragmentManager, "seance");
+
                 return true;
 
             // Menu 'Se déconnecter'
