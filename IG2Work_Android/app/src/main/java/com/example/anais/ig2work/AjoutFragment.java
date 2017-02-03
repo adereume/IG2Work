@@ -72,9 +72,9 @@ public class AjoutFragment extends DialogFragment {
             v.findViewById(R.id.addHomework).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    /*Intent intent = new Intent();
-                    intent = new Intent(callingActivity, .class);
-                    startActivity(intent);*/
+                    Intent intent = new Intent();
+                    intent = new Intent(callingActivity, AddHomework.class);
+                    startActivity(intent);
                 }
             });
 
@@ -102,9 +102,9 @@ public class AjoutFragment extends DialogFragment {
         v.findViewById(R.id.addNote).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //Intent intent = new Intent();
-                //intent = new Intent(callingActivity, AddTaskActivity.class);
-                //startActivity(intent);
+                Intent intent = new Intent();
+                intent = new Intent(callingActivity, AddNoteActivity.class);
+                startActivity(intent);
             }
         });
 

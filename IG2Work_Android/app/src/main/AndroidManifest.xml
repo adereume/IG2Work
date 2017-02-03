@@ -30,9 +30,11 @@
             android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity android:name=".SeanceActivity" />
-        <activity android:name=".HomeworkActivity"></activity>
+        <activity android:name=".HomeworkActivity" />
         <activity android:name=".AddTaskActivity" />
-        <activity android:name=".AddQuestionActivity"></activity>
+        <activity android:name=".AddQuestionActivity" />
+        <activity android:name=".AddHomework" />
+        <activity android:name=".AddNoteActivity"></activity>
     </application>
 
 </manifest>
