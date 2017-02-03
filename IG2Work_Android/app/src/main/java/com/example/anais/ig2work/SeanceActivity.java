@@ -60,6 +60,9 @@ public class SeanceActivity extends RestActivity {
         }
 
         int idSeance = this.getIntent().getExtras().getInt("idSeance");
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putInt("idSeance", idSeance);
+        editor.apply();
         getSeance(idSeance);
     }
 

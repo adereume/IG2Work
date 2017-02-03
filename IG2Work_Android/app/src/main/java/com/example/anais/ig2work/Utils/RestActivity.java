@@ -110,7 +110,7 @@ public abstract class RestActivity extends AppCompatActivity {
                 FragmentManager fragmentManager = getFragmentManager();
 
                 Bundle data = new Bundle();
-                data.putString("idSeance", "1");
+                data.putString("idSeance", String.valueOf(preferences.getInt("idSeance", 0)));
                 data.putString("idUser", String.valueOf(preferences.getInt(StringUtils.IDUSER.toString(), 0)));
                 data.putString("role", preferences.getString(StringUtils.ROLE.toString(), ""));
 

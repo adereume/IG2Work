@@ -2,6 +2,7 @@ package com.example.anais.ig2work;
 
 import android.app.DialogFragment;
 import android.content.Intent;
+import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -9,10 +10,12 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 
 import com.example.anais.ig2work.DataBase.RequestActivity;
 import com.example.anais.ig2work.Utils.StringUtils;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -36,7 +39,7 @@ public class AjoutFragment extends DialogFragment {
      * @param role
      * @return
      */
-    static AjoutFragment newInstance(String idSeance, String idUser, String role) {
+    /*static AjoutFragment newInstance(String idSeance, String idUser, String role) {
         AjoutFragment f = new AjoutFragment();
 
         //Transforme idIngredient en argument
@@ -48,10 +51,12 @@ public class AjoutFragment extends DialogFragment {
 
         f.setArguments(args);
         return f;
-    }
+    }*/
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        Log.e("Argument", getArguments().getString("idUser")+" "+getArguments().getString("idSeance")
+                +" "+getArguments().getString("role"));
         idUser = getArguments().getString("idUser");
         idSeance = getArguments().getString("idSeance");
 
@@ -116,12 +121,12 @@ public class AjoutFragment extends DialogFragment {
         new RequestActivity() {
             @Override
             public void traiteReponse(JSONObject o, String action) {
-
                 try {
-                    if(!o.isNull("retour")) {
+                    JSONArray array = o.getJSONArray("retour");
+                    if(array.getJSONObject(0) != null) {
                         //L'étudiant est déjà perdu
-                        Log.e("Retour", o.getString("retour"));
-                        v.findViewById(R.id.lost).setEnabled(true);
+                        ((Button)v.findViewById(R.id.lost)).setEnabled(false);
+                        ((Button)v.findViewById(R.id.lost)).setBackgroundColor(Color.GRAY);
                     }
 
                 } catch (JSONException e) {
