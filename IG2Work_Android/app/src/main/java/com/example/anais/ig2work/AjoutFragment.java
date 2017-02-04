@@ -71,6 +71,7 @@ public class AjoutFragment extends DialogFragment {
                     Intent intent = new Intent();
                     intent = new Intent(callingActivity, AddTaskActivity.class);
                     startActivity(intent);
+                    getDialog().dismiss();
                 }
             });
 
@@ -80,6 +81,7 @@ public class AjoutFragment extends DialogFragment {
                     Intent intent = new Intent();
                     intent = new Intent(callingActivity, AddHomework.class);
                     startActivity(intent);
+                    getDialog().dismiss();
                 }
             });
 
@@ -89,6 +91,7 @@ public class AjoutFragment extends DialogFragment {
                     Intent intent = new Intent();
                     intent = new Intent(callingActivity, AddQuestionActivity.class);
                     startActivity(intent);
+                    getDialog().dismiss();
                 }
             });
         } else {
@@ -110,6 +113,7 @@ public class AjoutFragment extends DialogFragment {
                 Intent intent = new Intent();
                 intent = new Intent(callingActivity, AddNoteActivity.class);
                 startActivity(intent);
+                getDialog().dismiss();
             }
         });
 
