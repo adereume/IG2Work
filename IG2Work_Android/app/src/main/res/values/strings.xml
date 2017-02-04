@@ -47,5 +47,6 @@
     <string name="titre">Titre</string>
     <string name="description_de_la_t_che">Description de la tâche</string>
     <string name="intitul_de_la_question">Intitulé de la question</string>
+    <string name="entrez_votre_note_personnel_ici">Entrez votre note personnel ici</string>
 
 </resources>

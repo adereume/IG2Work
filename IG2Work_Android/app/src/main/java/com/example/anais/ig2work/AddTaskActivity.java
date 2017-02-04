@@ -30,6 +30,8 @@ public class AddTaskActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_task);
         setTitle("Ajout Tache");
+        //Le bouton retour à gauche de la barre d'action
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         preferences = PreferenceManager.getDefaultSharedPreferences(AddTaskActivity.this);
 
@@ -67,13 +69,6 @@ public class AddTaskActivity extends AppCompatActivity {
         } else {
             addTask(title, description);
         }
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        //getActionBar().setDisplayHomeAsUpEnabled(true);
     }
 
     @Override

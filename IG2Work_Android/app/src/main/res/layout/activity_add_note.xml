@@ -10,8 +10,17 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.example.anais.ig2work.AddNoteActivity">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Note"/>
+    <android.support.design.widget.TextInputLayout
+        android:id="@+id/note"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/entrez_votre_note_personnel_ici"
+            android:inputType="textMultiLine"
+            android:maxLength="255" />
+
+    </android.support.design.widget.TextInputLayout>
 </RelativeLayout>
