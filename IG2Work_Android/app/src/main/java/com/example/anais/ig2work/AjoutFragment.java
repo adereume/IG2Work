@@ -55,8 +55,6 @@ public class AjoutFragment extends DialogFragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        Log.e("Argument", getArguments().getString("idUser")+" "+getArguments().getString("idSeance")
-                +" "+getArguments().getString("role"));
         idUser = getArguments().getString("idUser");
         idSeance = getArguments().getString("idSeance");
 

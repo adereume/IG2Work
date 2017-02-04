@@ -3,6 +3,6 @@
     <color name="colorPrimary">#3F51B5</color>
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
-    <color name="error_color">#ff4640</color>
+    <color name="error_color">#d1241c</color>
     <color name="background_popup">#cfe6e6</color>
 </resources>
