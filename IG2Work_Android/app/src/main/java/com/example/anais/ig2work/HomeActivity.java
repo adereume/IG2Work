@@ -11,6 +11,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -78,27 +79,24 @@ public class HomeActivity extends RestActivity {
         preferences = PreferenceManager.getDefaultSharedPreferences(HomeActivity.this);
     }
 
-    /*@Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu, menu);
-
-
-        return true;
-    }*/
-
-    /*@Override
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.menu_search:
+        int id = item.getItemId();
 
+        switch (id) {
+            case R.id.menu_search_seance:
+                Log.d("action", "Recherche séance");
+                //TODO Recherche de séance
                 return true;
-            case R.id.menu_create:
 
+            case R.id.menu_create_seance:
+                Log.d("action", "Création séance");
+                //TODO Création de séance
                 return true;
-            default:
-                return super.onOptionsItemSelected(item);
         }
-    }*/
+
+        return super.onOptionsItemSelected(item);
+    }
 
     public void onClickChangeActivity(String activity, Bundle data) {
         Intent intent = new Intent();

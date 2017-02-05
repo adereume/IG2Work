@@ -1,6 +1,8 @@
 package com.example.anais.ig2work;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Parcelable;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -25,6 +27,7 @@ import org.json.JSONObject;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
@@ -36,6 +39,9 @@ public class HomeworkActivity extends RestActivity {
     private TextView descriptionTextView;
     private TextView dueDateTextView;
     private CheckBox state;
+
+    private int idHomework;
+    private Homework homeworkObject;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,35 +60,29 @@ public class HomeworkActivity extends RestActivity {
             state.setVisibility(View.GONE);
         }
 
-        int idHomework = this.getIntent().getExtras().getInt("idHomework");
+        idHomework = this.getIntent().getExtras().getInt("idHomework");
         getHomework(idHomework);
     }
 
-    /*@Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu, menu);
-        if (preferences.getString(StringUtils.ROLE.toString(), "").equals("teacher")) {
-            getMenuInflater().inflate(R.menu.menu_homework, menu);
-        } else {
-            getMenuInflater().inflate(R.menu.menu, menu);
-        }
-
-        return true;
-    }*/
-
-    /*@Override
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.menu_edit:
+        int id = item.getItemId();
 
+        switch (id) {
+            case R.id.menu_edit_homework:
+                Intent intent = new Intent();
+                intent = new Intent(HomeworkActivity.this, AddHomework.class);
+                intent.putExtra("homeworkObject", homeworkObject);
+                startActivity(intent);
                 return true;
-            case R.id.menu_delete:
 
+            case R.id.menu_delete_homework:
+                deleteHomework(idHomework);
                 return true;
-            default:
-                return super.onOptionsItemSelected(item);
         }
-    }*/
+
+        return super.onOptionsItemSelected(item);
+    }
 
     public void getHomework(final int idHomework) {
         new RequestActivity() {
@@ -95,6 +95,7 @@ public class HomeworkActivity extends RestActivity {
                     JSONArray info = o.getJSONArray("retour");
                     JSONObject homework = info.getJSONObject(0);
 
+                    int id = homework.getInt("id");
                     String module = homework.getString("moduleName");
                     String title = homework.getString("titre");
                     String description = homework.getString("description");
@@ -105,16 +106,33 @@ public class HomeworkActivity extends RestActivity {
                         realized = homework.getString("realized").equals("1") ? true : false;
                     }
 
-                    moduleTextView.setText(module);
-                    titleTextView.setText(title);
-                    descriptionTextView.setText(description);
-                    dueDateTextView.setText(new SimpleDateFormat("dd MMMM yyyy à HH:mm", Locale.FRANCE).format(formatter.parse(dueDate)));
-                    state.setChecked(realized);
+                    homeworkObject = new Homework(id, module, title, description, formatter.parse(dueDate), realized);
+
+                    moduleTextView.setText(homeworkObject.getModule());
+                    titleTextView.setText(homeworkObject.getTitre());
+                    descriptionTextView.setText(homeworkObject.getDescription());
+                    dueDateTextView.setText(new SimpleDateFormat("dd MMMM yyyy à HH:mm", Locale.FRANCE).format(homeworkObject.getDueDate()));
+                    state.setChecked(homeworkObject.isRealized());
 
                 } catch (JSONException | ParseException e) {
                     e.printStackTrace();
                 }
             }
         }.envoiRequete("getHomeWorkById", "action=getHomeWorkById&idUser=" + preferences.getInt(StringUtils.IDUSER.toString(), 0) + "&idHomeWork=" + idHomework);
+    }
+
+    public void deleteHomework(final int idHomework) {
+        new RequestActivity() {
+            @Override
+            public void traiteReponse(JSONObject o, String action) {
+
+                //TODO Retour lors de la suppression d'un devoir ?
+                /*try {
+
+                } catch (JSONException | ParseException e) {
+                    e.printStackTrace();
+                }*/
+            }
+        }.envoiRequete("deleteHomework", "action=deleteHomework&idHomeWork=" + idHomework);
     }
 }
