@@ -48,3 +48,4 @@ Temporary Items
 
 IG2Work_Android/.idea/*.xml
 IG2Work_Android/build.gradle
+IG2Work_Android/app/src/androidTest/java/com/example/anais/ig2work/ExampleInstrumentedTest.java
