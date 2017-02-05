@@ -42,6 +42,8 @@ public class SeanceActivity extends RestActivity {
     private ListView listViewHomeworks;
     private ListView listViewNotes;
 
+    private int idSeance;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -59,11 +61,34 @@ public class SeanceActivity extends RestActivity {
             progressBar.setVisibility(View.GONE);
         }
 
-        int idSeance = this.getIntent().getExtras().getInt("idSeance");
-        SharedPreferences.Editor editor = preferences.edit();
-        editor.putInt("idSeance", idSeance);
-        editor.apply();
+        idSeance = this.getIntent().getExtras().getInt("idSeance");
         getSeance(idSeance);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+
+        switch (id) {
+            case R.id.menu_seance:
+                Log.d("action", "Séance");
+
+                FragmentManager fragmentManager = getFragmentManager();
+
+                Bundle data = new Bundle();
+                data.putString("idSeance", String.valueOf(idSeance));
+                data.putString("idUser", String.valueOf(preferences.getInt(StringUtils.IDUSER.toString(), 0)));
+                data.putString("role", preferences.getString(StringUtils.ROLE.toString(), ""));
+
+                AjoutFragment ajoutFragment = new AjoutFragment();
+                ajoutFragment.setArguments(data);
+                ajoutFragment.setRetainInstance(true);
+                ajoutFragment.show(fragmentManager, "seance");
+
+                return true;
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 
     public void onClickChangeActivity(String activity, Bundle data) {

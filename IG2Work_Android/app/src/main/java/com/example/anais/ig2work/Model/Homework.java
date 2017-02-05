@@ -1,12 +1,13 @@
 package com.example.anais.ig2work.Model;
 
+import java.io.Serializable;
 import java.util.Date;
 
 /**
  * Created by clementruffin on 29/01/2017.
  */
 
-public class Homework {
+public class Homework implements Serializable {
     private int id;
     private String module;
     private String titre;

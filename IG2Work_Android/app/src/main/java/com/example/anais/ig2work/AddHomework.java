@@ -21,6 +21,7 @@ import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.example.anais.ig2work.DataBase.RequestActivity;
+import com.example.anais.ig2work.Model.Homework;
 import com.example.anais.ig2work.Utils.StringUtils;
 
 import org.json.JSONException;
@@ -67,6 +68,13 @@ public class AddHomework extends AppCompatActivity {
             }
         });
         mDescriptionView = (TextInputLayout) findViewById(R.id.description);
+
+        Homework homeworkObject = (Homework) getIntent().getSerializableExtra("homeworkObject");
+
+        mTitleView.getEditText().setText(homeworkObject.getTitre());
+        mDescriptionView.getEditText().setText(homeworkObject.getDescription());
+        //TODO Revoir la date...
+        mDueDateView.getEditText().setText(String.valueOf(homeworkObject.getDueDate()));
     }
 
     public void showTimePickerDialog(View v) {

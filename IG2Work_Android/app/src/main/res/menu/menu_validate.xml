@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
+
     <item
-        android:id="@+id/menu_seance"
-        android:icon="@drawable/ic_action_popup"
+        android:id="@+id/menu_validate"
+        android:icon="@drawable/ic_action_validate"
         app:showAsAction="ifRoom"
-        android:title="@string/menu_seance"/>
+        android:title="Valider"/>
+
 </menu>

@@ -10,6 +10,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.example.anais.ig2work.AddHomework;
 import com.example.anais.ig2work.AjoutFragment;
 import com.example.anais.ig2work.DataBase.RequestActivity;
 import com.example.anais.ig2work.GlobalState;
@@ -87,40 +88,6 @@ public abstract class RestActivity extends AppCompatActivity {
         int id = item.getItemId();
 
         switch (id) {
-
-            case R.id.menu_search_seance:
-                Log.d("action", "Recherche séance");
-                return true;
-
-            case R.id.menu_create_seance:
-                Log.d("action", "Création séance");
-                return true;
-
-            case R.id.menu_edit_homework:
-                Log.d("action", "Edition devoir");
-                return true;
-
-            case R.id.menu_delete_homework:
-                Log.d("action", "Suppression devoir");
-                return true;
-
-            case R.id.menu_seance:
-                Log.d("action", "Séance");
-
-                FragmentManager fragmentManager = getFragmentManager();
-
-                Bundle data = new Bundle();
-                data.putString("idSeance", String.valueOf(preferences.getInt("idSeance", 0)));
-                data.putString("idUser", String.valueOf(preferences.getInt(StringUtils.IDUSER.toString(), 0)));
-                data.putString("role", preferences.getString(StringUtils.ROLE.toString(), ""));
-
-                AjoutFragment ajoutFragment = new AjoutFragment();
-                ajoutFragment.setArguments(data);
-                ajoutFragment.setRetainInstance(true);
-                ajoutFragment.show(fragmentManager, "seance");
-
-                return true;
-
             // Menu 'Se déconnecter'
             case R.id.action_logout:
                 logoutUser();
