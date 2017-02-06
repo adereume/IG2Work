@@ -48,6 +48,8 @@ public class HomeworkActivity extends RestActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_homework);
 
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
         preferences = PreferenceManager.getDefaultSharedPreferences(HomeworkActivity.this);
 
         moduleTextView = (TextView) findViewById(R.id.module);
@@ -79,6 +81,10 @@ public class HomeworkActivity extends RestActivity {
             case R.id.menu_delete_homework:
                 deleteHomework(idHomework);
                 return true;
+
+            case android.R.id.home:
+                this.finish();
+                break;
         }
 
         return super.onOptionsItemSelected(item);

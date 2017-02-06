@@ -11,7 +11,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.ExpandableListView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.ProgressBar;
@@ -20,6 +19,8 @@ import android.widget.TextView;
 import com.example.anais.ig2work.DataBase.RequestActivity;
 import com.example.anais.ig2work.Model.Homework;
 import com.example.anais.ig2work.Model.HomeworkAdapter;
+import com.example.anais.ig2work.Model.Task;
+import com.example.anais.ig2work.Model.TaskAdapter;
 import com.example.anais.ig2work.Utils.RestActivity;
 import com.example.anais.ig2work.Utils.StringUtils;
 
@@ -48,6 +49,8 @@ public class SeanceActivity extends RestActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_seance);
+
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         preferences = PreferenceManager.getDefaultSharedPreferences(SeanceActivity.this);
 
@@ -86,6 +89,10 @@ public class SeanceActivity extends RestActivity {
                 ajoutFragment.show(fragmentManager, "seance");
 
                 return true;
+
+            case android.R.id.home:
+                this.finish();
+                break;
         }
 
         return super.onOptionsItemSelected(item);
@@ -98,6 +105,8 @@ public class SeanceActivity extends RestActivity {
             case "homework":
                 intent = new Intent(SeanceActivity.this, HomeworkActivity.class);
                 break;
+            case "task":
+                intent = new Intent(SeanceActivity.this, AddTaskActivity.class);
         }
 
         intent.putExtras(data);
@@ -130,7 +139,7 @@ public class SeanceActivity extends RestActivity {
 
                     // ***** TÂCHES *****
 
-                    List<String> listTasks = new ArrayList<String>();
+                    List<Task> listTasks = new ArrayList<Task>();
                     JSONArray tasks = o.getJSONArray("seance");
 
                     for (int i = 0; i < tasks.length(); i++) {
@@ -139,15 +148,44 @@ public class SeanceActivity extends RestActivity {
 
                         // Instancier objet tâche
                         // Remplir liste de tâches
+                        int id = 0;//task.getInt("id");
+                        String type = task.getString("type");
+                        String title = task.getString("titre");
+                        String description = "";//task.getString("description");
+                        Boolean isVisible = false;
+
+                        if (!task.isNull("isVisible")) {
+                            isVisible = task.getString("isVisible").equals("1") ? true : false;
+                        }
+
+                        Boolean isRealized = false;
+
+                        if (!task.isNull("isRealized")) {
+                            isRealized = task.getString("isRealized").equals("1") ? true : false;
+                        }
+
+                        Task t = new Task(id, title, description, type, isVisible, isRealized);
+
+                        listTasks.add(t);
                     }
 
-                    listTasks.add("Tâche 1");
-                    listTasks.add("Tâche 2");
-                    listTasks.add("Tâche 3");
-
-                    ArrayAdapter<String> adapterTasks = new ArrayAdapter<String>(SeanceActivity.this, android.R.layout.simple_list_item_1, listTasks);
-                    listViewTasks.setAdapter(adapterTasks);
+                    TaskAdapter adapterSeanceObject = new TaskAdapter(SeanceActivity.this, listTasks);
+                    listViewTasks.setAdapter(adapterSeanceObject);
                     ListUtils.setDynamicHeight(listViewTasks);
+
+                    listViewTasks.setOnItemClickListener(new ListView.OnItemClickListener() {
+
+                        @Override
+                        public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+
+                            Task taskChoice = (Task) listViewTasks.getAdapter().getItem(i);
+
+                            Bundle data = new Bundle();
+                            data.putInt("idTask", taskChoice.getId());
+
+                            SeanceActivity.this.onClickChangeActivity("task", data);
+                        }
+                    });
 
                     // ***** DEVOIRS *****
 
