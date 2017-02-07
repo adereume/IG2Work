@@ -1,5 +1,6 @@
 package com.example.anais.ig2work;
 
+import android.animation.ObjectAnimator;
 import android.app.FragmentManager;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -9,8 +10,9 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.DecelerateInterpolator;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.ProgressBar;
@@ -40,6 +42,7 @@ public class SeanceActivity extends RestActivity {
 
     private SharedPreferences preferences;
     private ProgressBar progressBar;
+    private Button resetButton;
     private TextView textView;
     private ListView listViewTasks;
     private ListView listViewHomeworks;
@@ -57,17 +60,34 @@ public class SeanceActivity extends RestActivity {
         preferences = PreferenceManager.getDefaultSharedPreferences(SeanceActivity.this);
 
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
+        resetButton = (Button) findViewById(R.id.resetButton);
         textView = (TextView) findViewById(R.id.title);
         listViewTasks = (ListView) findViewById(R.id.list_tasks);
         listViewHomeworks = (ListView) findViewById(R.id.list_homeworks);
         listViewNotes = (ListView) findViewById(R.id.list_notes);
 
-        if (preferences.getString(StringUtils.ROLE.toString(), "").equals("student")) {
-            progressBar.setVisibility(View.GONE);
+        switch (preferences.getString(StringUtils.ROLE.toString(), "")) {
+            case "student":
+                progressBar.setVisibility(View.GONE);
+                resetButton.setVisibility(View.GONE);
+                break;
         }
+
+        resetButton.setOnClickListener(new Button.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                SeanceActivity.this.resetLostStudents();
+            }
+        });
 
         idSeance = this.getIntent().getExtras().getInt("idSeance");
         getSeance(idSeance);
+
+        //TODO Récupération régulière des étudiants perdus
+        ObjectAnimator animation = ObjectAnimator.ofInt(progressBar, "progress", 70);
+        animation.setDuration(500); // 0.5 second
+        animation.setInterpolator(new DecelerateInterpolator());
+        animation.start();
     }
 
     @Override
@@ -283,6 +303,24 @@ public class SeanceActivity extends RestActivity {
         }.envoiRequete("getSeanceById", "action=getSeanceById&idUser=" + preferences.getInt(StringUtils.IDUSER.toString(), 0) + "&idSeance=" + idSeance);
     }
 
+    public void resetLostStudents() {
+        new RequestActivity() {
+            @Override
+            public void traiteReponse(JSONObject o, String action) {
+
+                /*try {
+
+                } catch (JSONException | ParseException e) {
+                    e.printStackTrace();
+                }*/
+
+                ObjectAnimator animation = ObjectAnimator.ofInt(progressBar, "progress", 0);
+                animation.setDuration(500); // 0.5 second
+                animation.setInterpolator(new DecelerateInterpolator());
+                animation.start();
+            }
+        }.envoiRequete("resetLostStudents", "action=getSeanceById&idUser=" + preferences.getInt(StringUtils.IDUSER.toString(), 0) + "&idSeance=" + idSeance);
+    }
     public static class ListUtils {
         public static void setDynamicHeight(ListView mListView) {
 

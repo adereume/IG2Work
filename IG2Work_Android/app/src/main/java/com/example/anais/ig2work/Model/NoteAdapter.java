@@ -30,20 +30,18 @@ public class NoteAdapter extends ArrayAdapter<Note> {
     public View getView(int position, View convertView, ViewGroup parent) {
 
         if(convertView == null){
-            convertView = LayoutInflater.from(getContext()).inflate(R.layout.row_task_layout,parent, false);
+            convertView = LayoutInflater.from(getContext()).inflate(R.layout.row_note_layout,parent, false);
         }
 
         NoteAdapter.NoteViewHolder viewHolder = (NoteAdapter.NoteViewHolder) convertView.getTag();
         if(viewHolder == null){
             viewHolder = new NoteAdapter.NoteViewHolder();
-            viewHolder.description = (TextView) convertView.findViewById(R.id.title);
+            viewHolder.description = (TextView) convertView.findViewById(R.id.description);
             convertView.setTag(viewHolder);
         }
 
         Note note = getItem(position);
         viewHolder.description.setText(note.getDescription());
-
-        convertView.findViewById(R.id.checkBox).setVisibility(View.GONE);
 
         return convertView;
     }

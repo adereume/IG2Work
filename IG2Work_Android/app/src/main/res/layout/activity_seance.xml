@@ -19,18 +19,26 @@
         android:layout_alignParentEnd="true"
         android:layout_alignParentStart="true" />
 
+    <Button
+        android:text="Réinitialiser"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/progressBar"
+        android:layout_alignParentEnd="true"
+        android:id="@+id/resetButton" />
+
     <TextView
         android:text="TextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/title"
-        android:layout_below="@+id/progressBar"
-        android:layout_alignParentStart="true" />
+        android:layout_below="@+id/resetButton"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="10dp"/>
 
     <ScrollView
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
         android:layout_below="@+id/title">
 
         <LinearLayout
