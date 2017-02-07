@@ -19,6 +19,8 @@ import android.widget.TextView;
 import com.example.anais.ig2work.DataBase.RequestActivity;
 import com.example.anais.ig2work.Model.Homework;
 import com.example.anais.ig2work.Model.HomeworkAdapter;
+import com.example.anais.ig2work.Model.Note;
+import com.example.anais.ig2work.Model.NoteAdapter;
 import com.example.anais.ig2work.Model.Task;
 import com.example.anais.ig2work.Model.TaskAdapter;
 import com.example.anais.ig2work.Utils.RestActivity;
@@ -102,11 +104,17 @@ public class SeanceActivity extends RestActivity {
         Intent intent = new Intent();
 
         switch (activity) {
+            case "task":
+                //TODO Lancer TaskActivity
+                intent = new Intent(SeanceActivity.this, AddTaskActivity.class);
+                break;
             case "homework":
                 intent = new Intent(SeanceActivity.this, HomeworkActivity.class);
                 break;
-            case "task":
-                intent = new Intent(SeanceActivity.this, AddTaskActivity.class);
+            case "note":
+                //TODO Lancer NoteActivity
+                intent = new Intent(SeanceActivity.this, AddNoteActivity.class);
+                break;
         }
 
         intent.putExtras(data);
@@ -146,8 +154,6 @@ public class SeanceActivity extends RestActivity {
 
                         JSONObject task = tasks.getJSONObject(i);
 
-                        // Instancier objet tâche
-                        // Remplir liste de tâches
                         int id = 0;//task.getInt("id");
                         String type = task.getString("type");
                         String title = task.getString("titre");
@@ -232,24 +238,43 @@ public class SeanceActivity extends RestActivity {
 
                     // ***** NOTES *****
 
-                    List<String> listNotes = new ArrayList<String>();
+                    List<Note> listNotes = new ArrayList<Note>();
                     JSONArray notes = o.getJSONArray("note");
 
                     for (int i = 0; i < notes.length(); i++) {
 
                         JSONObject note = notes.getJSONObject(i);
 
-                        // Instancier objet note
-                        // Remplir liste de notes
+                        int id = note.getInt("id");
+                        String description = note.getString("description");
+                        boolean isPrivate = false;
+
+                        if (!note.isNull("private")) {
+                            isPrivate = note.getString("private").equals("1") ? true : false;
+                        }
+
+                        Note n = new Note(id, description, isPrivate);
+
+                        listNotes.add(n);
                     }
 
-                    listNotes.add("Note 1");
-                    listNotes.add("Note 2");
-                    listNotes.add("Note 3");
-
-                    ArrayAdapter<String> adapterNotes = new ArrayAdapter<String>(SeanceActivity.this, android.R.layout.simple_list_item_1, listNotes);
+                    NoteAdapter adapterNotes = new NoteAdapter(SeanceActivity.this, listNotes);
                     listViewNotes.setAdapter(adapterNotes);
                     ListUtils.setDynamicHeight(listViewNotes);
+
+                    listViewNotes.setOnItemClickListener(new ListView.OnItemClickListener() {
+
+                        @Override
+                        public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+
+                            Note noteChoice = (Note) listViewNotes.getAdapter().getItem(i);
+
+                            Bundle data = new Bundle();
+                            data.putInt("idNote", noteChoice.getId());
+
+                            SeanceActivity.this.onClickChangeActivity("note", data);
+                        }
+                    });
 
                 } catch (JSONException | ParseException e) {
                     e.printStackTrace();

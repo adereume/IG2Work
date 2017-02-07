@@ -52,7 +52,7 @@ public class TaskAdapter extends ArrayAdapter<Task> {
         if (task.getType().equals("Tache")) {
             viewHolder.realized.setChecked(task.isRealized());
         } else {
-            viewHolder.realized.setVisibility(View.INVISIBLE);
+            viewHolder.realized.setVisibility(View.GONE);
         }
 
         return convertView;

@@ -33,6 +33,7 @@
         android:layout_alignBaseline="@+id/title"
         android:layout_marginRight="10dp"
         android:layout_alignParentEnd="true"
-        android:textSize="30sp" />
+        android:textSize="20sp"
+        android:fontFamily="sans-serif" />
 
 </RelativeLayout>

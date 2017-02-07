@@ -48,6 +48,7 @@
         android:textAppearance="@style/TextAppearance.AppCompat.Display1"
         android:layout_alignBottom="@+id/room"
         android:layout_marginRight="10dp"
-        android:layout_alignParentEnd="true" />
+        android:layout_alignParentEnd="true"
+        android:textSize="20sp" />
 
 </RelativeLayout>
