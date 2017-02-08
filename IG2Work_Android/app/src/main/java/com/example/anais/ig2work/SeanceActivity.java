@@ -81,13 +81,15 @@ public class SeanceActivity extends RestActivity {
         });
 
         idSeance = this.getIntent().getExtras().getInt("idSeance");
-        getSeance(idSeance);
+        getSeance();
+
 
         //TODO Récupération régulière des étudiants perdus
-        ObjectAnimator animation = ObjectAnimator.ofInt(progressBar, "progress", 70);
+        getLostStudents();
+        /*ObjectAnimator animation = ObjectAnimator.ofInt(progressBar, "progress", 70);
         animation.setDuration(500); // 0.5 second
         animation.setInterpolator(new DecelerateInterpolator());
-        animation.start();
+        animation.start();*/
     }
 
     @Override
@@ -141,7 +143,7 @@ public class SeanceActivity extends RestActivity {
         startActivity(intent);
     }
 
-    public void getSeance(final int idSeance) {
+    public void getSeance() {
         new RequestActivity() {
             @Override
             public void traiteReponse(JSONObject o, String action) {
@@ -303,24 +305,52 @@ public class SeanceActivity extends RestActivity {
         }.envoiRequete("getSeanceById", "action=getSeanceById&idUser=" + preferences.getInt(StringUtils.IDUSER.toString(), 0) + "&idSeance=" + idSeance);
     }
 
-    public void resetLostStudents() {
+    public void getLostStudents() {
         new RequestActivity() {
             @Override
             public void traiteReponse(JSONObject o, String action) {
 
-                /*try {
 
-                } catch (JSONException | ParseException e) {
+                try {
+                    JSONArray lostArray = o.getJSONArray("lost");
+                    JSONObject lost = lostArray.getJSONObject(0);
+                    int lostStudent = lost.getInt("lostStudent");
+
+                    JSONArray totalArray = o.getJSONArray("total");
+                    JSONObject total = totalArray.getJSONObject(0);
+                    int totalStudent = total.getInt("totalStudent");
+
+                    int taux = 0;
+
+                    if (lostStudent != 0 && totalStudent != 0) {
+                        taux = (lostStudent * 100) / totalStudent;
+                    }
+
+                    ObjectAnimator animation = ObjectAnimator.ofInt(progressBar, "progress", taux);
+                    animation.setDuration(500); // 0.5 second
+                    animation.setInterpolator(new DecelerateInterpolator());
+                    animation.start();
+
+                } catch (JSONException e) {
                     e.printStackTrace();
-                }*/
+                }
+            }
+        }.requetePeriodique(10, "getAllLostBySeance", "action=getAllLostBySeance&idSeance=" + idSeance);
+    }
+
+    public void resetLostStudents() {
+        new RequestActivity() {
+            @Override
+            public void traiteReponse(JSONObject o, String action) {
 
                 ObjectAnimator animation = ObjectAnimator.ofInt(progressBar, "progress", 0);
                 animation.setDuration(500); // 0.5 second
                 animation.setInterpolator(new DecelerateInterpolator());
                 animation.start();
             }
-        }.envoiRequete("resetLostStudents", "action=getSeanceById&idUser=" + preferences.getInt(StringUtils.IDUSER.toString(), 0) + "&idSeance=" + idSeance);
+        }.envoiRequete("resetLostBySeance", "action=resetLostBySeance&idSeance=" + idSeance);
     }
+
     public static class ListUtils {
         public static void setDynamicHeight(ListView mListView) {
 
