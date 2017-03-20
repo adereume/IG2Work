@@ -102,7 +102,6 @@ public class TaskAdapter extends ArrayAdapter<Task> {
     }
 
     public void setVisible(final ImageView img, final int idTask, final String type, final boolean isVisible, final int idUser) {
-        Log.e("OnClickTache", ""+isVisible);
         if(type.equals("Tache")) {
             new RequestActivity() {
                 @Override
