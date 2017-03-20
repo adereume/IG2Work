@@ -14,8 +14,8 @@ public enum StringUtils {
     ROLE("role"),
     
     //Les différents rôles
-    ENSEIGNANT("TEACHER"),
-    ETUDIANT("STUDENT"),
+    ENSEIGNANT("teacher"),
+    ETUDIANT("student"),
 	
     ATTEMPT_CONNEXION("attempt_connexion"),
 
@@ -33,7 +33,7 @@ public enum StringUtils {
         this.name = name;
     }
 
-    public String toString(){
+    public final String toString(){
         return name;
     }
 }

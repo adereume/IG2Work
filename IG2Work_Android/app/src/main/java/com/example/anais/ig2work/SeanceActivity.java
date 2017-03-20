@@ -66,11 +66,12 @@ public class SeanceActivity extends RestActivity {
         listViewHomeworks = (ListView) findViewById(R.id.list_homeworks);
         listViewNotes = (ListView) findViewById(R.id.list_notes);
 
-        switch (preferences.getString(StringUtils.ROLE.toString(), "")) {
-            case "student":
-                progressBar.setVisibility(View.GONE);
-                resetButton.setVisibility(View.GONE);
-                break;
+        if (StringUtils.ETUDIANT.toString().equals(preferences.getString(StringUtils.ROLE.toString(), ""))) {
+            progressBar.setVisibility(View.GONE);
+            resetButton.setVisibility(View.GONE);
+        } else {
+            //TODO Récupération régulière des étudiants perdus
+            getLostStudents();
         }
 
         resetButton.setOnClickListener(new Button.OnClickListener() {
@@ -83,9 +84,6 @@ public class SeanceActivity extends RestActivity {
         idSeance = this.getIntent().getExtras().getInt("idSeance");
         getSeance();
 
-
-        //TODO Récupération régulière des étudiants perdus
-        getLostStudents();
         /*ObjectAnimator animation = ObjectAnimator.ofInt(progressBar, "progress", 70);
         animation.setDuration(500); // 0.5 second
         animation.setInterpolator(new DecelerateInterpolator());
@@ -128,14 +126,18 @@ public class SeanceActivity extends RestActivity {
         switch (activity) {
             case "task":
                 //TODO Lancer TaskActivity
-                intent = new Intent(SeanceActivity.this, AddTaskActivity.class);
+                //intent = new Intent(SeanceActivity.this, AddTaskActivity.class);
+                break;
+            case "question":
+                //TODO Lancer QuestionActivity
+                //intent = new Intent(SeanceActivity.this, AddTaskActivity.class);
                 break;
             case "homework":
                 intent = new Intent(SeanceActivity.this, HomeworkActivity.class);
                 break;
             case "note":
                 //TODO Lancer NoteActivity
-                intent = new Intent(SeanceActivity.this, AddNoteActivity.class);
+                //intent = new Intent(SeanceActivity.this, AddNoteActivity.class);
                 break;
         }
 
@@ -168,19 +170,16 @@ public class SeanceActivity extends RestActivity {
                     }
 
                     // ***** TÂCHES *****
-
                     List<Task> listTasks = new ArrayList<Task>();
                     JSONArray tasks = o.getJSONArray("seance");
-
+                    Log.e("Nb tâche: ", ""+tasks.length());
                     for (int i = 0; i < tasks.length(); i++) {
-
                         JSONObject task = tasks.getJSONObject(i);
 
-                        int id = 0;//task.getInt("id");
+                        int id = task.getInt("id");
                         String type = task.getString("type");
                         String title = task.getString("titre");
-                        String description = "";//task.getString("description");
-                        Boolean isVisible = false;
+                        Boolean isVisible = true;
 
                         if (!task.isNull("isVisible")) {
                             isVisible = task.getString("isVisible").equals("1") ? true : false;
@@ -192,14 +191,13 @@ public class SeanceActivity extends RestActivity {
                             isRealized = task.getString("isRealized").equals("1") ? true : false;
                         }
 
-                        Task t = new Task(id, title, description, type, isVisible, isRealized);
+                        Task t = new Task(id, title, null, type, isVisible, isRealized);
 
                         listTasks.add(t);
                     }
 
                     TaskAdapter adapterSeanceObject = new TaskAdapter(SeanceActivity.this, listTasks);
                     listViewTasks.setAdapter(adapterSeanceObject);
-                    ListUtils.setDynamicHeight(listViewTasks);
 
                     listViewTasks.setOnItemClickListener(new ListView.OnItemClickListener() {
 
@@ -209,11 +207,17 @@ public class SeanceActivity extends RestActivity {
                             Task taskChoice = (Task) listViewTasks.getAdapter().getItem(i);
 
                             Bundle data = new Bundle();
-                            data.putInt("idTask", taskChoice.getId());
 
-                            SeanceActivity.this.onClickChangeActivity("task", data);
+                            if(taskChoice.getType().equals("Tache")) {
+                                data.putInt("idTask", taskChoice.getId());
+                                SeanceActivity.this.onClickChangeActivity("task", data);
+                            } else {
+                                data.putInt("idQuestion", taskChoice.getId());
+                                SeanceActivity.this.onClickChangeActivity("question", data);
+                            }
                         }
                     });
+                    ListUtils.setDynamicHeight(listViewTasks);
 
                     // ***** DEVOIRS *****
 
@@ -306,7 +310,7 @@ public class SeanceActivity extends RestActivity {
     }
 
     public void getLostStudents() {
-        new RequestActivity() {
+      /*  new RequestActivity() {
             @Override
             public void traiteReponse(JSONObject o, String action) {
 
@@ -335,7 +339,7 @@ public class SeanceActivity extends RestActivity {
                     e.printStackTrace();
                 }
             }
-        }.requetePeriodique(10, "getAllLostBySeance", "action=getAllLostBySeance&idSeance=" + idSeance);
+        }.requetePeriodique(10, "getAllLostBySeance", "action=getAllLostBySeance&idSeance=" + idSeance);*/
     }
 
     public void resetLostStudents() {
