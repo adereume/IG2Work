@@ -65,13 +65,7 @@ public class SeanceActivity extends RestActivity {
         listViewHomeworks = (ListView) findViewById(R.id.list_homeworks);
         listViewNotes = (ListView) findViewById(R.id.list_notes);
 
-        if (StringUtils.ETUDIANT.toString().equals(preferences.getString(StringUtils.ROLE.toString(), ""))) {
-            progressBar.setVisibility(View.GONE);
-            resetButton.setVisibility(View.GONE);
-        } else {
-            //TODO Récupération régulière des étudiants perdus
-            getLostStudents();
-        }
+        idSeance = this.getIntent().getExtras().getInt("idSeance");
 
         resetButton.setOnClickListener(new Button.OnClickListener() {
             @Override
@@ -79,14 +73,19 @@ public class SeanceActivity extends RestActivity {
                 SeanceActivity.this.resetLostStudents();
             }
         });
+    }
 
-        idSeance = this.getIntent().getExtras().getInt("idSeance");
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        if (StringUtils.ETUDIANT.toString().equals(preferences.getString(StringUtils.ROLE.toString(), ""))) {
+            findViewById(R.id.progress).setVisibility(View.GONE);
+        } else {
+            getLostStudents();
+        }
+
         getSeance();
-
-        /*ObjectAnimator animation = ObjectAnimator.ofInt(progressBar, "progress", 70);
-        animation.setDuration(500); // 0.5 second
-        animation.setInterpolator(new DecelerateInterpolator());
-        animation.start();*/
     }
 
     @Override
@@ -168,7 +167,7 @@ public class SeanceActivity extends RestActivity {
                     // ***** TÂCHES *****
                     List<Task> listTasks = new ArrayList<Task>();
                     JSONArray tasks = o.getJSONArray("seance");
-                    Log.e("Nb tâche: ", ""+tasks.length());
+
                     for (int i = 0; i < tasks.length(); i++) {
                         JSONObject task = tasks.getJSONObject(i);
 
@@ -182,9 +181,8 @@ public class SeanceActivity extends RestActivity {
                         }
 
                         Boolean isRealized = false;
-
-                        if (!task.isNull("isRealized")) {
-                            isRealized = task.getString("isRealized").equals("1") ? true : false;
+                        if (!task.isNull("realized")) {
+                            isRealized = task.getString("realized").equals("1") ? true : false;
                         }
 
                         Task t = new Task(id, title, null, type, isVisible, isRealized);
@@ -244,7 +242,6 @@ public class SeanceActivity extends RestActivity {
 
                     }
 
-                    Log.e("HomeWork", listHomeworks.toString());
                     HomeworkAdapter adapterHomeworks = new HomeworkAdapter(SeanceActivity.this, listHomeworks);
                     listViewHomeworks.setAdapter(adapterHomeworks);
                     ListUtils.setDynamicHeight(listViewHomeworks);
@@ -263,9 +260,7 @@ public class SeanceActivity extends RestActivity {
                         }
                     });
 
-
                     // ***** NOTES *****
-
                     List<Note> listNotes = new ArrayList<Note>();
                     JSONArray notes = o.getJSONArray("note");
 
@@ -308,30 +303,28 @@ public class SeanceActivity extends RestActivity {
                     e.printStackTrace();
                 }
             }
-        }.envoiRequete("getSeanceById", "action=getSeanceById&idUser=" + preferences.getInt(StringUtils.IDUSER.toString(), 0) + "&idSeance=" + idSeance);
+        }.requetePeriodique(this, 30, "getSeanceById", "action=getSeanceById&idUser=" + preferences.getInt(StringUtils.IDUSER.toString(), 0) + "&idSeance=" + idSeance);
     }
 
     public void getLostStudents() {
-      /*  new RequestActivity() {
+        new RequestActivity() {
             @Override
             public void traiteReponse(JSONObject o, String action) {
-
-
                 try {
-                    JSONArray lostArray = o.getJSONArray("lost");
-                    JSONObject lost = lostArray.getJSONObject(0);
-                    int lostStudent = lost.getInt("lostStudent");
+                    JSONArray retour = o.getJSONArray("retour");
+                    JSONObject lost = retour.getJSONObject(0);
 
-                    JSONArray totalArray = o.getJSONArray("total");
-                    JSONObject total = totalArray.getJSONObject(0);
-                    int totalStudent = total.getInt("totalStudent");
+                    //Recupére les résultats
+                    int lostStudent = lost.getInt("Perdu");
+                    int totalStudent = lost.getInt("Total");
 
+                    //Calcul le poucentage
                     int taux = 0;
-
                     if (lostStudent != 0 && totalStudent != 0) {
                         taux = (lostStudent * 100) / totalStudent;
                     }
 
+                    //Initialise la progressBar
                     ObjectAnimator animation = ObjectAnimator.ofInt(progressBar, "progress", taux);
                     animation.setDuration(500); // 0.5 second
                     animation.setInterpolator(new DecelerateInterpolator());
@@ -341,14 +334,13 @@ public class SeanceActivity extends RestActivity {
                     e.printStackTrace();
                 }
             }
-        }.requetePeriodique(10, "getAllLostBySeance", "action=getAllLostBySeance&idSeance=" + idSeance);*/
+        }.requetePeriodique(this, 30, "getAllLostBySeance", "action=getAllLostBySeance&idSeance=" + idSeance);
     }
 
     public void resetLostStudents() {
         new RequestActivity() {
             @Override
             public void traiteReponse(JSONObject o, String action) {
-
                 ObjectAnimator animation = ObjectAnimator.ofInt(progressBar, "progress", 0);
                 animation.setDuration(500); // 0.5 second
                 animation.setInterpolator(new DecelerateInterpolator());

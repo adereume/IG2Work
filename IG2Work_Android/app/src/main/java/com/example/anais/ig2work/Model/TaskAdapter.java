@@ -52,6 +52,9 @@ public class TaskAdapter extends ArrayAdapter<Task> {
             convertView = LayoutInflater.from(getContext()).inflate(R.layout.row_task_layout,parent, false);
         }
 
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(convertView.getContext());
+        final int idUser = preferences.getInt(StringUtils.IDUSER.toString(), 0);
+
         TaskAdapter.TaskViewHolder viewHolder = (TaskAdapter.TaskViewHolder) convertView.getTag();
         if(viewHolder == null){
             viewHolder = new TaskAdapter.TaskViewHolder();
@@ -63,11 +66,19 @@ public class TaskAdapter extends ArrayAdapter<Task> {
 
         final Task task = getItem(position);
         viewHolder.title.setText(task.getTitre());
+        viewHolder.realized.setChecked(task.isRealized());
+        final CheckBox cb = viewHolder.realized;
+        viewHolder.realized.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                setChecked(cb, task.getType(), task.getId(), idUser, !task.isRealized());
+            }
+        });
+
+        ((ImageView)convertView.findViewById(R.id.logo)).setImageResource(R.drawable.logo_homework);
 
         //Affichage en fonction du rôle
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(convertView.getContext());
         if(StringUtils.ENSEIGNANT.toString().equals(preferences.getString(StringUtils.ROLE.toString(), ""))) {
-            final int idUser = preferences.getInt(StringUtils.IDUSER.toString(), 0);
             final ImageView img = (ImageView) convertView.findViewById(R.id.visible);
 
             viewHolder.realized.setVisibility(View.GONE);
@@ -140,6 +151,38 @@ public class TaskAdapter extends ArrayAdapter<Task> {
                     }
                 }
             }.envoiRequete("setVisibleTache", "action=setQuestionVisible&idQuestion="+idTask+"&isVisible="+isVisible+"&idUser="+idUser);
+        }
+    }
+
+    public void setChecked(final CheckBox cb, final String type, final int idTask, final int idUser, final boolean realized) {
+        if(type.equals("Tache")) {
+            new RequestActivity() {
+                @Override
+                public void traiteReponse(JSONObject o, String action) {
+                    if(!o.isNull("retour"))  {
+                        cb.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                TaskAdapter.this.setChecked(cb, type, idTask, idUser, !realized);
+                            }
+                        });
+                    }
+                }
+            }.envoiRequete("realizedTache", "action=realizedTache&idTache="+idTask+"&realized="+realized+"&idStudent="+idUser);
+        } else {
+            new RequestActivity() {
+                @Override
+                public void traiteReponse(JSONObject o, String action) {
+                    if(!o.isNull("retour"))  {
+                        cb.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                TaskAdapter.this.setChecked(cb, type, idTask, idUser, !realized);
+                            }
+                        });
+                    }
+                }
+            }.envoiRequete("realizedQuestion", "action=realizedQuestion&idQuestion="+idTask+"&realized="+realized+"&idStudent="+idUser);
         }
     }
 }

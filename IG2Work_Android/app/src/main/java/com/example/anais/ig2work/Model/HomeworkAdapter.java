@@ -50,6 +50,9 @@ public class HomeworkAdapter extends ArrayAdapter<Homework> {
             convertView = LayoutInflater.from(getContext()).inflate(R.layout.row_homework_layout,parent, false);
         }
 
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(convertView.getContext());
+        final int idUser = preferences.getInt(StringUtils.IDUSER.toString(), 0);
+
         HomeworkViewHolder viewHolder = (HomeworkViewHolder) convertView.getTag();
         if(viewHolder == null){
             viewHolder = new HomeworkViewHolder();
@@ -64,13 +67,18 @@ public class HomeworkAdapter extends ArrayAdapter<Homework> {
         viewHolder.title.setText(homework.getTitre());
         viewHolder.dueDate.setText(new SimpleDateFormat("dd MMMM yyyy à HH:mm", Locale.FRANCE).format(homework.getDueDate()));
         viewHolder.realized.setChecked(homework.isRealized());
+        final CheckBox cb = viewHolder.realized;
+        viewHolder.realized.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                setChecked(cb, homework.getId(), idUser, !homework.isRealized());
+            }
+        });
 
         ((ImageView)convertView.findViewById(R.id.logo)).setImageResource(R.drawable.logo_homework);
 
         //Affichage en fonction du rôle
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(convertView.getContext());
         if(StringUtils.ENSEIGNANT.toString().equals(preferences.getString(StringUtils.ROLE.toString(), ""))) {
-            final int idUser = preferences.getInt(StringUtils.IDUSER.toString(), 0);
             final ImageView img = (ImageView) convertView.findViewById(R.id.visible);
 
             viewHolder.realized.setVisibility(View.GONE);
@@ -113,5 +121,21 @@ public class HomeworkAdapter extends ArrayAdapter<Homework> {
                 }
             }
         }.envoiRequete("setVisibleHomework", "action=setHomeWorkVisible&idHomeWork="+idHomeWork+"&isVisible="+isVisible+"&idUser="+idUser);
+    }
+
+    public void setChecked(final CheckBox cb, final int idHomeWork, final int idUser, final boolean realized) {
+        new RequestActivity() {
+            @Override
+            public void traiteReponse(JSONObject o, String action) {
+                if(!o.isNull("retour"))  {
+                    cb.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            HomeworkAdapter.this.setChecked(cb, idHomeWork, idUser, !realized);
+                        }
+                    });
+                }
+            }
+        }.envoiRequete("realizedHomeWork", "action=realizedHomeWork&idHomeWork="+idHomeWork+"&realized="+realized+"&idUser="+idUser);
     }
 }
