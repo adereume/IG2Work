@@ -14,14 +14,16 @@ public class Homework implements Serializable {
     private String description;
     private Date dueDate;
     private boolean realized;
+    private boolean isVisible;
 
-    public Homework(int id, String module, String titre, String description, Date dueDate, boolean realized) {
+    public Homework(int id, String module, String titre, String description, Date dueDate, boolean realized, boolean isVisible) {
         this.id = id;
         this.module = module;
         this.titre = titre;
         this.description = description;
         this.dueDate = dueDate;
         this.realized = realized;
+        this.isVisible = isVisible;
     }
 
     public int getId() {
@@ -46,6 +48,14 @@ public class Homework implements Serializable {
 
     public boolean isRealized() {
         return realized;
+    }
+
+    public boolean isVisible() {
+        return isVisible;
+    }
+
+    public void setVisible(boolean visible) {
+        isVisible = visible;
     }
 
     @Override

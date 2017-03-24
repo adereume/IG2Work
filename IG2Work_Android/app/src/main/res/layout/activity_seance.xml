@@ -10,36 +10,10 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.example.anais.ig2work.SeanceActivity">
 
-    <ProgressBar
-        style="?android:attr/progressBarStyleHorizontal"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/progressBar"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentStart="true" />
-
-    <Button
-        android:text="Réinitialiser"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/progressBar"
-        android:layout_alignParentEnd="true"
-        android:id="@+id/resetButton" />
-
-    <TextView
-        android:text="TextView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/title"
-        android:layout_below="@+id/resetButton"
-        android:layout_alignParentStart="true"
-        android:layout_marginTop="10dp"/>
-
     <ScrollView
-        android:layout_width="fill_parent"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/title">
+        android:layout_below="@+id/progress">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -58,6 +32,10 @@
                 android:id="@+id/list_tasks"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:scrollbars="none"
+                android:isScrollContainer="false"
+                android:overScrollMode="never"
+                android:nestedScrollingEnabled="false"
                 android:layout_below="@+id/seance" />
 
             <TextView
@@ -73,6 +51,10 @@
                 android:id="@+id/list_homeworks"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:scrollbars="none"
+                android:isScrollContainer="false"
+                android:overScrollMode="never"
+                android:nestedScrollingEnabled="false"
                 android:layout_below="@+id/homeworks" />
 
             <TextView
@@ -88,8 +70,37 @@
                 android:id="@+id/list_notes"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:scrollbars="none"
+                android:isScrollContainer="false"
+                android:overScrollMode="never"
+                android:nestedScrollingEnabled="false"
                 android:layout_below="@+id/notes" />
 
         </LinearLayout>
     </ScrollView>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:id="@+id/progress"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true">
+        <ProgressBar
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_toStartOf="@+id/resetButton"
+            android:id="@+id/progressBar" />
+
+        <ImageButton
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:src="@drawable/ic_reset"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:id="@+id/resetButton"
+            style="@style/Widget.AppCompat.ImageButton"
+            android:background="?android:attr/colorBackground" />
+    </RelativeLayout>
 </RelativeLayout>

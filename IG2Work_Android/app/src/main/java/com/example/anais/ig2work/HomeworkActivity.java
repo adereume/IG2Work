@@ -106,13 +106,18 @@ public class HomeworkActivity extends RestActivity {
                     String title = homework.getString("titre");
                     String description = homework.getString("description");
                     String dueDate = homework.getString("dueDate");
-                    Boolean realized = false;
 
+                    Boolean isVisible = false;
+                    if (!homework.isNull("isVisible")) {
+                        isVisible = homework.getString("isVisible").equals("1") ? true : false;
+                    }
+
+                    Boolean realized = false;
                     if (!homework.isNull("realized")) {
                         realized = homework.getString("realized").equals("1") ? true : false;
                     }
 
-                    homeworkObject = new Homework(id, module, title, description, formatter.parse(dueDate), realized);
+                    homeworkObject = new Homework(id, module, title, description, formatter.parse(dueDate), realized, isVisible);
 
                     moduleTextView.setText(homeworkObject.getModule());
                     titleTextView.setText(homeworkObject.getTitre());

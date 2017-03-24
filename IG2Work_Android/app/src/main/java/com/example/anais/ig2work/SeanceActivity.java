@@ -13,6 +13,7 @@ import android.view.ViewGroup;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.ProgressBar;
@@ -42,8 +43,7 @@ public class SeanceActivity extends RestActivity {
 
     private SharedPreferences preferences;
     private ProgressBar progressBar;
-    private Button resetButton;
-    private TextView textView;
+    private ImageButton resetButton;
     private ListView listViewTasks;
     private ListView listViewHomeworks;
     private ListView listViewNotes;
@@ -60,8 +60,7 @@ public class SeanceActivity extends RestActivity {
         preferences = PreferenceManager.getDefaultSharedPreferences(SeanceActivity.this);
 
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
-        resetButton = (Button) findViewById(R.id.resetButton);
-        textView = (TextView) findViewById(R.id.title);
+        resetButton = (ImageButton) findViewById(R.id.resetButton);
         listViewTasks = (ListView) findViewById(R.id.list_tasks);
         listViewHomeworks = (ListView) findViewById(R.id.list_homeworks);
         listViewNotes = (ListView) findViewById(R.id.list_notes);
@@ -125,19 +124,16 @@ public class SeanceActivity extends RestActivity {
 
         switch (activity) {
             case "task":
-                //TODO Lancer TaskActivity
-                //intent = new Intent(SeanceActivity.this, AddTaskActivity.class);
+                intent = new Intent(SeanceActivity.this, TaskActivity.class);
                 break;
             case "question":
-                //TODO Lancer QuestionActivity
-                //intent = new Intent(SeanceActivity.this, AddTaskActivity.class);
+                intent = new Intent(SeanceActivity.this, QuestionActivity.class);
                 break;
             case "homework":
                 intent = new Intent(SeanceActivity.this, HomeworkActivity.class);
                 break;
             case "note":
-                //TODO Lancer NoteActivity
-                //intent = new Intent(SeanceActivity.this, AddNoteActivity.class);
+                intent = new Intent(SeanceActivity.this, NoteActivity.class);
                 break;
         }
 
@@ -162,10 +158,10 @@ public class SeanceActivity extends RestActivity {
 
                     switch (preferences.getString(StringUtils.ROLE.toString(), "")) {
                         case "student":
-                            textView.setText(moduleName + " - " + teacherName);
+                            SeanceActivity.this.setTitle(moduleName + " - " + teacherName);
                             break;
                         case "teacher":
-                            textView.setText(moduleName + " - " + promoName);
+                            SeanceActivity.this.setTitle(moduleName + " - " + promoName);
                             break;
                     }
 
@@ -230,19 +226,25 @@ public class SeanceActivity extends RestActivity {
 
                         int id = homework.getInt("id");
                         String title = homework.getString("titre");
-                        String description = homework.getString("description");
                         String dueDate = homework.getString("dueDate");
-                        Boolean realized = false;
 
+                        Boolean isVisible = true;
+                        if (!homework.isNull("isVisible")) {
+                            isVisible = homework.getString("isVisible").equals("1") ? true : false;
+                        }
+
+                        Boolean realized = false;
                         if (!homework.isNull("realized")) {
                             realized = homework.getString("realized").equals("1") ? true : false;
                         }
 
-                        Homework h = new Homework(id, moduleName, title, description, formatter.parse(dueDate), realized);
+                        Homework h = new Homework(id, moduleName, title, null, formatter.parse(dueDate), realized, isVisible);
 
                         listHomeworks.add(h);
+
                     }
 
+                    Log.e("HomeWork", listHomeworks.toString());
                     HomeworkAdapter adapterHomeworks = new HomeworkAdapter(SeanceActivity.this, listHomeworks);
                     listViewHomeworks.setAdapter(adapterHomeworks);
                     ListUtils.setDynamicHeight(listViewHomeworks);

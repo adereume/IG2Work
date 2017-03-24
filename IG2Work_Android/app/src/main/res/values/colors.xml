@@ -5,4 +5,5 @@
     <color name="colorAccent">#FF4081</color>
     <color name="error_color">#d1241c</color>
     <color name="background_popup">#cfe6e6</color>
+    <color name="white">#ffffff</color>
 </resources>

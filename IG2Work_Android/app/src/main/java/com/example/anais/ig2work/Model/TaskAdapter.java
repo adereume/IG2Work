@@ -141,6 +141,5 @@ public class TaskAdapter extends ArrayAdapter<Task> {
                 }
             }.envoiRequete("setVisibleTache", "action=setQuestionVisible&idQuestion="+idTask+"&isVisible="+isVisible+"&idUser="+idUser);
         }
-
     }
 }
