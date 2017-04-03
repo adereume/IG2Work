@@ -7,7 +7,6 @@
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
     <uses-permission android:name="android.permission.READ_CALENDAR" />
     <uses-permission android:name="android.permission.WRITE_CALENDAR" />
-
     <uses-permission android:name="android.permission.GET_TASKS" />
 
     <application
@@ -40,7 +39,8 @@
         <activity android:name=".AddNoteActivity" />
         <activity android:name=".TaskActivity" />
         <activity android:name=".QuestionActivity" />
-        <activity android:name=".NoteActivity"></activity>
+        <activity android:name=".NoteActivity" />
+        <activity android:name=".TacheQuestionActivity"></activity>
     </application>
 
 </manifest>

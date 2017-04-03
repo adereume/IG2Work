@@ -156,24 +156,7 @@
                         android:layout_height="wrap_content"
                         android:id="@+id/tp"/>
                 </LinearLayout>
-
-
-
             </LinearLayout>
         </ScrollView>
-
-        <Button
-            android:id="@+id/incription"
-            style="?android:textAppearanceSmall"
-            android:layout_width="match_parent"
-            android:layout_below="@id/scrollView"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:layout_gravity="bottom"
-            android:layout_marginTop="16dp"
-            android:text="@string/inscription"
-            android:textStyle="bold" />
-
-
     </RelativeLayout>
 </RelativeLayout>

@@ -78,6 +78,17 @@ public abstract class RestActivity extends AppCompatActivity {
             case "SeanceActivity" :
                 getMenuInflater().inflate(R.menu.menu_seance, menu);
                 break;
+
+            case "TaskActivity" :
+                if (role.equals("teacher"))
+                    getMenuInflater().inflate(R.menu.menu_task_teacher, menu);
+                else
+                getMenuInflater().inflate(R.menu.menu_task_student, menu);
+                break;
+
+            case "TacheQuestionActivity":
+                getMenuInflater().inflate(R.menu.menu_validate, menu);
+                break;
         }
 
         return true;

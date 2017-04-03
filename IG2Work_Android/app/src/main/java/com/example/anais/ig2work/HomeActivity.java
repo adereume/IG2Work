@@ -1,9 +1,16 @@
 package com.example.anais.ig2work;
 
+import android.Manifest;
+import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.preference.PreferenceManager;
+import android.provider.CalendarContract;
 import android.support.design.widget.TabLayout;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.widget.Toolbar;
 
 import android.support.v4.app.Fragment;
@@ -42,6 +49,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.TimeZone;
 
 /*
 La classe HomeActivity gère la page d'accueil de l'application, une fois l'utilisateur connecté.
@@ -77,7 +85,34 @@ public class HomeActivity extends RestActivity {
         tabLayout.setupWithViewPager(mViewPager);
 
         preferences = PreferenceManager.getDefaultSharedPreferences(HomeActivity.this);
+
+        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_CALENDAR},  1);
+
+        //addEvent();
+
     }
+
+   /* private void addEvent() {
+        Log.e("addEvent", "ok");
+        ContentResolver cr = getApplicationContext().getContentResolver();
+        ContentValues values = new ContentValues();
+
+        values.put(CalendarContract.Events.DTSTART, new Date("05/02/2017 10:00:00").getTime());
+        values.put(CalendarContract.Events.TITLE, "Devoir");
+        values.put(CalendarContract.Events.DESCRIPTION, "Ceci est la description");
+        TimeZone timeZone = TimeZone.getDefault();
+        values.put(CalendarContract.Events.EVENT_TIMEZONE, timeZone.getID());
+        values.put(CalendarContract.Events.CALENDAR_ID, 1);
+        //values.put(CalendarContract.Events.RRULE, "FREQ=DAILY;UNTIL=");
+        values.put(CalendarContract.Events.DURATION, "+P1H");
+        values.put(CalendarContract.Events.HAS_ALARM, 1);
+
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_CALENDAR) != PackageManager.PERMISSION_GRANTED) {
+            Log.e("Check", "denied");
+            return;
+        }
+        Uri uri = cr.insert(CalendarContract.Events.CONTENT_URI, values);
+    }*/
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -287,13 +322,18 @@ public class HomeActivity extends RestActivity {
                             String title = homework.getString("titre");
                             String description = homework.getString("description");
                             String dueDate = homework.getString("dueDate");
-                            Boolean realized = false;
 
+                            Boolean isVisible = false;
+                            if (!homework.isNull("isVisible")) {
+                                isVisible = homework.getString("isVisible").equals("1") ? true : false;
+                            }
+
+                            Boolean realized = false;
                             if (!homework.isNull("realized")) {
                                 realized = homework.getString("realized").equals("1") ? true : false;
                             }
 
-                            Homework h = new Homework(id, moduleName, title, description, formatter.parse(dueDate), realized);
+                            Homework h = new Homework(id, moduleName, title, description, formatter.parse(dueDate), realized, isVisible);
 
                             Date dateHomework = formatter.parse(dueDate);
                             Date dateNow = new Date();

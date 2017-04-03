@@ -14,10 +14,8 @@ import android.view.animation.DecelerateInterpolator;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ImageButton;
-import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.ProgressBar;
-import android.widget.TextView;
 
 import com.example.anais.ig2work.DataBase.RequestActivity;
 import com.example.anais.ig2work.Model.Homework;
@@ -26,6 +24,7 @@ import com.example.anais.ig2work.Model.Note;
 import com.example.anais.ig2work.Model.NoteAdapter;
 import com.example.anais.ig2work.Model.Task;
 import com.example.anais.ig2work.Model.TaskAdapter;
+import com.example.anais.ig2work.Utils.ListUtils;
 import com.example.anais.ig2work.Utils.RestActivity;
 import com.example.anais.ig2work.Utils.StringUtils;
 
@@ -349,28 +348,5 @@ public class SeanceActivity extends RestActivity {
         }.envoiRequete("resetLostBySeance", "action=resetLostBySeance&idSeance=" + idSeance);
     }
 
-    public static class ListUtils {
-        public static void setDynamicHeight(ListView mListView) {
 
-            ListAdapter mListAdapter = mListView.getAdapter();
-            if (mListAdapter == null) {
-                // when adapter is null
-                return;
-            }
-
-            int height = 0;
-            int desiredWidth = View.MeasureSpec.makeMeasureSpec(mListView.getWidth(), View.MeasureSpec.UNSPECIFIED);
-
-            for (int i = 0; i < mListAdapter.getCount(); i++) {
-                View listItem = mListAdapter.getView(i, null, mListView);
-                listItem.measure(desiredWidth, View.MeasureSpec.UNSPECIFIED);
-                height += listItem.getMeasuredHeight();
-            }
-
-            ViewGroup.LayoutParams params = mListView.getLayoutParams();
-            params.height = height + (mListView.getDividerHeight() * (mListAdapter.getCount() - 1));
-            mListView.setLayoutParams(params);
-            mListView.requestLayout();
-        }
-    }
 }

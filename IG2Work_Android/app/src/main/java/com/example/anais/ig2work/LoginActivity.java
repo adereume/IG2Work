@@ -106,16 +106,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 attemptLogin();
             }
         });
-
-        Button button = (Button) findViewById(R.id.incription);
-        button.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(LoginActivity.this, SignInActivity.class);
-                startActivity(intent);
-                finish();
-            }
-        });
     }
 
     @Override
