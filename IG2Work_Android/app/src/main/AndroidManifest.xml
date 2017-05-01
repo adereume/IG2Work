@@ -42,6 +42,8 @@
         <activity android:name=".NoteActivity" />
         <activity android:name=".TacheQuestionActivity" />
         <activity android:name=".AnswerTeacherQuestion"></activity>
+        <activity android:name=".TestCalendarActivity" />
+        <activity android:name=".TestDayViewActivity" />
     </application>
 
 </manifest>

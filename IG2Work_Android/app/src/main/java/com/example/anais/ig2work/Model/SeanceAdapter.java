@@ -1,16 +1,23 @@
 package com.example.anais.ig2work.Model;
 
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.database.DataSetObserver;
 import android.graphics.Typeface;
-import android.util.Log;
+import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.BaseExpandableListAdapter;
+import android.widget.CheckBox;
 import android.widget.ExpandableListView;
+import android.widget.ImageView;
+import android.widget.ListAdapter;
 import android.widget.TextView;
 
 import com.example.anais.ig2work.R;
+import com.example.anais.ig2work.Utils.StringUtils;
 
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
@@ -21,19 +28,9 @@ import java.util.Locale;
  * Created by clementruffin on 26/01/2017.
  */
 
-public class SeanceAdapter extends BaseExpandableListAdapter {
-    private Context context;
-    private ExpandableListView listView;
-    private List<String> listDataHeader;
-    private HashMap<String, List<Seance>> listDataChild;
-
-    private int lastExpandedGroupPosition = -1;
-
-    public SeanceAdapter(Context context, ExpandableListView listView, List<String> listDataHeader, HashMap<String, List<Seance>> listChildData) {
-        this.context = context;
-        this.listView = listView;
-        this.listDataHeader = listDataHeader;
-        this.listDataChild = listChildData;
+public class SeanceAdapter extends ArrayAdapter<Seance> {
+    public SeanceAdapter(Context context, List<Seance> seances) {
+        super(context, 0, seances);
     }
 
     private class SeanceViewHolder{
@@ -44,33 +41,18 @@ public class SeanceAdapter extends BaseExpandableListAdapter {
     }
 
     @Override
-    public View getGroupView(int groupPosition, boolean isExpanded, View convertView, ViewGroup parent) {
-        String headerTitle = (String) getGroup(groupPosition);
+    public View getView(int position, View convertView, ViewGroup parent) {
 
-        if (convertView == null) {
-            LayoutInflater infalInflater = (LayoutInflater) this.context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            convertView = infalInflater.inflate(R.layout.list_group, null);
+        if(convertView == null){
+            convertView = LayoutInflater.from(getContext()).inflate(R.layout.row_seance_layout,parent, false);
         }
 
-        TextView lblListHeader = (TextView) convertView.findViewById(R.id.lblListHeader);
-        lblListHeader.setTypeface(null, Typeface.BOLD);
-        lblListHeader.setText(headerTitle);
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(convertView.getContext());
+        final int idUser = preferences.getInt(StringUtils.IDUSER.toString(), 0);
 
-        return convertView;
-    }
-
-    @Override
-    public View getChildView(int groupPosition, final int childPosition, boolean isLastChild, View convertView, ViewGroup parent) {
-
-        if (convertView == null) {
-            LayoutInflater infalInflater = (LayoutInflater) this.context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            convertView = infalInflater.inflate(R.layout.row_seance_layout, null);
-        }
-
-        SeanceViewHolder viewHolder = (SeanceViewHolder) convertView.getTag();
-
+        SeanceAdapter.SeanceViewHolder viewHolder = (SeanceAdapter.SeanceViewHolder) convertView.getTag();
         if(viewHolder == null){
-            viewHolder = new SeanceViewHolder();
+            viewHolder = new SeanceAdapter.SeanceViewHolder();
             viewHolder.module = (TextView) convertView.findViewById(R.id.module);
             viewHolder.teacherOrPromo = (TextView) convertView.findViewById(R.id.teacherOrPromo);
             viewHolder.dayTime = (TextView) convertView.findViewById(R.id.dayTime);
@@ -78,8 +60,7 @@ public class SeanceAdapter extends BaseExpandableListAdapter {
             convertView.setTag(viewHolder);
         }
 
-        Seance seance = getChild(groupPosition, childPosition);
-
+        final Seance seance = getItem(position);
         viewHolder.module.setText(seance.getModule());
 
         switch (seance.getTarget()) {
@@ -96,59 +77,5 @@ public class SeanceAdapter extends BaseExpandableListAdapter {
         viewHolder.room.setText("Salle " + seance.getRoom());
 
         return convertView;
-    }
-
-    @Override
-    public Seance getChild(int groupPosition, int childPosititon) {
-        return this.listDataChild.get(this.listDataHeader.get(groupPosition)).get(childPosititon);
-    }
-
-    @Override
-    public long getChildId(int groupPosition, int childPosition) {
-        return childPosition;
-    }
-
-    @Override
-    public int getChildrenCount(int groupPosition) {
-        return this.listDataChild.get(this.listDataHeader.get(groupPosition)).size();
-    }
-
-    @Override
-    public Object getGroup(int groupPosition) {
-        return this.listDataHeader.get(groupPosition);
-    }
-
-    @Override
-    public int getGroupCount() {
-        return this.listDataHeader.size();
-    }
-
-    @Override
-    public long getGroupId(int groupPosition) {
-        return groupPosition;
-    }
-
-    @Override
-    public boolean hasStableIds() {
-        return false;
-    }
-
-    @Override
-    public boolean isChildSelectable(int groupPosition, int childPosition) {
-        return true;
-    }
-
-    @Override
-    public void onGroupExpanded(int groupPosition) {
-
-        // Lorsque l'on clique sur un groupe (et donc qu'on l'ouvre)
-        // si un autre groupe était ouvert, on le collapse.
-        // On ne permet d'afficher qu'un seul groupe à la fois.
-        if(groupPosition != lastExpandedGroupPosition){
-            listView.collapseGroup(lastExpandedGroupPosition);
-        }
-
-        super.onGroupExpanded(groupPosition);
-        lastExpandedGroupPosition = groupPosition;
     }
 }

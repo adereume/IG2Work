@@ -8,6 +8,23 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.example.anais.ig2work.HomeActivity$PlaceholderFragment">
 
+    <CalendarView
+        android:id="@+id/simpleCalendarView"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/simpleCalendarView">
+
+        <ListView
+            android:id="@+id/section_scrollListView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingBottom="40dp"/>
+    </ScrollView>
+
     <TextView
         android:id="@+id/section_label"
         android:layout_width="wrap_content"

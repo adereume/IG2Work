@@ -1,14 +1,9 @@
 package com.example.anais.ig2work;
 
 import android.Manifest;
-import android.content.ContentResolver;
-import android.content.ContentValues;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
-import android.net.Uri;
 import android.preference.PreferenceManager;
-import android.provider.CalendarContract;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.widget.Toolbar;
@@ -20,13 +15,15 @@ import android.support.v4.view.ViewPager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
+import android.widget.AdapterView;
+import android.widget.CalendarView;
 import android.widget.ExpandableListView;
 
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -35,6 +32,7 @@ import com.example.anais.ig2work.Model.Homework;
 import com.example.anais.ig2work.Model.HomeworkExpandableAdapter;
 import com.example.anais.ig2work.Model.Seance;
 import com.example.anais.ig2work.Model.SeanceAdapter;
+import com.example.anais.ig2work.Model.SeanceExpandableAdapter;
 import com.example.anais.ig2work.Utils.RestActivity;
 import com.example.anais.ig2work.Utils.StringUtils;
 
@@ -45,11 +43,11 @@ import org.json.JSONObject;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.TimeZone;
 
 /*
 La classe HomeActivity gère la page d'accueil de l'application, une fois l'utilisateur connecté.
@@ -65,6 +63,9 @@ public class HomeActivity extends RestActivity {
     private ViewPager mViewPager;
 
     private SharedPreferences preferences;
+
+    int idUser;
+    Date dateNow;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -95,6 +96,11 @@ public class HomeActivity extends RestActivity {
 
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(mViewPager);
+
+        preferences = PreferenceManager.getDefaultSharedPreferences(HomeActivity.this);
+        idUser = PreferenceManager.getDefaultSharedPreferences(HomeActivity.this.getApplicationContext()).getInt(StringUtils.IDUSER.toString(), 0);
+
+        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_CALENDAR},  1);
     }
 
     /* private void addEvent() {
@@ -124,11 +130,6 @@ public class HomeActivity extends RestActivity {
         int id = item.getItemId();
 
         switch (id) {
-            case R.id.menu_search_seance:
-                Log.d("action", "Recherche séance");
-                //TODO Recherche de séance
-                return true;
-
             case R.id.menu_create_seance:
                 Log.d("action", "Création séance");
                 //TODO Création de séance
@@ -160,7 +161,10 @@ public class HomeActivity extends RestActivity {
     public static class PlaceholderFragment extends Fragment {
 
         private static final String ARG_SECTION_NUMBER = "section_number";
+        private CalendarView calendarView;
+        private ListView seanceListView;
         private ExpandableListView listView;
+        private Date dateNow;
 
         public PlaceholderFragment() {
         }
@@ -181,6 +185,8 @@ public class HomeActivity extends RestActivity {
         public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
             View rootView = inflater.inflate(R.layout.fragment_home, container, false);
+            calendarView = (CalendarView) rootView.findViewById(R.id.simpleCalendarView);
+            seanceListView = (ListView) rootView.findViewById(R.id.section_scrollListView);
             TextView textView = (TextView) rootView.findViewById(R.id.section_label);
             listView = (ExpandableListView) rootView.findViewById(R.id.section_listView);
 
@@ -188,9 +194,15 @@ public class HomeActivity extends RestActivity {
 
             switch (getArguments().getInt(ARG_SECTION_NUMBER)) {
                 case 1: // Onglet Séances
+                    calendarView.setVisibility(View.VISIBLE);
+                    seanceListView.setVisibility(View.VISIBLE);
+                    listView.setVisibility(View.INVISIBLE);
                     getAllSeances(idUser);
                     break;
                 case 2: // Onglet Devoirs
+                    calendarView.setVisibility(View.INVISIBLE);
+                    seanceListView.setVisibility(View.INVISIBLE);
+                    listView.setVisibility(View.VISIBLE);
                     getAllHomeworks(idUser);
                     break;
             }
@@ -199,7 +211,7 @@ public class HomeActivity extends RestActivity {
         }
 
         public void getAllSeances(final int idUser) {
-            new RequestActivity() {
+            /*new RequestActivity() {
                 @Override
                 public void traiteReponse(JSONObject o, String action) {
 
@@ -265,7 +277,7 @@ public class HomeActivity extends RestActivity {
                         mapSeances.put(listFilter.get(1), listSeancesWeek);
                         mapSeances.put(listFilter.get(2), listSeancesMonth);
 
-                        SeanceAdapter adapter = new SeanceAdapter(getActivity(), listView, listFilter, mapSeances);
+                        SeanceExpandableAdapter adapter = new SeanceExpandableAdapter(getActivity(), listView, listFilter, mapSeances);
                         listView.setAdapter(adapter);
 
                         listView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
@@ -288,7 +300,84 @@ public class HomeActivity extends RestActivity {
                         e.printStackTrace();
                     }
                 }
-            }.envoiRequete("getAllSeance", "action=getAllSeance&idUser=" + idUser);
+            }.envoiRequete("getAllSeance", "action=getAllSeance&idUser=" + idUser);*/
+
+            calendarView.setOnDateChangeListener(new CalendarView.OnDateChangeListener() {
+                @Override
+                public void onSelectedDayChange(CalendarView view, int year, int month, final int dayOfMonth) {
+                    Calendar cal = Calendar.getInstance();
+                    cal.set(year, month, dayOfMonth);
+                    dateNow = cal.getTime();
+
+                    new RequestActivity() {
+                        @Override
+                        public void traiteReponse(JSONObject o, String action) {
+
+                            if(!o.isNull("feedback")) {
+                                Toast.makeText(getBaseContext(), "Utilisateur non reconnu...", Toast.LENGTH_LONG).show();
+                                return;
+                            }
+
+                            try {
+                                SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.FRANCE);
+
+                                List<Seance> listSeances = new ArrayList<Seance>();
+
+                                // Le rôle de l'utilisateur est utilisé pour instancier l'objet Seance
+                                // On s'en sert dans la gestion de l'affichage (affichage du nom de l'enseignant ou de la promo)
+                                String target = PreferenceManager.getDefaultSharedPreferences(getActivity()).getString(StringUtils.ROLE.toString(), "");
+
+                                // Liste des séances
+                                JSONArray seances = o.getJSONArray("seances");
+
+                                for (int i = 0; i < seances.length(); i++) {
+
+                                    JSONObject seance = seances.getJSONObject(i);
+
+                                    int id = seance.getInt("id");
+                                    String moduleName = seance.getString("moduleName");
+                                    String teacherFName = seance.getString("teacherFirstName");
+                                    String teacherLName = seance.getString("teacherLastName");
+                                    String promoName = seance.getString("promoName");
+                                    String dayTime = seance.getString("dayTime");
+                                    String room = seance.getString("room");
+
+                                    Seance s = new Seance(id, moduleName, teacherFName + " " + teacherLName, promoName, formatter.parse(dayTime), room, target);
+
+                                    Calendar cal = Calendar.getInstance();
+
+                                    Date dateSeance = formatter.parse(dayTime);
+
+                                    if (dateNow.getYear() == dateSeance.getYear()
+                                            && dateNow.getMonth() == dateSeance.getMonth()
+                                            && dateNow.getDate() == dateSeance.getDate()) {
+                                        listSeances.add(s);
+                                    }
+                                }
+
+                                SeanceAdapter adapter = new SeanceAdapter(getActivity(), listSeances);
+                                seanceListView.setAdapter(adapter);
+
+                                seanceListView.setOnItemClickListener(new ListView.OnItemClickListener() {
+                                    @Override
+                                    public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                                        Seance seanceChoice = (Seance) seanceListView.getAdapter().getItem(i);
+
+                                        Bundle data = new Bundle();
+                                        data.putInt("idSeance", seanceChoice.getId());
+
+                                        HomeActivity activity = (HomeActivity) getActivity();
+                                        activity.onClickChangeActivity("seance", data);
+                                    }
+                                });
+
+                            } catch (JSONException | ParseException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }.envoiRequete("getAllSeance", "action=getAllSeance&idUser=" + idUser);
+                }
+            });
         }
 
         public void getAllHomeworks(final int idUser) {
