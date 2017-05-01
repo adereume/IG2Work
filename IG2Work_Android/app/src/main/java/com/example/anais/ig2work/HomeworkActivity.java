@@ -1,9 +1,11 @@
 package com.example.anais.ig2work;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Parcelable;
 import android.preference.PreferenceManager;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -40,6 +42,7 @@ public class HomeworkActivity extends RestActivity {
     private TextView dueDateTextView;
     private CheckBox state;
 
+    private int idUser;
     private int idHomework;
     private Homework homeworkObject;
 
@@ -51,6 +54,7 @@ public class HomeworkActivity extends RestActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         preferences = PreferenceManager.getDefaultSharedPreferences(HomeworkActivity.this);
+        idUser = preferences.getInt(StringUtils.IDUSER.toString(), 0);
 
         moduleTextView = (TextView) findViewById(R.id.module);
         titleTextView = (TextView) findViewById(R.id.title);
@@ -79,7 +83,7 @@ public class HomeworkActivity extends RestActivity {
                 return true;
 
             case R.id.menu_delete_homework:
-                deleteHomework(idHomework);
+                deleteHomework();
                 return true;
 
             case android.R.id.home:
@@ -132,18 +136,23 @@ public class HomeworkActivity extends RestActivity {
         }.envoiRequete("getHomeWorkById", "action=getHomeWorkById&idUser=" + preferences.getInt(StringUtils.IDUSER.toString(), 0) + "&idHomeWork=" + idHomework);
     }
 
-    public void deleteHomework(final int idHomework) {
-        new RequestActivity() {
-            @Override
-            public void traiteReponse(JSONObject o, String action) {
-
-                //TODO Retour lors de la suppression d'un devoir ?
-                /*try {
-
-                } catch (JSONException | ParseException e) {
-                    e.printStackTrace();
-                }*/
-            }
-        }.envoiRequete("deleteHomework", "action=deleteHomework&idHomeWork=" + idHomework);
+    public void deleteHomework() {
+        new AlertDialog.Builder(this)
+                .setTitle("Supprimer le devoir")
+                .setMessage("Etes-vous sur de vouloir supprimer ce devoir ?")
+                .setNegativeButton("Non", null)
+                .setPositiveButton("Oui", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        //Supprimer le devoir
+                        new RequestActivity() {
+                            @Override
+                            public void traiteReponse(JSONObject o, String action) {
+                                if (!o.isNull("retour"))
+                                    HomeworkActivity.this.finish();
+                            }
+                        }.envoiRequete("deleteHomeWork", "action=deleteHomeWork&idUser=" + idUser + "&idHomeWork=" + idHomework);
+                    }
+                }).show();
     }
 }
