@@ -50,5 +50,12 @@
     <string name="entrez_votre_note_personnel_ici">Entrez votre note personnel ici</string>
     <string name="question_eleve">Questions des élèves</string>
     <string name="menu_question">Poser une question</string>
+    <string name="valider">Valider</string>
+    <string name="annuler">Annuler</string>
+    <string name="ajouter_votre_r_ponse">Ajouter votre réponse ...</string>
+    <string name="correction">Correction</string>
+    <string name="r_ponses_des_l_ves">Réponses des élèves :</string>
+    <string name="tat_du_devoir">État du devoir</string>
+    <string name="votre_r_ponse">Votre Réponse</string>
 
 </resources>

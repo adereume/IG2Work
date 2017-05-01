@@ -14,10 +14,17 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.example.anais.ig2work.DataBase.RequestActivity;
+import com.example.anais.ig2work.Model.QuestionFromStudent;
+import com.example.anais.ig2work.Model.QuestionFromStudentAdapter;
+import com.example.anais.ig2work.Model.Task;
 import com.example.anais.ig2work.Utils.RestActivity;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class AddTaskActivity extends AppCompatActivity {
     private SharedPreferences preferences;
@@ -25,11 +32,12 @@ public class AddTaskActivity extends AppCompatActivity {
     private TextInputLayout mTitleView;
     private TextInputLayout mDescriptionView;
 
+    private int idTask = 0;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_task);
-        setTitle("Ajout Tache");
         //Le bouton retour à gauche de la barre d'action
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
@@ -38,6 +46,31 @@ public class AddTaskActivity extends AppCompatActivity {
         mTitleView = (TextInputLayout) findViewById(R.id.titre);
         mDescriptionView = (TextInputLayout) findViewById(R.id.description);
 
+        if(this.getIntent().getExtras() != null) {
+            setTitle("Edit Tache");
+
+            idTask = this.getIntent().getExtras().getInt("idTask");
+            getTache();
+        } else {
+            setTitle("Ajout Tache");
+        }
+    }
+
+    public void getTache() {
+        new RequestActivity() {
+            @Override
+            public void traiteReponse(JSONObject o, String action) {
+                try {
+                    JSONArray retour = o.getJSONArray("tache");
+                    JSONObject task = retour.getJSONObject(0);
+
+                    mTitleView.getEditText().setText(task.getString("titre"));
+                    mDescriptionView.getEditText().setText(task.getString("description").replace("<br />", ""));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        }.envoiRequete("getTacheById", "action=getTacheById&idTache=" + idTask);
     }
 
     private void attemptAddTask() {
@@ -67,7 +100,10 @@ public class AddTaskActivity extends AppCompatActivity {
         if (cancel) {
             focusView.requestFocus();
         } else {
-            addTask(title, description);
+            if(idTask != 0)
+                updateTask(title, description);
+            else
+                addTask(title, description);
         }
     }
 
@@ -93,20 +129,25 @@ public class AddTaskActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    public void updateTask(final String title, final String description) {
+        new RequestActivity() {
+            @Override
+            public void traiteReponse(JSONObject json_data, String action) {
+                if(!json_data.isNull("retour")) {
+                    AddTaskActivity.this.finish();
+                }
+            }
+        }.envoiRequete("updateTache", "action=updateTache&idTache="+idTask+"&titre="+title+"&description="+description);
+    }
+
     public void addTask(final String title, final String description) {
         new RequestActivity() {
             @Override
             public void traiteReponse(JSONObject json_data, String action) {
-                try {
-                    if(!json_data.isNull("retour")) {
-                        json_data.getString("retour");
-                        AddTaskActivity.this.finish();
-                    }
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                    Toast.makeText(AddTaskActivity.this, "Une erreur est survenu", Toast.LENGTH_LONG).show();
+                if(!json_data.isNull("retour")) {
+                    AddTaskActivity.this.finish();
                 }
             }
-        }.envoiRequete("login", "action=addTache&idSeance="+preferences.getInt("idSeance", 0)+"&titre="+title+"&description="+description);
+        }.envoiRequete("addTache", "action=addTache&idSeance="+preferences.getInt("idSeance", 0)+"&titre="+title+"&description="+description);
     }
 }

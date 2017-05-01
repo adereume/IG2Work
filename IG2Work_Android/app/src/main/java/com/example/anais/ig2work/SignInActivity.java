@@ -124,14 +124,6 @@ public class SignInActivity extends RestActivity implements LoaderCallbacks<Curs
         });
         mSpinnerText = (TextView) findViewById(R.id.error_role);
 
-        Button button = (Button) findViewById(R.id.incription);
-        button.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                attemptSignIn();
-            }
-        });
-
         mTPView = (Spinner) findViewById(R.id.tp) ;
 
         mLoginFormView = findViewById(R.id.login_form);

@@ -73,6 +73,18 @@ public class HomeActivity extends RestActivity {
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        preferences = PreferenceManager.getDefaultSharedPreferences(HomeActivity.this);
+
+        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_CALENDAR},  1);
+
+        //addEvent();
+
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
         // Create the adapter that will return a fragment for each of the three
         // primary sections of the activity.
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
@@ -83,16 +95,9 @@ public class HomeActivity extends RestActivity {
 
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(mViewPager);
-
-        preferences = PreferenceManager.getDefaultSharedPreferences(HomeActivity.this);
-
-        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_CALENDAR},  1);
-
-        //addEvent();
-
     }
 
-   /* private void addEvent() {
+    /* private void addEvent() {
         Log.e("addEvent", "ok");
         ContentResolver cr = getApplicationContext().getContentResolver();
         ContentValues values = new ContentValues();

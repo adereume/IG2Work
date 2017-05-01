@@ -32,13 +32,6 @@ public class AjoutFragment extends DialogFragment {
 
     protected View v;
 
-    /**
-     * Permet de récupérer le variable utile pour le dialog
-     * @param idSeance
-     * @param idUser
-     * @param role
-     * @return
-     */
     /*static AjoutFragment newInstance(String idSeance, String idUser, String role) {
         AjoutFragment f = new AjoutFragment();
 
@@ -66,8 +59,7 @@ public class AjoutFragment extends DialogFragment {
             v.findViewById(R.id.addtask).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Intent intent = new Intent();
-                    intent = new Intent(callingActivity, AddTaskActivity.class);
+                    Intent intent = new Intent(callingActivity, AddTaskActivity.class);
                     startActivity(intent);
                     getDialog().dismiss();
                 }
@@ -76,8 +68,7 @@ public class AjoutFragment extends DialogFragment {
             v.findViewById(R.id.addHomework).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Intent intent = new Intent();
-                    intent = new Intent(callingActivity, AddHomework.class);
+                    Intent intent = new Intent(callingActivity, AddHomework.class);
                     startActivity(intent);
                     getDialog().dismiss();
                 }
@@ -86,8 +77,7 @@ public class AjoutFragment extends DialogFragment {
             v.findViewById(R.id.addQuestion).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Intent intent = new Intent();
-                    intent = new Intent(callingActivity, AddQuestionActivity.class);
+                    Intent intent = new Intent(callingActivity, AddQuestionActivity.class);
                     startActivity(intent);
                     getDialog().dismiss();
                 }
@@ -108,8 +98,7 @@ public class AjoutFragment extends DialogFragment {
         v.findViewById(R.id.addNote).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent();
-                intent = new Intent(callingActivity, AddNoteActivity.class);
+                Intent intent = new Intent(callingActivity, AddNoteActivity.class);
                 startActivity(intent);
                 getDialog().dismiss();
             }
@@ -127,8 +116,8 @@ public class AjoutFragment extends DialogFragment {
                     JSONArray array = o.getJSONArray("retour");
                     if(array.getJSONObject(0) != null) {
                         //L'étudiant est déjà perdu
-                        ((Button)v.findViewById(R.id.lost)).setEnabled(false);
-                        ((Button)v.findViewById(R.id.lost)).setBackgroundColor(Color.GRAY);
+                        v.findViewById(R.id.lost).setEnabled(false);
+                        v.findViewById(R.id.lost).setBackgroundColor(Color.GRAY);
                     }
 
                 } catch (JSONException e) {

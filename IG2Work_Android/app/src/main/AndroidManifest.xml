@@ -40,7 +40,8 @@
         <activity android:name=".TaskActivity" />
         <activity android:name=".QuestionActivity" />
         <activity android:name=".NoteActivity" />
-        <activity android:name=".TacheQuestionActivity"></activity>
+        <activity android:name=".TacheQuestionActivity" />
+        <activity android:name=".AnswerTeacherQuestion"></activity>
     </application>
 
 </manifest>

@@ -136,6 +136,6 @@ public class HomeworkAdapter extends ArrayAdapter<Homework> {
                     });
                 }
             }
-        }.envoiRequete("realizedHomeWork", "action=realizedHomeWork&idHomeWork="+idHomeWork+"&realized="+realized+"&idUser="+idUser);
+        }.envoiRequete("realizedHomeWork", "action=realizedHomeWork&idHomeWork="+idHomeWork+"&realized="+(realized ? 1 : 0)+"&idUser="+idUser);
     }
 }

@@ -168,7 +168,7 @@ public class TaskAdapter extends ArrayAdapter<Task> {
                         });
                     }
                 }
-            }.envoiRequete("realizedTache", "action=realizedTache&idTache="+idTask+"&realized="+realized+"&idStudent="+idUser);
+            }.envoiRequete("realizedTache", "action=realizedTache&idTache="+idTask+"&realized="+(realized ? 1 : 0)+"&idStudent="+idUser);
         } else {
             new RequestActivity() {
                 @Override
@@ -182,7 +182,7 @@ public class TaskAdapter extends ArrayAdapter<Task> {
                         });
                     }
                 }
-            }.envoiRequete("realizedQuestion", "action=realizedQuestion&idQuestion="+idTask+"&realized="+realized+"&idStudent="+idUser);
+            }.envoiRequete("realizedQuestion", "action=realizedQuestion&idQuestion="+idTask+"&realized="+(realized ? 1 : 0)+"&idStudent="+idUser);
         }
     }
 }

@@ -195,15 +195,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
             int shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
 
-            findViewById(R.id.incription).setVisibility(show ? View.GONE : View.VISIBLE);
-            findViewById(R.id.incription).animate().setDuration(shortAnimTime).alpha(
-                    show ? 0 : 1).setListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    findViewById(R.id.incription).setVisibility(show ? View.GONE : View.VISIBLE);
-                }
-            });
-
             mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
             mLoginFormView.animate().setDuration(shortAnimTime).alpha(
                     show ? 0 : 1).setListener(new AnimatorListenerAdapter() {
@@ -260,6 +251,11 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 ContactsContract.CommonDataKinds.Nickname.NAME,
                 ContactsContract.CommonDataKinds.Nickname.IS_PRIMARY,
         };
+    }
+
+    @Override
+    public void onBackPressed() {
+        Log.e("Retour", "pressed");
     }
 
 

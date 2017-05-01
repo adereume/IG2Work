@@ -30,6 +30,8 @@ public abstract class RestActivity extends AppCompatActivity {
     private SharedPreferences preferences;
     private FinishAllReceiver fa;
 
+    private Menu activeMenu;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -43,6 +45,16 @@ public abstract class RestActivity extends AppCompatActivity {
         fa = new FinishAllReceiver(this);
     }
 
+   /* @Override
+    protected void onStart() {
+        super.onStart();//Vérifie que l'utilisateur est connecté
+        String attempt_connexion = preferences.getString(StringUtils.ATTEMPT_CONNEXION.toString(), "false");
+        if(attempt_connexion == "false" && this.getClass().getSimpleName() != "LoginActivity") {
+            Intent intent = new Intent(this, LoginActivity.class);
+            startActivity(intent);
+        }
+    }*/
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
@@ -54,6 +66,7 @@ public abstract class RestActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu, menu);
+        activeMenu = menu;
 
         String role = preferences.getString(StringUtils.ROLE.toString(), "");
 
@@ -76,17 +89,31 @@ public abstract class RestActivity extends AppCompatActivity {
                 break;
 
             case "SeanceActivity" :
-                getMenuInflater().inflate(R.menu.menu_seance, menu);
+                if (role.equals("teacher"))
+                    getMenuInflater().inflate(R.menu.menu_seance_teacher, menu);
+                else
+                    getMenuInflater().inflate(R.menu.menu_seance, menu);
                 break;
 
             case "TaskActivity" :
                 if (role.equals("teacher"))
                     getMenuInflater().inflate(R.menu.menu_task_teacher, menu);
                 else
-                getMenuInflater().inflate(R.menu.menu_task_student, menu);
+                    getMenuInflater().inflate(R.menu.menu_task_student, menu);
+                break;
+
+            case "QuestionActivity":
+                if (role.equals("teacher"))
+                    getMenuInflater().inflate(R.menu.menu_question_teacher, menu);
+                else
+                    getMenuInflater().inflate(R.menu.menu_question_student, menu);
                 break;
 
             case "TacheQuestionActivity":
+                getMenuInflater().inflate(R.menu.menu_validate, menu);
+                break;
+
+            case "AnswerTeacherQuestion":
                 getMenuInflater().inflate(R.menu.menu_validate, menu);
                 break;
         }
@@ -113,16 +140,18 @@ public abstract class RestActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    public Menu getMenu() {
+        return activeMenu;
+    }
+
     public void logoutUser() {
         new RequestActivity() {
             @Override
             public void traiteReponse(JSONObject o, String action) {
-
                 try {
                     String connecte = o.getString("connecte");
 
                     if (connecte == "false") {
-
                         // Lors de la déconnexion, pour éviter que la page de Login ne relance une authentification,
                         // on modifie la valeur de ATTEMPT_CONNEXION à 'false'
                         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(RestActivity.this);
@@ -132,10 +161,10 @@ public abstract class RestActivity extends AppCompatActivity {
 
                         // Lancement de la page Login
                         Intent intent = new Intent(RestActivity.this, LoginActivity.class);
+                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                         RestActivity.this.startActivity(intent);
                         RestActivity.this.finish();
                     }
-
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }

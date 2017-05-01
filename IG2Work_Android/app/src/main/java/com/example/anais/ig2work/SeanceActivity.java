@@ -2,10 +2,12 @@ package com.example.anais.ig2work;
 
 import android.animation.ObjectAnimator;
 import android.app.FragmentManager;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
@@ -65,6 +67,9 @@ public class SeanceActivity extends RestActivity {
         listViewNotes = (ListView) findViewById(R.id.list_notes);
 
         idSeance = this.getIntent().getExtras().getInt("idSeance");
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putInt("idSeance", idSeance);
+        editor.apply();
 
         resetButton.setOnClickListener(new Button.OnClickListener() {
             @Override
@@ -108,7 +113,24 @@ public class SeanceActivity extends RestActivity {
                 ajoutFragment.show(fragmentManager, "seance");
 
                 return true;
-
+            case R.id.delete_seance:
+                new AlertDialog.Builder(this)
+                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .setMessage("Voulez-vous supprimer cette séance")
+                        .setPositiveButton("oui", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                new RequestActivity() {
+                                    @Override
+                                    public void traiteReponse(JSONObject o, String action) {
+                                        SeanceActivity.this.finish();
+                                    }
+                                }.envoiRequete("deleteSeance", "action=deleteSeance&idSeance=" + idSeance + "&idUser=" + preferences.getInt(StringUtils.IDUSER.toString(), 0));
+                            }
+                        })
+                        .setNegativeButton("non", null)
+                        .show();
+                break;
             case android.R.id.home:
                 this.finish();
                 break;
@@ -224,7 +246,6 @@ public class SeanceActivity extends RestActivity {
                         int id = homework.getInt("id");
                         String title = homework.getString("titre");
                         String dueDate = homework.getString("dueDate");
-
                         Boolean isVisible = true;
                         if (!homework.isNull("isVisible")) {
                             isVisible = homework.getString("isVisible").equals("1") ? true : false;
@@ -235,6 +256,7 @@ public class SeanceActivity extends RestActivity {
                             realized = homework.getString("realized").equals("1") ? true : false;
                         }
 
+                        Log.e("Realized", realized+"");
                         Homework h = new Homework(id, moduleName, title, null, formatter.parse(dueDate), realized, isVisible);
 
                         listHomeworks.add(h);

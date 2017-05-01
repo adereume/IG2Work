@@ -1,7 +1,9 @@
 package com.example.anais.ig2work;
 
 import android.app.FragmentManager;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -56,6 +58,12 @@ public class TaskActivity extends RestActivity {
         getTache();
     }
 
+    public void retourPopUpAnswer(int CODE_RETOUR) {
+        if(CODE_RETOUR == 1) {
+            getTache();
+        }
+    }
+
     public void getTache() {
         new RequestActivity() {
             @Override
@@ -98,32 +106,43 @@ public class TaskActivity extends RestActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
 
+        Bundle data = new Bundle();
+        Intent intent = new Intent();
+
         switch (id) {
             case R.id.menu_delete_task:
-                /*Log.d("action", "Séance");
-
-                FragmentManager fragmentManager = getFragmentManager();
-
-                Bundle data = new Bundle();
-                data.putString("idSeance", String.valueOf(idSeance));
-                data.putString("idUser", String.valueOf(preferences.getInt(StringUtils.IDUSER.toString(), 0)));
-                data.putString("role", preferences.getString(StringUtils.ROLE.toString(), ""));
-
-                AjoutFragment ajoutFragment = new AjoutFragment();
-                ajoutFragment.setArguments(data);
-                ajoutFragment.setRetainInstance(true);
-                ajoutFragment.show(fragmentManager, "seance");
-
-                return true;*/
-
-            case R.id.menu_question_task:
-                Intent intent = new Intent();
-                intent = new Intent(TaskActivity.this, TacheQuestionActivity.class);
-                Bundle data = new Bundle();
+                new AlertDialog.Builder(this)
+                        .setTitle("Supprimer la tâche")
+                        .setMessage("Etes-vous sur de vouloir supprimer cette tâche ?")
+                        .setNegativeButton("Non", null)
+                        .setPositiveButton("Oui", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                //Supprimer la tâche
+                                new RequestActivity() {
+                                    @Override
+                                    public void traiteReponse(JSONObject o, String action) {
+                                        if(!o.isNull("retour"))
+                                            TaskActivity.this.finish();
+                                    }
+                                }.envoiRequete("deleteTache", "action=deleteTache&idTache=" + idTask);
+                            }
+                        })
+                        .show();
+                break;
+            case R.id.menu_edit_task:
+                intent = new Intent(TaskActivity.this, AddTaskActivity.class);
                 data.putInt("idTask", idTask);
                 intent.putExtras(data);
                 startActivity(intent);
                 break;
+            case R.id.menu_question_task:
+                intent = new Intent(TaskActivity.this, TacheQuestionActivity.class);
+                data.putInt("idTask", idTask);
+                intent.putExtras(data);
+                startActivity(intent);
+                break;
+
             case android.R.id.home:
                 this.finish();
                 break;

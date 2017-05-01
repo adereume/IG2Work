@@ -1,6 +1,5 @@
 package com.example.anais.ig2work.Model;
 
-import android.app.DialogFragment;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
@@ -8,11 +7,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.ImageButton;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.example.anais.ig2work.R;
-import com.example.anais.ig2work.TaskActivity;
 import com.example.anais.ig2work.Utils.StringUtils;
 
 import java.util.List;
@@ -21,41 +19,47 @@ import java.util.List;
  * Created by clementruffin on 26/01/2017.
  */
 
-public class QuestionFromStudentAdapter extends ArrayAdapter<QuestionFromStudent> {
+public class AnswerFromQuestionAdapter extends ArrayAdapter<AnswerFromQuestionStat> {
 
-    public QuestionFromStudentAdapter(Context context, List<QuestionFromStudent> questions) {
-        super(context, 0, questions);
+    public AnswerFromQuestionAdapter(Context context, List<AnswerFromQuestionStat> answerStat) {
+        super(context, 0, answerStat);
     }
 
-    private class QuestionViewHolder{
-        public TextView question;
+    private class AnswersViewHolder{
         public TextView answer;
+        public TextView textPourcentage;
+        public ProgressBar pourcentage;
     }
 
     @Override
     public View getView(int position, View convertView, final ViewGroup parent) {
 
         if(convertView == null){
-            convertView = LayoutInflater.from(getContext()).inflate(R.layout.row_question_student_layout,parent, false);
+            convertView = LayoutInflater.from(getContext()).inflate(R.layout.row_answer_question_layout,parent, false);
         }
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(convertView.getContext());
         final int idUser = preferences.getInt(StringUtils.IDUSER.toString(), 0);
 
-        QuestionViewHolder viewHolder = (QuestionViewHolder) convertView.getTag();
+        AnswersViewHolder viewHolder = (AnswersViewHolder) convertView.getTag();
         if(viewHolder == null){
-            viewHolder = new QuestionViewHolder();
-            viewHolder.question = (TextView) convertView.findViewById(R.id.question);
-            viewHolder.answer = (TextView) convertView.findViewById(R.id.answer);
+            viewHolder = new AnswersViewHolder();
+            viewHolder.answer = (TextView) convertView.findViewById(R.id.question);
+            viewHolder.textPourcentage = (TextView) convertView.findViewById(R.id.textPourcentage);
+            viewHolder.pourcentage = (ProgressBar) convertView.findViewById(R.id.progressBar2);
             convertView.setTag(viewHolder);
         }
 
-        final QuestionFromStudent question = getItem(position);
-        viewHolder.question.setText(question.getQuestion());
-        viewHolder.answer.setText(question.getAnwser());
+        final AnswerFromQuestionStat answerStat = getItem(position);
+        viewHolder.answer.setText(answerStat.getAnswer());
+        viewHolder.textPourcentage.setText(answerStat.getPourcentage()+"%");
+
+        //Initalisation de la progressBar
+        viewHolder.pourcentage.setMax(100);
+        viewHolder.pourcentage.setProgress(answerStat.getPourcentage());
 
         //Affichage en fonction du rôle
-        if(StringUtils.ENSEIGNANT.toString().equals(preferences.getString(StringUtils.ROLE.toString(), ""))) {
+        /*if(StringUtils.ENSEIGNANT.toString().equals(preferences.getString(StringUtils.ROLE.toString(), ""))) {
             ((ImageButton) convertView.findViewById(R.id.btnAnswer)).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -66,9 +70,7 @@ public class QuestionFromStudentAdapter extends ArrayAdapter<QuestionFromStudent
             });
         } else {
             convertView.findViewById(R.id.btnAnswer).setVisibility(View.GONE);
-        }
-
-
+        }*/
 
         return convertView;
     }
