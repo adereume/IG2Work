@@ -55,7 +55,7 @@ public class AddNoteActivity extends AppCompatActivity {
                     JSONArray retour = o.getJSONArray("homework");
                     JSONObject note = retour.getJSONObject(0);
 
-                    mNoteView.getEditText().setText(note.getString("description"));
+                    mNoteView.getEditText().setText(note.getString("description").replace("<br />", ""));
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }

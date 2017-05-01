@@ -11,8 +11,29 @@
     android:background="@android:color/white"
     tools:context="com.example.anais.ig2work.SplashScreen">
 
+
     <ImageView
+        android:id="@+id/logo_ig2work"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
+        android:src="@drawable/logo_ig2work"/>
+
+    <TextView
+        android:id="@+id/text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/logo_ig2work"
+        android:layout_marginTop="80dp"
+        android:textSize="10pt"
+        android:textAllCaps="true"
+        android:textAlignment="center"
+        android:textStyle="bold"
+        android:text="Application de pédagogie intéractive proposée par"/>
+
+    <ImageView
+        android:id="@+id/logo_ecole"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/text"
         android:src="@drawable/logo_centralelille_ig2i"/>
 </RelativeLayout>
