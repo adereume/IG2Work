@@ -51,6 +51,7 @@ public class HomeworkActivity extends RestActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_homework);
 
+        setTitle("Devoir");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         preferences = PreferenceManager.getDefaultSharedPreferences(HomeworkActivity.this);
@@ -67,7 +68,13 @@ public class HomeworkActivity extends RestActivity {
         }
 
         idHomework = this.getIntent().getExtras().getInt("idHomework");
-        getHomework(idHomework);
+        getHomework();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        getHomework();
     }
 
     @Override
@@ -94,7 +101,7 @@ public class HomeworkActivity extends RestActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    public void getHomework(final int idHomework) {
+    public void getHomework() {
         new RequestActivity() {
             @Override
             public void traiteReponse(JSONObject o, String action) {
@@ -102,11 +109,10 @@ public class HomeworkActivity extends RestActivity {
                 try {
                     SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.FRANCE);
 
-                    JSONArray info = o.getJSONArray("retour");
+                    JSONArray info = o.getJSONArray("homework");
                     JSONObject homework = info.getJSONObject(0);
 
                     int id = homework.getInt("id");
-                    String module = homework.getString("moduleName");
                     String title = homework.getString("titre");
                     String description = homework.getString("description");
                     String dueDate = homework.getString("dueDate");
@@ -121,9 +127,9 @@ public class HomeworkActivity extends RestActivity {
                         realized = homework.getString("realized").equals("1") ? true : false;
                     }
 
-                    homeworkObject = new Homework(id, module, title, description, formatter.parse(dueDate), realized, isVisible);
+                    homeworkObject = new Homework(id, "", title, description, formatter.parse(dueDate), realized, isVisible);
 
-                    moduleTextView.setText(homeworkObject.getModule());
+                    moduleTextView.setVisibility(View.GONE);
                     titleTextView.setText(homeworkObject.getTitre());
                     descriptionTextView.setText(homeworkObject.getDescription());
                     dueDateTextView.setText(new SimpleDateFormat("dd MMMM yyyy à HH:mm", Locale.FRANCE).format(homeworkObject.getDueDate()));
@@ -133,7 +139,7 @@ public class HomeworkActivity extends RestActivity {
                     e.printStackTrace();
                 }
             }
-        }.envoiRequete("getHomeWorkById", "action=getHomeWorkById&idUser=" + preferences.getInt(StringUtils.IDUSER.toString(), 0) + "&idHomeWork=" + idHomework);
+        }.envoiRequete("getHomeworkById", "action=getHomeworkById&idUser=" + preferences.getInt(StringUtils.IDUSER.toString(), 0) + "&idHomeWork=" + idHomework);
     }
 
     public void deleteHomework() {

@@ -24,7 +24,6 @@ import android.widget.CalendarView;
 import android.widget.ExpandableListView;
 
 import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.anais.ig2work.DataBase.RequestActivity;
@@ -32,7 +31,7 @@ import com.example.anais.ig2work.Model.Homework;
 import com.example.anais.ig2work.Model.HomeworkExpandableAdapter;
 import com.example.anais.ig2work.Model.Seance;
 import com.example.anais.ig2work.Model.SeanceAdapter;
-import com.example.anais.ig2work.Model.SeanceExpandableAdapter;
+import com.example.anais.ig2work.Utils.ListUtils;
 import com.example.anais.ig2work.Utils.RestActivity;
 import com.example.anais.ig2work.Utils.StringUtils;
 
@@ -187,7 +186,7 @@ public class HomeActivity extends RestActivity {
             View rootView = inflater.inflate(R.layout.fragment_home, container, false);
             calendarView = (CalendarView) rootView.findViewById(R.id.simpleCalendarView);
             seanceListView = (ListView) rootView.findViewById(R.id.section_scrollListView);
-            TextView textView = (TextView) rootView.findViewById(R.id.section_label);
+            //TextView textView = (TextView) rootView.findViewById(R.id.section_label);
             listView = (ExpandableListView) rootView.findViewById(R.id.section_listView);
 
             int idUser = PreferenceManager.getDefaultSharedPreferences(getContext()).getInt(StringUtils.IDUSER.toString(), 0);
@@ -196,12 +195,12 @@ public class HomeActivity extends RestActivity {
                 case 1: // Onglet Séances
                     calendarView.setVisibility(View.VISIBLE);
                     seanceListView.setVisibility(View.VISIBLE);
-                    listView.setVisibility(View.INVISIBLE);
+                    listView.setVisibility(View.GONE);
                     getAllSeances(idUser);
                     break;
                 case 2: // Onglet Devoirs
-                    calendarView.setVisibility(View.INVISIBLE);
-                    seanceListView.setVisibility(View.INVISIBLE);
+                    calendarView.setVisibility(View.GONE);
+                    seanceListView.setVisibility(View.GONE);
                     listView.setVisibility(View.VISIBLE);
                     getAllHomeworks(idUser);
                     break;
@@ -370,6 +369,8 @@ public class HomeActivity extends RestActivity {
                                         activity.onClickChangeActivity("seance", data);
                                     }
                                 });
+
+                                ListUtils.setDynamicHeight(seanceListView);
 
                             } catch (JSONException | ParseException e) {
                                 e.printStackTrace();
