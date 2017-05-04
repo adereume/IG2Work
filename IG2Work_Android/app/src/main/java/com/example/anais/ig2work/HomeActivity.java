@@ -130,6 +130,8 @@ public class HomeActivity extends RestActivity {
 
         switch (id) {
             case R.id.menu_create_seance:
+                Intent intent = new Intent(HomeActivity.this, AddSeanceActivity.class);
+                startActivity(intent);
                 Log.d("action", "Création séance");
                 //TODO Création de séance
                 return true;

@@ -41,9 +41,10 @@
         <activity android:name=".QuestionActivity" />
         <activity android:name=".NoteActivity" />
         <activity android:name=".TacheQuestionActivity" />
-        <activity android:name=".AnswerTeacherQuestion"></activity>
+        <activity android:name=".AnswerTeacherQuestion" />
         <activity android:name=".TestCalendarActivity" />
         <activity android:name=".TestDayViewActivity" />
+        <activity android:name=".AddSeanceActivity"></activity>
     </application>
 
 </manifest>
