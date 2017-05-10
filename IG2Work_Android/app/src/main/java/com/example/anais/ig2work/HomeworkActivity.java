@@ -119,12 +119,12 @@ public class HomeworkActivity extends RestActivity {
 
                     Boolean isVisible = false;
                     if (!homework.isNull("isVisible")) {
-                        isVisible = homework.getString("isVisible").equals("1") ? true : false;
+                        isVisible = homework.getString("isVisible").equals("1");
                     }
 
                     Boolean realized = false;
                     if (!homework.isNull("realized")) {
-                        realized = homework.getString("realized").equals("1") ? true : false;
+                        realized = homework.getString("realized").equals("1");
                     }
 
                     homeworkObject = new Homework(id, "", title, description, formatter.parse(dueDate), realized, isVisible);

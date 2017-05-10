@@ -193,6 +193,8 @@ public class AddSeanceActivity extends AppCompatActivity {
                     if(!json_data.isNull("retour")) {
 
                         JSONArray promotions = json_data.getJSONArray("retour");
+                        listPromoId = new ArrayList<>();
+                        listPromoNames = new ArrayList<>();
 
                         for (int i = 0; i < promotions.length(); i++) {
                             JSONObject o = promotions.getJSONObject(i);
@@ -221,6 +223,8 @@ public class AddSeanceActivity extends AppCompatActivity {
                     if(!json_data.isNull("retour")) {
 
                         JSONArray tds = json_data.getJSONArray("retour");
+                        listPromoId = new ArrayList<>();
+                        listPromoNames = new ArrayList<>();
 
                         for (int i = 0; i < tds.length(); i++) {
                             JSONObject o = tds.getJSONObject(i);
@@ -249,6 +253,8 @@ public class AddSeanceActivity extends AppCompatActivity {
                     if(!json_data.isNull("retour")) {
 
                         JSONArray tps = json_data.getJSONArray("retour");
+                        listPromoId = new ArrayList<>();
+                        listPromoNames = new ArrayList<>();
 
                         for (int i = 0; i < tps.length(); i++) {
                             JSONObject o = tps.getJSONObject(i);

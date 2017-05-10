@@ -142,7 +142,7 @@ public class QuestionActivity extends RestActivity {
                         }
 
                         if(!reponse.isNull("realized")) {
-                            etat.setChecked(reponse.getString("realized").equals("1") ? true : false);
+                            etat.setChecked(reponse.getString("realized").equals("1"));
                         }
                     } else {
                         titleAnswer.setVisibility(View.GONE);
