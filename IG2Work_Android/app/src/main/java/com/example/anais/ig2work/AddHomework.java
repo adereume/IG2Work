@@ -43,7 +43,7 @@ public class AddHomework extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_homework);
-        setTitle("Ajout Devoir");
+
         //Le bouton retour à gauche de la barre d'action
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
@@ -69,12 +69,18 @@ public class AddHomework extends AppCompatActivity {
         });
         mDescriptionView = (TextInputLayout) findViewById(R.id.description);
 
-        Homework homeworkObject = (Homework) getIntent().getSerializableExtra("homeworkObject");
+        if(this.getIntent().getExtras() != null) {
+            setTitle("Edit Devoir");
 
-        mTitleView.getEditText().setText(homeworkObject.getTitre());
-        mDescriptionView.getEditText().setText(homeworkObject.getDescription());
-        //TODO Revoir la date...
-        mDueDateView.getEditText().setText(String.valueOf(homeworkObject.getDueDate()));
+            Homework homeworkObject = (Homework) getIntent().getSerializableExtra("homeworkObject");
+
+            mTitleView.getEditText().setText(homeworkObject.getTitre());
+            mDescriptionView.getEditText().setText(homeworkObject.getDescription());
+            //TODO Revoir la date...
+            mDueDateView.getEditText().setText(String.valueOf(homeworkObject.getDueDate()));
+        } else {
+            setTitle("Ajout Devoir");
+        }
     }
 
     public void showTimePickerDialog(View v) {

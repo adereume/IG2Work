@@ -1,10 +1,12 @@
 package com.example.anais.ig2work.Model;
 
+import java.io.Serializable;
+
 /**
  * Created by clementruffin on 07/02/2017.
  */
 
-public class Note {
+public class Note implements Serializable {
     private int id;
     private String description;
     private boolean isPrivate;

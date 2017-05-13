@@ -2,12 +2,12 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
-        android:id="@+id/menu_edit_homework"
+        android:id="@+id/menu_edit_note"
         android:icon="@drawable/ic_edit"
         app:showAsAction="ifRoom"
         android:title="@string/menu_edit"/>
     <item
-        android:id="@+id/menu_delete_homework"
+        android:id="@+id/menu_delete_note"
         android:icon="@drawable/ic_delete"
         app:showAsAction="ifRoom"
         android:title="@string/menu_delete"/>

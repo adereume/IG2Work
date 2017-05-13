@@ -1,9 +1,11 @@
 package com.example.anais.ig2work;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Parcelable;
 import android.preference.PreferenceManager;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -40,6 +42,7 @@ public class HomeworkActivity extends RestActivity {
     private TextView dueDateTextView;
     private CheckBox state;
 
+    private int idUser;
     private int idHomework;
     private Homework homeworkObject;
 
@@ -48,9 +51,11 @@ public class HomeworkActivity extends RestActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_homework);
 
+        setTitle("Devoir");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         preferences = PreferenceManager.getDefaultSharedPreferences(HomeworkActivity.this);
+        idUser = preferences.getInt(StringUtils.IDUSER.toString(), 0);
 
         moduleTextView = (TextView) findViewById(R.id.module);
         titleTextView = (TextView) findViewById(R.id.title);
@@ -63,7 +68,13 @@ public class HomeworkActivity extends RestActivity {
         }
 
         idHomework = this.getIntent().getExtras().getInt("idHomework");
-        getHomework(idHomework);
+        getHomework();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        getHomework();
     }
 
     @Override
@@ -79,7 +90,7 @@ public class HomeworkActivity extends RestActivity {
                 return true;
 
             case R.id.menu_delete_homework:
-                deleteHomework(idHomework);
+                deleteHomework();
                 return true;
 
             case android.R.id.home:
@@ -90,7 +101,7 @@ public class HomeworkActivity extends RestActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    public void getHomework(final int idHomework) {
+    public void getHomework() {
         new RequestActivity() {
             @Override
             public void traiteReponse(JSONObject o, String action) {
@@ -98,28 +109,27 @@ public class HomeworkActivity extends RestActivity {
                 try {
                     SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.FRANCE);
 
-                    JSONArray info = o.getJSONArray("retour");
+                    JSONArray info = o.getJSONArray("homework");
                     JSONObject homework = info.getJSONObject(0);
 
                     int id = homework.getInt("id");
-                    String module = homework.getString("moduleName");
                     String title = homework.getString("titre");
                     String description = homework.getString("description");
                     String dueDate = homework.getString("dueDate");
 
                     Boolean isVisible = false;
                     if (!homework.isNull("isVisible")) {
-                        isVisible = homework.getString("isVisible").equals("1") ? true : false;
+                        isVisible = homework.getString("isVisible").equals("1");
                     }
 
                     Boolean realized = false;
                     if (!homework.isNull("realized")) {
-                        realized = homework.getString("realized").equals("1") ? true : false;
+                        realized = homework.getString("realized").equals("1");
                     }
 
-                    homeworkObject = new Homework(id, module, title, description, formatter.parse(dueDate), realized, isVisible);
+                    homeworkObject = new Homework(id, "", title, description, formatter.parse(dueDate), realized, isVisible);
 
-                    moduleTextView.setText(homeworkObject.getModule());
+                    moduleTextView.setVisibility(View.GONE);
                     titleTextView.setText(homeworkObject.getTitre());
                     descriptionTextView.setText(homeworkObject.getDescription());
                     dueDateTextView.setText(new SimpleDateFormat("dd MMMM yyyy à HH:mm", Locale.FRANCE).format(homeworkObject.getDueDate()));
@@ -129,21 +139,26 @@ public class HomeworkActivity extends RestActivity {
                     e.printStackTrace();
                 }
             }
-        }.envoiRequete("getHomeWorkById", "action=getHomeWorkById&idUser=" + preferences.getInt(StringUtils.IDUSER.toString(), 0) + "&idHomeWork=" + idHomework);
+        }.envoiRequete("getHomeworkById", "action=getHomeworkById&idUser=" + preferences.getInt(StringUtils.IDUSER.toString(), 0) + "&idHomeWork=" + idHomework);
     }
 
-    public void deleteHomework(final int idHomework) {
-        new RequestActivity() {
-            @Override
-            public void traiteReponse(JSONObject o, String action) {
-
-                //TODO Retour lors de la suppression d'un devoir ?
-                /*try {
-
-                } catch (JSONException | ParseException e) {
-                    e.printStackTrace();
-                }*/
-            }
-        }.envoiRequete("deleteHomework", "action=deleteHomework&idHomeWork=" + idHomework);
+    public void deleteHomework() {
+        new AlertDialog.Builder(this)
+                .setTitle("Supprimer le devoir")
+                .setMessage("Etes-vous sur de vouloir supprimer ce devoir ?")
+                .setNegativeButton("Non", null)
+                .setPositiveButton("Oui", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        //Supprimer le devoir
+                        new RequestActivity() {
+                            @Override
+                            public void traiteReponse(JSONObject o, String action) {
+                                if (!o.isNull("retour"))
+                                    HomeworkActivity.this.finish();
+                            }
+                        }.envoiRequete("deleteHomeWork", "action=deleteHomeWork&idUser=" + idUser + "&idHomeWork=" + idHomework);
+                    }
+                }).show();
     }
 }

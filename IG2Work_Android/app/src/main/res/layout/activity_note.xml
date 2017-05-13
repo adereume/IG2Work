@@ -10,4 +10,14 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.example.anais.ig2work.NoteActivity">
 
+    <TextView
+        android:text="Note"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_marginBottom="10dp"
+        android:id="@+id/note"
+        android:textStyle="normal"
+        android:inputType="textMultiLine"
+        android:maxLength="255"/>
 </RelativeLayout>

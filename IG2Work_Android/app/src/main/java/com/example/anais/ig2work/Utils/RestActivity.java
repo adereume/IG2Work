@@ -116,6 +116,10 @@ public abstract class RestActivity extends AppCompatActivity {
             case "AnswerTeacherQuestion":
                 getMenuInflater().inflate(R.menu.menu_validate, menu);
                 break;
+
+            case "NoteActivity":
+                getMenuInflater().inflate(R.menu.menu_note, menu);
+                break;
         }
 
         return true;

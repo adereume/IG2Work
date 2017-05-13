@@ -58,4 +58,9 @@
     <string name="tat_du_devoir">État du devoir</string>
     <string name="votre_r_ponse">Votre Réponse</string>
 
+    <string-array name="seance_types">
+        <item>Cours</item>
+        <item>TD</item>
+        <item>TP</item>
+    </string-array>
 </resources>
