@@ -16,6 +16,7 @@ import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.anais.ig2work.DataBase.RequestActivity;
 import com.example.anais.ig2work.Model.Homework;
@@ -62,7 +63,19 @@ public class HomeworkActivity extends RestActivity {
         descriptionTextView = (TextView) findViewById(R.id.description);
         dueDateTextView = (TextView) findViewById(R.id.dueDate);
         state = (CheckBox) findViewById(R.id.state);
-
+        state.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                new RequestActivity() {
+                    @Override
+                    public void traiteReponse(JSONObject o, String action) {
+                        if(!o.isNull("retour"))  {
+                            Toast.makeText(HomeworkActivity.this, "Etat mis à jour", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                }.envoiRequete("realizedHomeWork", "action=realizedHomeWork&idHomeWork=" + idHomework+"&idUser="+idUser+"&realized="+(state.isChecked() ? 1 : 0));
+            }
+        });
         if (preferences.getString(StringUtils.ROLE.toString(), "").equals("teacher")) {
             state.setVisibility(View.GONE);
         }
@@ -74,7 +87,12 @@ public class HomeworkActivity extends RestActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        getHomework();
+        //Initialisation de la question
+        if (StringUtils.ETUDIANT.toString().equals(preferences.getString(StringUtils.ROLE.toString(), ""))) {
+            getHomeworkForStudent();
+        } else {
+            getHomework();
+        }
     }
 
     @Override
@@ -114,7 +132,7 @@ public class HomeworkActivity extends RestActivity {
 
                     int id = homework.getInt("id");
                     String title = homework.getString("titre");
-                    String description = homework.getString("description");
+                    String description = homework.getString("description").replace("<br />", "");
                     String dueDate = homework.getString("dueDate");
 
                     Boolean isVisible = false;
@@ -139,7 +157,48 @@ public class HomeworkActivity extends RestActivity {
                     e.printStackTrace();
                 }
             }
-        }.envoiRequete("getHomeworkById", "action=getHomeworkById&idUser=" + preferences.getInt(StringUtils.IDUSER.toString(), 0) + "&idHomeWork=" + idHomework);
+        }.envoiRequete("getHomeworkById", "action=getHomeworkById&idHomeWork=" + idHomework);
+    }
+
+    public void getHomeworkForStudent() {
+        new RequestActivity() {
+            @Override
+            public void traiteReponse(JSONObject o, String action) {
+
+                try {
+                    SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.FRANCE);
+
+                    JSONArray info = o.getJSONArray("homework");
+                    JSONObject homework = info.getJSONObject(0);
+
+                    int id = homework.getInt("id");
+                    String title = homework.getString("titre");
+                    String description = homework.getString("description").replace("<br />", "");
+                    String dueDate = homework.getString("dueDate");
+
+                    Boolean isVisible = false;
+                    if (!homework.isNull("isVisible")) {
+                        isVisible = homework.getString("isVisible").equals("1");
+                    }
+
+                    Boolean realized = false;
+                    if (!homework.isNull("realized")) {
+                        realized = homework.getString("realized").equals("1");
+                    }
+
+                    homeworkObject = new Homework(id, "", title, description, formatter.parse(dueDate), realized, isVisible);
+
+                    moduleTextView.setVisibility(View.GONE);
+                    titleTextView.setText(homeworkObject.getTitre());
+                    descriptionTextView.setText(homeworkObject.getDescription());
+                    dueDateTextView.setText(new SimpleDateFormat("dd MMMM yyyy à HH:mm", Locale.FRANCE).format(homeworkObject.getDueDate()));
+                    state.setChecked(homeworkObject.isRealized());
+
+                } catch (JSONException | ParseException e) {
+                    e.printStackTrace();
+                }
+            }
+        }.envoiRequete("getHomeworkByIdForStudent", "action=getHomeworkByIdForStudent&idUser=" + preferences.getInt(StringUtils.IDUSER.toString(), 0) + "&idHomeWork=" + idHomework);
     }
 
     public void deleteHomework() {

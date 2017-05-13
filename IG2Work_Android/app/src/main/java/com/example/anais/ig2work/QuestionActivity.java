@@ -12,7 +12,9 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -44,8 +46,8 @@ public class QuestionActivity extends RestActivity {
     private TextView answer;
     private TextView titleCorrect;
     private TextView correct;
+    private Button visibility;
     private CheckBox etat;
-
 
     private TextView detailAnswers;
     private ListView listAnswers;
@@ -63,6 +65,7 @@ public class QuestionActivity extends RestActivity {
         answer = (TextView) findViewById(R.id.answer);
         titleCorrect = (TextView) findViewById(R.id.textView3);
         correct = (TextView) findViewById(R.id.correct);
+        visibility = (Button) findViewById(R.id.changeVisibility);
         etat = (CheckBox) findViewById(R.id.state);
         etat.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -91,6 +94,7 @@ public class QuestionActivity extends RestActivity {
 
         //Initialisation de la question
         if (StringUtils.ETUDIANT.toString().equals(preferences.getString(StringUtils.ROLE.toString(), ""))) {
+            visibility.setVisibility(View.GONE);
             getQuestionForStudent();
         } else {
             //Affichage de l'enseignant
@@ -127,6 +131,7 @@ public class QuestionActivity extends RestActivity {
 
                     //Affichage de la réponse de l'étudiant
                     JSONArray reponses = o.getJSONArray("reponses");
+
                     if(reponses.length() > 0) {
                         JSONObject reponse = reponses.getJSONObject(0);
 
@@ -172,24 +177,43 @@ public class QuestionActivity extends RestActivity {
                     titleAnswer.setVisibility(View.GONE);
                     answer.setVisibility(View.GONE);
 
-                    if(!question.isNull("answer")) {
-                        titleCorrect.setVisibility(View.VISIBLE);
-                        correct.setVisibility(View.VISIBLE);
-                        correct.setText(question.getString("answer"));
-                    } else {
-                        titleCorrect.setVisibility(View.GONE);
-                        correct.setVisibility(View.GONE);
+                    titleCorrect.setVisibility(View.VISIBLE);
+                    correct.setVisibility(View.VISIBLE);
+                    correct.setText(question.getString("answer"));
+
+                    if(question.getInt("answerIsVisible") == 1) {
+                        //Set not visible
+                        visibility.setCompoundDrawablesWithIntrinsicBounds(R.drawable.not_visible, 0, 0, 0);
+                        visibility.setText("Faire Disparaitre");
+                        visibility.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                changeAnswerVisibility(false);
+                            }
+                        });
+                    }else {
+                        //Set visible
+                        visibility.setCompoundDrawablesWithIntrinsicBounds(R.drawable.is_visible, 0, 0, 0);
+                        visibility.setText("Afficher");
+                        visibility.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                changeAnswerVisibility(true);
+                            }
+                        });
+                    }
+
+                    if(question.isNull("totalAnswer") || question.getInt("totalAnswer") == 0)
+                        detailAnswers.setText("Aucun étudiant n'a répondu");
+                    else {
+                        if (question.getInt("totalAnswer") > 1)
+                            detailAnswers.setText(question.getInt("totalAnswer") + " étudiants ont répondu");
+                        else
+                            detailAnswers.setText(question.getInt("totalAnswer") + " étudiant a répondu");
                     }
 
                     JSONArray reponses = o.getJSONArray("reponses");
-                    if(reponses.length() == 0)
-                        detailAnswers.setText("Aucun étudiant n'a répondu");
-                    else {
-                        if(reponses.length() > 1)
-                            detailAnswers.setText(reponses.length()+" étudiants ont répondu");
-                        else
-                            detailAnswers.setText(reponses.length()+" étudiant a répondu");
-
+                    if(reponses.length() > 0) {
                         listAnswers.setVisibility(View.VISIBLE);
 
                         List<AnswerFromQuestionStat> listNotes = new ArrayList<>();
@@ -259,5 +283,24 @@ public class QuestionActivity extends RestActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    public void changeAnswerVisibility(final boolean isVisible) {
+        new RequestActivity() {
+            @Override
+            public void traiteReponse(JSONObject o, String action) {
+                if(!o.isNull("retour")) {
+                    Toast.makeText(QuestionActivity.this, "Etat de la correction mise à jour", Toast.LENGTH_SHORT).show();
+                    visibility.setCompoundDrawablesWithIntrinsicBounds((isVisible ? R.drawable.is_visible : R.drawable.not_visible), 0, 0, 0);
+                    visibility.setText((isVisible ? "Faire Disparaitre" : "Afficher"));
+                    visibility.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            changeAnswerVisibility(!isVisible);
+                        }
+                    });
+                }
+            }
+        }.envoiRequete("setCorrectionVisible", "action=setCorrectionVisible&idQuestion=" + idQuestion+"&isVisible="+(isVisible ? 1 : 0));
     }
 }

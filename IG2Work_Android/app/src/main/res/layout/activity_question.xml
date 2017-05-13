@@ -43,13 +43,34 @@
         android:textSize="16sp"
         android:textColor="@android:color/holo_red_dark"
         android:id="@+id/textView3" />
-    <TextView
-        android:id="@+id/correct"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textColor="@android:color/holo_red_light"
+        android:orientation="horizontal"
         android:layout_marginTop="15dp"
-        android:layout_marginBottom="25dp"/>
+        android:layout_marginBottom="25dp"
+        android:gravity="center_vertical"
+        android:weightSum="5">
+        <TextView
+            android:id="@+id/correct"
+            android:layout_weight="4"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@android:color/holo_red_light"/>
+
+        <Button
+            android:id="@+id/changeVisibility"
+            android:layout_width="62dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text=""
+            android:textSize="11sp"
+            android:textColor="@android:color/black"
+            android:drawableLeft="@drawable/not_visible"
+            style="@style/Widget.AppCompat.Button"
+            android:background="?android:attr/colorBackground"/>
+    </LinearLayout>
+
 
     <CheckBox
         android:layout_width="wrap_content"
