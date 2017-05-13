@@ -64,7 +64,7 @@ public class HomeworkAdapter extends ArrayAdapter<Homework> {
         }
 
         final Homework homework = getItem(position);
-        viewHolder.title.setText(homework.getTitre());
+        viewHolder.title.setText(homework.getTitre().replace("<br />", ""));
         viewHolder.dueDate.setText(new SimpleDateFormat("dd MMMM yyyy à HH:mm", Locale.FRANCE).format(homework.getDueDate()));
         viewHolder.realized.setChecked(homework.isRealized());
         final CheckBox cb = viewHolder.realized;

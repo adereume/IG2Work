@@ -44,7 +44,7 @@ public class NoteAdapter extends ArrayAdapter<Note> {
         }
 
         Note note = getItem(position);
-        viewHolder.description.setText(note.getDescription());
+        viewHolder.description.setText(note.getDescription().replace("<br />", ""));
         ((ImageView)convertView.findViewById(R.id.logo)).setImageResource(R.drawable.logo_note_list);
 
         return convertView;

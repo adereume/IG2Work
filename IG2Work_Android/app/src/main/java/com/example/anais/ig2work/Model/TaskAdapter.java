@@ -65,7 +65,7 @@ public class TaskAdapter extends ArrayAdapter<Task> {
         }
 
         final Task task = getItem(position);
-        viewHolder.title.setText(task.getTitre());
+        viewHolder.title.setText(task.getTitre().replace("<br />", ""));
         viewHolder.realized.setChecked(task.isRealized());
         final CheckBox cb = viewHolder.realized;
         viewHolder.realized.setOnClickListener(new View.OnClickListener() {
