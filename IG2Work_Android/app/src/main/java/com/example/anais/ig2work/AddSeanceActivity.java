@@ -5,6 +5,8 @@ import android.app.Dialog;
 import android.app.DialogFragment;
 import android.app.TimePickerDialog;
 import android.content.SharedPreferences;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -19,6 +21,7 @@ import android.widget.ArrayAdapter;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
@@ -166,6 +169,8 @@ public class AddSeanceActivity extends AppCompatActivity {
 
                         JSONArray modules = json_data.getJSONArray("retour");
 
+                        listModuleId.add(0);
+                        listModuleNames.add("Sélectionner le module ...");
                         for (int i = 0; i < modules.length(); i++) {
                             JSONObject o = modules.getJSONObject(i);
 
@@ -196,6 +201,8 @@ public class AddSeanceActivity extends AppCompatActivity {
                         listPromoId = new ArrayList<>();
                         listPromoNames = new ArrayList<>();
 
+                        listPromoId.add(0);
+                        listPromoNames.add("Sélectionner la promo ...");
                         for (int i = 0; i < promotions.length(); i++) {
                             JSONObject o = promotions.getJSONObject(i);
 
@@ -226,6 +233,8 @@ public class AddSeanceActivity extends AppCompatActivity {
                         listPromoId = new ArrayList<>();
                         listPromoNames = new ArrayList<>();
 
+                        listPromoId.add(0);
+                        listPromoNames.add("Sélectionner le groupe TD ...");
                         for (int i = 0; i < tds.length(); i++) {
                             JSONObject o = tds.getJSONObject(i);
 
@@ -256,6 +265,8 @@ public class AddSeanceActivity extends AppCompatActivity {
                         listPromoId = new ArrayList<>();
                         listPromoNames = new ArrayList<>();
 
+                        listPromoId.add(0);
+                        listPromoNames.add("Sélectionner le groupe TP ...");
                         for (int i = 0; i < tps.length(); i++) {
                             JSONObject o = tps.getJSONObject(i);
 
@@ -403,7 +414,8 @@ public class AddSeanceActivity extends AppCompatActivity {
             focusView = room;
             cancel = true;
         }
-
+        Log.e("Date", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(startDateTmp)
+                + " to " +new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(endDateTmp));
         if (cancel) {
             focusView.requestFocus();
         } else {
@@ -411,8 +423,8 @@ public class AddSeanceActivity extends AppCompatActivity {
                     listModuleId.get(selectModule.getSelectedItemPosition()),
                     listPromoId.get(selectGroupe.getSelectedItemPosition()),
                     roomTxt,
-                    new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").format(startDateTmp),
-                    new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").format(endDateTmp));
+                    new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(startDateTmp),
+                    new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(endDateTmp));
         }
     }
 

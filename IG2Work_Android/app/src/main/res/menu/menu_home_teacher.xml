@@ -4,7 +4,7 @@
 
     <item
         android:id="@+id/menu_create_seance"
-        android:icon="@drawable/ic_action_create_dark"
+        android:icon="@drawable/ic_add"
         app:showAsAction="ifRoom"
         android:title="@string/menu_create"/>
 

@@ -132,8 +132,6 @@ public class HomeActivity extends RestActivity {
             case R.id.menu_create_seance:
                 Intent intent = new Intent(HomeActivity.this, AddSeanceActivity.class);
                 startActivity(intent);
-                Log.d("action", "Création séance");
-                //TODO Création de séance
                 return true;
         }
 
@@ -188,7 +186,6 @@ public class HomeActivity extends RestActivity {
             View rootView = inflater.inflate(R.layout.fragment_home, container, false);
             calendarView = (CalendarView) rootView.findViewById(R.id.simpleCalendarView);
             seanceListView = (ListView) rootView.findViewById(R.id.section_scrollListView);
-            //TextView textView = (TextView) rootView.findViewById(R.id.section_label);
             listView = (ExpandableListView) rootView.findViewById(R.id.section_listView);
 
             int idUser = PreferenceManager.getDefaultSharedPreferences(getContext()).getInt(StringUtils.IDUSER.toString(), 0);
@@ -212,97 +209,6 @@ public class HomeActivity extends RestActivity {
         }
 
         public void getAllSeances(final int idUser) {
-            /*new RequestActivity() {
-                @Override
-                public void traiteReponse(JSONObject o, String action) {
-
-                    if(!o.isNull("feedback")) {
-                        Toast.makeText(getBaseContext(), "Utilisateur non reconnu...", Toast.LENGTH_LONG).show();
-                        return;
-                    }
-
-                    try {
-                        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.FRANCE);
-
-                        List<Seance> listSeancesDay = new ArrayList<Seance>();
-                        List<Seance> listSeancesWeek = new ArrayList<Seance>();
-                        List<Seance> listSeancesMonth = new ArrayList<Seance>();
-
-                        // Le rôle de l'utilisateur est utilisé pour instancier l'objet Seance
-                        // On s'en sert dans la gestion de l'affichage (affichage du nom de l'enseignant ou de la promo)
-                        String target = PreferenceManager.getDefaultSharedPreferences(getContext()).getString(StringUtils.ROLE.toString(), "");
-
-                        // On crée 3 filtres sur la liste des séances
-                        // Ainsi l'utilisateur pourra choisir d'afficher les séances du jour, de la semaine ou du mois à venir
-                        List<String> listFilter = new ArrayList<String>();
-                        listFilter.add("Aujourd'hui");
-                        listFilter.add("7 prochains jours");
-                        listFilter.add("Ce mois-ci");
-
-                        // Liste des séances
-                        JSONArray seances = o.getJSONArray("seances");
-
-                        for (int i = 0; i < seances.length(); i++) {
-
-                            JSONObject seance = seances.getJSONObject(i);
-
-                            int id = seance.getInt("id");
-                            String moduleName = seance.getString("moduleName");
-                            String teacherFName = seance.getString("teacherFirstName");
-                            String teacherLName = seance.getString("teacherLastName");
-                            String promoName = seance.getString("promoName");
-                            String dayTime = seance.getString("dayTime");
-                            String room = seance.getString("room");
-
-                            Seance s = new Seance(id, moduleName, teacherFName + " " + teacherLName, promoName, formatter.parse(dayTime), room, target);
-
-                            Date dateSeance = formatter.parse(dayTime);
-                            Date dateNow = new Date();
-                            long diffDate = (dateSeance.getTime() - dateNow.getTime()) / (24 * 60 * 60 * 1000);
-
-                            // En fonction de la date de la séance, on l'ajoute dans les listes qui correspondent
-                            if (diffDate == 0) {
-                                listSeancesDay.add(s);
-                                listSeancesWeek.add(s);
-                                listSeancesMonth.add(s);
-                            } else if (diffDate > 0 && diffDate < 7) {
-                                listSeancesWeek.add(s);
-                                listSeancesMonth.add(s);
-                            } else if (diffDate >= 7) {
-                                listSeancesMonth.add(s);
-                            }
-                        }
-
-                        HashMap<String, List<Seance>> mapSeances = new HashMap<String, List<Seance>>();
-                        mapSeances.put(listFilter.get(0), listSeancesDay);
-                        mapSeances.put(listFilter.get(1), listSeancesWeek);
-                        mapSeances.put(listFilter.get(2), listSeancesMonth);
-
-                        SeanceExpandableAdapter adapter = new SeanceExpandableAdapter(getActivity(), listView, listFilter, mapSeances);
-                        listView.setAdapter(adapter);
-
-                        listView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
-                            @Override
-                            public boolean onChildClick(ExpandableListView expandableListView, View view, int i, int i1, long l) {
-
-                                Seance seanceChoice = (Seance) listView.getExpandableListAdapter().getChild(i, i1);
-
-                                Bundle data = new Bundle();
-                                data.putInt("idSeance", seanceChoice.getId());
-
-                                HomeActivity activity = (HomeActivity) getActivity();
-                                activity.onClickChangeActivity("seance", data);
-
-                                return true;
-                            }
-                        });
-
-                    } catch (JSONException | ParseException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }.envoiRequete("getAllSeance", "action=getAllSeance&idUser=" + idUser);*/
-
             calendarView.setOnDateChangeListener(new CalendarView.OnDateChangeListener() {
                 @Override
                 public void onSelectedDayChange(CalendarView view, int year, int month, final int dayOfMonth) {
