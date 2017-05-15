@@ -183,7 +183,7 @@ public class QuestionActivity extends RestActivity {
 
                     if(question.getInt("answerIsVisible") == 1) {
                         //Set not visible
-                        visibility.setCompoundDrawablesWithIntrinsicBounds(R.drawable.not_visible, 0, 0, 0);
+                        visibility.setCompoundDrawablesWithIntrinsicBounds(R.drawable.is_visible, 0, 0, 0);
                         visibility.setText("Faire Disparaitre");
                         visibility.setOnClickListener(new View.OnClickListener() {
                             @Override
@@ -193,7 +193,7 @@ public class QuestionActivity extends RestActivity {
                         });
                     }else {
                         //Set visible
-                        visibility.setCompoundDrawablesWithIntrinsicBounds(R.drawable.is_visible, 0, 0, 0);
+                        visibility.setCompoundDrawablesWithIntrinsicBounds(R.drawable.not_visible, 0, 0, 0);
                         visibility.setText("Afficher");
                         visibility.setOnClickListener(new View.OnClickListener() {
                             @Override
