@@ -195,7 +195,7 @@ public class HomeActivity extends RestActivity {
                     calendarView.setVisibility(View.VISIBLE);
                     seanceListView.setVisibility(View.VISIBLE);
                     listView.setVisibility(View.GONE);
-                    getAllSeances(idUser);
+                    getSeances(idUser);
                     break;
                 case 2: // Onglet Devoirs
                     calendarView.setVisibility(View.GONE);
@@ -208,7 +208,9 @@ public class HomeActivity extends RestActivity {
             return rootView;
         }
 
-        public void getAllSeances(final int idUser) {
+        public void getSeances(final int idUser) {
+            getAllSeances(idUser, Calendar.getInstance().getTime());
+
             calendarView.setOnDateChangeListener(new CalendarView.OnDateChangeListener() {
                 @Override
                 public void onSelectedDayChange(CalendarView view, int year, int month, final int dayOfMonth) {
@@ -216,77 +218,81 @@ public class HomeActivity extends RestActivity {
                     cal.set(year, month, dayOfMonth);
                     dateNow = cal.getTime();
 
-                    new RequestActivity() {
-                        @Override
-                        public void traiteReponse(JSONObject o, String action) {
-
-                            if(!o.isNull("feedback")) {
-                                Toast.makeText(getBaseContext(), "Utilisateur non reconnu...", Toast.LENGTH_LONG).show();
-                                return;
-                            }
-
-                            try {
-                                SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.FRANCE);
-
-                                List<Seance> listSeances = new ArrayList<Seance>();
-
-                                // Le rôle de l'utilisateur est utilisé pour instancier l'objet Seance
-                                // On s'en sert dans la gestion de l'affichage (affichage du nom de l'enseignant ou de la promo)
-                                String target = PreferenceManager.getDefaultSharedPreferences(getActivity()).getString(StringUtils.ROLE.toString(), "");
-
-                                // Liste des séances
-                                JSONArray seances = o.getJSONArray("seances");
-
-                                for (int i = 0; i < seances.length(); i++) {
-
-                                    JSONObject seance = seances.getJSONObject(i);
-
-                                    int id = seance.getInt("id");
-                                    String moduleName = seance.getString("moduleName");
-                                    String teacherFName = seance.getString("teacherFirstName");
-                                    String teacherLName = seance.getString("teacherLastName");
-                                    String promoName = seance.getString("promoName");
-                                    String dayTime = seance.getString("dayTime");
-                                    String room = seance.getString("room");
-
-                                    Seance s = new Seance(id, moduleName, teacherFName + " " + teacherLName, promoName, formatter.parse(dayTime), room, target);
-
-                                    Calendar cal = Calendar.getInstance();
-
-                                    Date dateSeance = formatter.parse(dayTime);
-
-                                    if (dateNow.getYear() == dateSeance.getYear()
-                                            && dateNow.getMonth() == dateSeance.getMonth()
-                                            && dateNow.getDate() == dateSeance.getDate()) {
-                                        listSeances.add(s);
-                                    }
-                                }
-
-                                SeanceAdapter adapter = new SeanceAdapter(getActivity(), listSeances);
-                                seanceListView.setAdapter(adapter);
-
-                                seanceListView.setOnItemClickListener(new ListView.OnItemClickListener() {
-                                    @Override
-                                    public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                                        Seance seanceChoice = (Seance) seanceListView.getAdapter().getItem(i);
-
-                                        Bundle data = new Bundle();
-                                        data.putInt("idSeance", seanceChoice.getId());
-
-                                        HomeActivity activity = (HomeActivity) getActivity();
-                                        activity.onClickChangeActivity("seance", data);
-                                    }
-                                });
-
-                                ListUtils.setDynamicHeight(seanceListView);
-
-                            } catch (JSONException | ParseException e) {
-                                e.printStackTrace();
-                            }
-                        }
-                    }.envoiRequete("getAllSeance", "action=getAllSeance&idUser=" + idUser);
+                    getAllSeances(idUser, dateNow);
                 }
             });
+        }
+
+        public void getAllSeances(final int idUser, final Date dateNow) {
+            new RequestActivity() {
+                @Override
+                public void traiteReponse(JSONObject o, String action) {
+
+                    if(!o.isNull("feedback")) {
+                        Toast.makeText(getBaseContext(), "Utilisateur non reconnu...", Toast.LENGTH_LONG).show();
+                        return;
+                    }
+
+                    try {
+                        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.FRANCE);
+
+                        List<Seance> listSeances = new ArrayList<Seance>();
+
+                        // Le rôle de l'utilisateur est utilisé pour instancier l'objet Seance
+                        // On s'en sert dans la gestion de l'affichage (affichage du nom de l'enseignant ou de la promo)
+                        String target = PreferenceManager.getDefaultSharedPreferences(getActivity()).getString(StringUtils.ROLE.toString(), "");
+
+                        // Liste des séances
+                        JSONArray seances = o.getJSONArray("seances");
+
+                        for (int i = 0; i < seances.length(); i++) {
+
+                            JSONObject seance = seances.getJSONObject(i);
+
+                            int id = seance.getInt("id");
+                            String moduleName = seance.getString("moduleName");
+                            String teacherFName = seance.getString("teacherFirstName");
+                            String teacherLName = seance.getString("teacherLastName");
+                            String promoName = seance.getString("promoName");
+                            String dayTime = seance.getString("dayTime");
+                            String room = seance.getString("room");
+
+                            Seance s = new Seance(id, moduleName, teacherFName + " " + teacherLName, promoName, formatter.parse(dayTime), room, target);
+
+                            Calendar cal = Calendar.getInstance();
+
+                            Date dateSeance = formatter.parse(dayTime);
+
+                            if (dateNow.getYear() == dateSeance.getYear()
+                                    && dateNow.getMonth() == dateSeance.getMonth()
+                                    && dateNow.getDate() == dateSeance.getDate()) {
+                                listSeances.add(s);
+                            }
+                        }
+
+                        SeanceAdapter adapter = new SeanceAdapter(getActivity(), listSeances);
+                        seanceListView.setAdapter(adapter);
+
+                        seanceListView.setOnItemClickListener(new ListView.OnItemClickListener() {
+                            @Override
+                            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                                Seance seanceChoice = (Seance) seanceListView.getAdapter().getItem(i);
+
+                                Bundle data = new Bundle();
+                                data.putInt("idSeance", seanceChoice.getId());
+
+                                HomeActivity activity = (HomeActivity) getActivity();
+                                activity.onClickChangeActivity("seance", data);
+                            }
+                        });
+
+                        ListUtils.setDynamicHeight(seanceListView);
+
+                    } catch (JSONException | ParseException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }.envoiRequete("getAllSeance", "action=getAllSeance&idUser=" + idUser);
         }
 
         public void getAllHomeworks(final int idUser) {
