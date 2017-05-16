@@ -93,7 +93,7 @@ public class NoteActivity extends RestActivity {
                     JSONObject note = info.getJSONObject(0);
 
                     int id = note.getInt("id");
-                    String description = note.getString("description");
+                    String description = note.getString("description").replace("<br />", "");
 
                     Boolean isPrivate = false;
                     if (!note.isNull("isPrivate")) {
