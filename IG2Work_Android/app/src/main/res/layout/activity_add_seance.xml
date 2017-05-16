@@ -15,20 +15,23 @@
     <Spinner
         android:layout_width="match_parent"
         android:layout_height="30dp"
-        android:id="@+id/select_module">
+        android:id="@+id/select_module"
+        style="@style/SpinnerItemStyle">
     </Spinner>
 
     <Spinner
         android:layout_width="match_parent"
         android:layout_height="30dp"
         android:id="@+id/select_type"
+        style="@style/SpinnerItemStyle"
         android:entries="@array/seance_types">
     </Spinner>
 
     <Spinner
         android:layout_width="match_parent"
         android:layout_height="30dp"
-        android:id="@+id/select_groupe">
+        android:id="@+id/select_groupe"
+        style="@style/SpinnerItemStyle">
     </Spinner>
 
     <android.support.design.widget.TextInputEditText
