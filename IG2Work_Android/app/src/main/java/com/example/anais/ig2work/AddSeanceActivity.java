@@ -18,6 +18,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.CheckedTextView;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.Spinner;
@@ -178,7 +179,8 @@ public class AddSeanceActivity extends AppCompatActivity {
                             listModuleNames.add(o.getString("name"));
                         }
 
-                        ArrayAdapter<String> adapter = new ArrayAdapter<>(AddSeanceActivity.this.getApplicationContext(), android.R.layout.simple_spinner_dropdown_item, listModuleNames);
+                        ArrayAdapter<String> adapter = new ArrayAdapter<>(AddSeanceActivity.this, android.R.layout.simple_spinner_item, listModuleNames);
+                        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
                         selectModule.setAdapter(adapter);
 
                     }
@@ -210,7 +212,8 @@ public class AddSeanceActivity extends AppCompatActivity {
                             listPromoNames.add(o.getString("name"));
                         }
 
-                        ArrayAdapter<String> adapter = new ArrayAdapter<String>(AddSeanceActivity.this.getApplicationContext(), android.R.layout.simple_spinner_dropdown_item, listPromoNames);
+                        ArrayAdapter<String> adapter = new ArrayAdapter<>(AddSeanceActivity.this, android.R.layout.simple_spinner_item, listPromoNames);
+                        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
                         selectGroupe.setAdapter(adapter);
 
                     }
@@ -242,7 +245,8 @@ public class AddSeanceActivity extends AppCompatActivity {
                             listPromoNames.add(o.getString("name"));
                         }
 
-                        ArrayAdapter<String> adapter = new ArrayAdapter<String>(AddSeanceActivity.this.getApplicationContext(), android.R.layout.simple_spinner_dropdown_item, listPromoNames);
+                        ArrayAdapter<String> adapter = new ArrayAdapter<>(AddSeanceActivity.this, android.R.layout.simple_spinner_item, listPromoNames);
+                        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
                         selectGroupe.setAdapter(adapter);
 
                     }
@@ -274,7 +278,8 @@ public class AddSeanceActivity extends AppCompatActivity {
                             listPromoNames.add(o.getString("name"));
                         }
 
-                        ArrayAdapter<String> adapter = new ArrayAdapter<String>(AddSeanceActivity.this.getApplicationContext(), android.R.layout.simple_spinner_dropdown_item, listPromoNames);
+                        ArrayAdapter<String> adapter = new ArrayAdapter<>(AddSeanceActivity.this, android.R.layout.simple_spinner_item, listPromoNames);
+                        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
                         selectGroupe.setAdapter(adapter);
 
                     }
@@ -339,6 +344,8 @@ public class AddSeanceActivity extends AppCompatActivity {
 
     private void attemptAddSeance() {
         // Reset errors.
+        ((TextView)selectModule.getSelectedView()).setError(null);
+        ((TextView)selectGroupe.getSelectedView()).setError(null);
         room.setError(null);
         startDate.setError(null);
         endDate.setError(null);
@@ -346,67 +353,80 @@ public class AddSeanceActivity extends AppCompatActivity {
         boolean cancel = false;
         View focusView = null;
 
-        String moduleTxt = selectModule.getSelectedItem().toString();
-        String promoTxt = selectGroupe.getSelectedItem().toString();
+        Date startDateTmp = null;
+        Date endDateTmp = null;
+
+        int moduleId = listModuleId.get(selectModule.getSelectedItemPosition());
+        int promoId = listPromoId.get(selectGroupe.getSelectedItemPosition());
         String roomTxt = room.getText().toString();
         String startDateTxt = startDate.getText().toString();
         String endDateTxt = endDate.getText().toString();
 
         // Vérifier si les champs sont remplie
-        if (TextUtils.isEmpty(endDateTxt)) {
-            endDate.setError(getString(R.string.error_field_required));
-            focusView = endDate;
+        if(selectModule.getSelectedItemPosition() == 0) {
+            ((TextView) selectModule.getSelectedView()).setError(getString(R.string.error_field_required));
+            focusView = selectModule;
             cancel = true;
         }
 
-        Date endDateTmp = null;
-        try {
-            endDateTmp = new SimpleDateFormat("d/MM/yyyy - h:m").parse(endDateTxt);
-
-            //Vérifier si la date n'est pas dans le passè
-            if(endDateTmp.before(new Date())) {
-                endDate.setError("La date ne doit pas être dans le passè");
-                focusView = endDate;
-                cancel = true;
-            }
-
-            //Ne pas mettre l'échéance le week-end
-            String endJour = new SimpleDateFormat("EEEE").format(endDateTmp);
-            if (endJour.equals("samedi") || endJour.equals("dimanche")) {
-                endDate.setError("La date ne peux pas être durant le weekend");
-                focusView = endDate;
-                cancel = true;
-            }
-        } catch (ParseException e) {
-            e.printStackTrace();
+        if(selectGroupe.getSelectedItemPosition() == 0) {
+            ((TextView) selectGroupe.getSelectedView()).setError(getString(R.string.error_field_required));
+            focusView = selectGroupe;
+            cancel = true;
         }
 
         if (TextUtils.isEmpty(startDateTxt)) {
             startDate.setError(getString(R.string.error_field_required));
             focusView = startDate;
             cancel = true;
+        } else {
+            try {
+                startDateTmp = new SimpleDateFormat("d/MM/yyyy - h:m").parse(startDateTxt);
+
+                //Vérifier si la date n'est pas dans le passè
+                if(startDateTmp.before(new Date())) {
+                    startDate.setError("La date ne doit pas être dans le passè");
+                    focusView = startDate;
+                    cancel = true;
+                }
+
+                //Ne pas mettre l'échéance le week-end
+                String startJour = new SimpleDateFormat("EEEE").format(startDateTmp);
+                if (startJour.equals("samedi") || startJour.equals("dimanche")) {
+                    startDate.setError("La date ne peux pas être durant le weekend");
+                    focusView = startDate;
+                    cancel = true;
+                }
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
         }
 
-        Date startDateTmp = null;
-        try {
-            startDateTmp = new SimpleDateFormat("d/MM/yyyy - h:m").parse(startDateTxt);
+        if (TextUtils.isEmpty(endDateTxt)) {
+            endDate.setError(getString(R.string.error_field_required));
+            focusView = endDate;
+            cancel = true;
+        } else {
+            try {
+                endDateTmp = new SimpleDateFormat("d/MM/yyyy - h:m").parse(endDateTxt);
+                Log.e("Error", endDateTmp.toString());
+                //Vérifier si la date n'est pas dans le passè
+                if(endDateTmp.before(new Date())) {
+                    endDate.setError("La date ne doit pas être dans le passè");
+                    focusView = endDate;
+                    cancel = true;
+                }
 
-            //Vérifier si la date n'est pas dans le passè
-            if(startDateTmp.before(new Date())) {
-                startDate.setError("La date ne doit pas être dans le passè");
-                focusView = startDate;
-                cancel = true;
+                //Ne pas mettre l'échéance le week-end
+                String endJour = new SimpleDateFormat("EEEE").format(endDateTmp);
+                if (endJour.equals("samedi") || endJour.equals("dimanche")) {
+                    endDate.setError("La date ne peux pas être durant le weekend");
+                    focusView = endDate;
+                    cancel = true;
+                }
+            } catch (ParseException e) {
+                e.printStackTrace();
             }
-
-            //Ne pas mettre l'échéance le week-end
-            String startJour = new SimpleDateFormat("EEEE").format(startDateTmp);
-            if (startJour.equals("samedi") || startJour.equals("dimanche")) {
-                startDate.setError("La date ne peux pas être durant le weekend");
-                focusView = startDate;
-                cancel = true;
-            }
-        } catch (ParseException e) {
-            e.printStackTrace();
         }
 
         if (TextUtils.isEmpty(roomTxt)) {
@@ -414,14 +434,12 @@ public class AddSeanceActivity extends AppCompatActivity {
             focusView = room;
             cancel = true;
         }
-        Log.e("Date", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(startDateTmp)
-                + " to " +new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(endDateTmp));
+
         if (cancel) {
             focusView.requestFocus();
         } else {
-            addSeance(
-                    listModuleId.get(selectModule.getSelectedItemPosition()),
-                    listPromoId.get(selectGroupe.getSelectedItemPosition()),
+            addSeance(moduleId,
+                    promoId,
                     roomTxt,
                     new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(startDateTmp),
                     new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(endDateTmp));
