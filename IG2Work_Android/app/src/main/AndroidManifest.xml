@@ -44,7 +44,8 @@
         <activity android:name=".AnswerTeacherQuestion" />
         <activity android:name=".TestCalendarActivity" />
         <activity android:name=".TestDayViewActivity" />
-        <activity android:name=".AddSeanceActivity"></activity>
+        <activity android:name=".AddSeanceActivity" />
+        <activity android:name=".AccountActivity"></activity>
     </application>
 
 </manifest>

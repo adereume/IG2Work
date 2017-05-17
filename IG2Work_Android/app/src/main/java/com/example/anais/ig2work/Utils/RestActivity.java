@@ -10,6 +10,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.example.anais.ig2work.AccountActivity;
 import com.example.anais.ig2work.AddHomework;
 import com.example.anais.ig2work.AjoutFragment;
 import com.example.anais.ig2work.DataBase.RequestActivity;
@@ -130,6 +131,12 @@ public abstract class RestActivity extends AppCompatActivity {
         int id = item.getItemId();
 
         switch (id) {
+            // Menu 'Mon compte'
+            case R.id.action_account:
+                Intent intent = new Intent(RestActivity.this, AccountActivity.class);
+                startActivity(intent);
+                return true;
+
             // Menu 'Se déconnecter'
             case R.id.action_logout:
                 logoutUser();
