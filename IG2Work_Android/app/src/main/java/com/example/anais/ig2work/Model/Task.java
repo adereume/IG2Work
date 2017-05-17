@@ -1,7 +1,9 @@
 package com.example.anais.ig2work.Model;
 
 /**
- * Created by clementruffin on 06/02/2017.
+ * La classe Task représente une tâche ou une question au sein d'une séance.
+ * Une tâche contient un identifiant, un titre, une description, un type (tâche ou question).
+ * Elle peut être visibile ou invisible (pour les étudiants) et réalisée ou non (par les étudiants)
  */
 
 public class Task {

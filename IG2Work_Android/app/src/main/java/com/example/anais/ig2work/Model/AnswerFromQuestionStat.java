@@ -1,7 +1,8 @@
 package com.example.anais.ig2work.Model;
 
 /**
- * Created by Utilisateur on 01/05/2017.
+ * La classe AnswerFromQuestionStat représente une réponse à une question au sein d'une séance
+ * Une réponse contient un intitulé et un pourcentage
  */
 
 public class AnswerFromQuestionStat {
@@ -23,9 +24,5 @@ public class AnswerFromQuestionStat {
 
     public int getPourcentage() {
         return pourcentage;
-    }
-
-    public void setPourcentage(int pourcentage) {
-        this.pourcentage = pourcentage;
     }
 }

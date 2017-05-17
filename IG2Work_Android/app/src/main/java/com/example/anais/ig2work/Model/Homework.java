@@ -4,7 +4,9 @@ import java.io.Serializable;
 import java.util.Date;
 
 /**
- * Created by clementruffin on 29/01/2017.
+ * La classe Homework représente un devoir au sein d'une séance
+ * Un devoir contient un identifiant, un module, un titre, une description et une date d'échéance.
+ * Il peut être réalisé ou non (par un étudiant) et visible ou invisible (pour les étudiants)
  */
 
 public class Homework implements Serializable {

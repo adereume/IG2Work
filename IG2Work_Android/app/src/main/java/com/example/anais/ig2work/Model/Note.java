@@ -3,7 +3,8 @@ package com.example.anais.ig2work.Model;
 import java.io.Serializable;
 
 /**
- * Created by clementruffin on 07/02/2017.
+ * La classe Note représente une note personnelle au sein d'une séance
+ * Une note contient un identifiant et une description
  */
 
 public class Note implements Serializable {

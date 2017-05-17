@@ -19,21 +19,18 @@ import com.example.anais.ig2work.Utils.StringUtils;
 import org.json.JSONObject;
 
 /**
- * PopUp d'ajout d'une etape
- * Created by Anais on 04/12/2015.
+ * La classe FragmentAnswerQuesFromStudent gère la popup d'ajout d'une réponse à une question
  */
 public class FragmentAnswerQuesFromStudent extends DialogFragment {
     private TaskActivity callingActivity;
     private int idQuestion;
     private int idUser;
 
-    //Element du fragment
     private TextInputLayout mLibelleView;
 
     static FragmentAnswerQuesFromStudent newInstance(int idQuestion, String answer) {
         FragmentAnswerQuesFromStudent f = new FragmentAnswerQuesFromStudent();
 
-        //Transforme idIngredient en argument
         Bundle args = new Bundle();
         args.putInt("idQuestion", idQuestion);
         if(answer != null)
@@ -41,32 +38,6 @@ public class FragmentAnswerQuesFromStudent extends DialogFragment {
 
         f.setArguments(args);
         return f;
-    }
-
-    private void attemptEtape() {
-        // Reset errors.
-        mLibelleView.setError(null);
-
-        // Store values at the time of the login attempt.
-        String libelle = mLibelleView.getEditText().getText().toString();
-
-        boolean cancel = false;
-        View focusView = null;
-
-        // Vérifier si les champs sont remplie
-        if(TextUtils.isEmpty(libelle)){
-            mLibelleView.setError(getString(R.string.error_field_required));
-            focusView = mLibelleView;
-            cancel = true;
-        }
-
-        if (cancel) {
-            // There was an error; don't attempt login and focus the first
-            // form field with an error.
-            focusView.requestFocus();
-        } else {
-            addAnswerQuestionStudent(libelle);
-        }
     }
 
     @Override
@@ -79,7 +50,7 @@ public class FragmentAnswerQuesFromStudent extends DialogFragment {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
         idUser = preferences.getInt(StringUtils.IDUSER.toString(), 0);
 
-        //Enleve le titre
+        // Enlève le titre
         getDialog().getWindow().requestFeature(Window.FEATURE_NO_TITLE);
 
         mLibelleView = (TextInputLayout) v.findViewById(R.id.inputIntitule);
@@ -88,7 +59,7 @@ public class FragmentAnswerQuesFromStudent extends DialogFragment {
 
         idQuestion = getArguments().getInt("idQuestion");
 
-        //Listener sur les buttons
+        // Listener sur les buttons
         v.findViewById(R.id.add).setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 attemptEtape();
@@ -104,6 +75,36 @@ public class FragmentAnswerQuesFromStudent extends DialogFragment {
         return v;
     }
 
+    /*
+    Tentative d'ajout de la réponse
+     */
+    private void attemptEtape() {
+        // Réinitialisation des erreurs
+        mLibelleView.setError(null);
+
+        // Stockage des valeurs avant la tentative d'ajout
+        String libelle = mLibelleView.getEditText().getText().toString();
+
+        boolean cancel = false;
+        View focusView = null;
+
+        // Vérification des champs
+        if(TextUtils.isEmpty(libelle)){
+            mLibelleView.setError(getString(R.string.error_field_required));
+            focusView = mLibelleView;
+            cancel = true;
+        }
+
+        if (cancel) {
+            focusView.requestFocus();
+        } else {
+            addAnswerQuestionStudent(libelle);
+        }
+    }
+
+    /*
+    Ajout de la réponse
+     */
     public void addAnswerQuestionStudent(String answer) {
         new RequestActivity() {
             @Override

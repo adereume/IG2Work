@@ -3,7 +3,9 @@ package com.example.anais.ig2work.Model;
 import java.util.Date;
 
 /**
- * Created by clementruffin on 26/01/2017.
+ * La classe Seance représente une séance.
+ * Une séance contient un identifiant, un module, un enseignant, une promotion, une date de début,
+ * une salle et une cible (enseignant ou étudiant)
  */
 
 public class Seance {

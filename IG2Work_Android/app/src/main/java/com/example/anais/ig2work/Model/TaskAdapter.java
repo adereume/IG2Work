@@ -24,7 +24,8 @@ import org.json.JSONObject;
 import java.util.List;
 
 /**
- * Created by clementruffin on 06/02/2017.
+ * La classe TaskAdapter permet de personnaliser les éléments d'une liste de tâches et questions.
+ * Pour chaque tâche/question, on affiche le titre et l'état.
  */
 
 public class TaskAdapter extends ArrayAdapter<Task> {
@@ -34,12 +35,6 @@ public class TaskAdapter extends ArrayAdapter<Task> {
     }
 
     private class TaskViewHolder{
-        public TextView title;
-        public CheckBox realized;
-        public ImageView view;
-    }
-
-    private class QuestionViewHolder {
         public TextView title;
         public CheckBox realized;
         public ImageView view;
@@ -64,6 +59,7 @@ public class TaskAdapter extends ArrayAdapter<Task> {
             convertView.setTag(viewHolder);
         }
 
+        // Affichage des informations relatives à la tâche/question
         final Task task = getItem(position);
         viewHolder.title.setText(task.getTitre().replace("<br />", ""));
         viewHolder.realized.setChecked(task.isRealized());
@@ -77,12 +73,12 @@ public class TaskAdapter extends ArrayAdapter<Task> {
 
         ((ImageView)convertView.findViewById(R.id.logo)).setImageResource(R.drawable.logo_homework);
 
-        //Affichage en fonction du rôle
+        // Affichage en fonction du rôle
         if(StringUtils.ENSEIGNANT.toString().equals(preferences.getString(StringUtils.ROLE.toString(), ""))) {
             final ImageView img = (ImageView) convertView.findViewById(R.id.visible);
 
             viewHolder.realized.setVisibility(View.GONE);
-            //Reduit la zone de texte
+            // Réduit la zone de texte
             ViewGroup.MarginLayoutParams p = (ViewGroup.MarginLayoutParams) viewHolder.title.getLayoutParams();
             p.setMarginEnd(170);
             viewHolder.title.setLayoutParams(p);
@@ -100,7 +96,7 @@ public class TaskAdapter extends ArrayAdapter<Task> {
             });
         }
 
-        //Affichage en fonction du type
+        // Affichage en fonction du type
         if (task.getType().equals("Tache")) {
             viewHolder.realized.setChecked(task.isRealized());
             ((ImageView)convertView.findViewById(R.id.logo)).setImageResource(R.drawable.logo_task);
@@ -112,7 +108,10 @@ public class TaskAdapter extends ArrayAdapter<Task> {
         return convertView;
     }
 
-    public void setVisible(final ImageView img, final int idTask, final String type, final boolean isVisible, final int idUser) {
+    /*
+    Modification de la visibilité de la tâche/question
+     */
+    private void setVisible(final ImageView img, final int idTask, final String type, final boolean isVisible, final int idUser) {
         if(type.equals("Tache")) {
             new RequestActivity() {
                 @Override
@@ -154,7 +153,10 @@ public class TaskAdapter extends ArrayAdapter<Task> {
         }
     }
 
-    public void setChecked(final CheckBox cb, final String type, final int idTask, final int idUser, final boolean realized) {
+    /*
+    Modification de l'état de la tâche/question
+     */
+    private void setChecked(final CheckBox cb, final String type, final int idTask, final int idUser, final boolean realized) {
         if(type.equals("Tache")) {
             new RequestActivity() {
                 @Override

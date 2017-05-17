@@ -25,7 +25,9 @@ import java.util.List;
 import java.util.Locale;
 
 /**
- * Created by clementruffin on 26/01/2017.
+ * La classe SeanceAdapter permet de personnaliser les éléments d'une liste de séances.
+ * Pour chaque séance, on affiche le module, l'enseignant ou la promotion (selon la cible), la
+ * date de début et la salle.
  */
 
 public class SeanceAdapter extends ArrayAdapter<Seance> {
@@ -47,9 +49,6 @@ public class SeanceAdapter extends ArrayAdapter<Seance> {
             convertView = LayoutInflater.from(getContext()).inflate(R.layout.row_seance_layout,parent, false);
         }
 
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(convertView.getContext());
-        final int idUser = preferences.getInt(StringUtils.IDUSER.toString(), 0);
-
         SeanceAdapter.SeanceViewHolder viewHolder = (SeanceAdapter.SeanceViewHolder) convertView.getTag();
         if(viewHolder == null){
             viewHolder = new SeanceAdapter.SeanceViewHolder();
@@ -60,6 +59,7 @@ public class SeanceAdapter extends ArrayAdapter<Seance> {
             convertView.setTag(viewHolder);
         }
 
+        // Affichage des informations relarives à la séance
         final Seance seance = getItem(position);
         viewHolder.module.setText(seance.getModule());
 
