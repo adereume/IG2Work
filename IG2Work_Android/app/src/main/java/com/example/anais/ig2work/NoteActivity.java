@@ -89,7 +89,7 @@ public class NoteActivity extends RestActivity {
                 try {
                     SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.FRANCE);
 
-                    JSONArray info = o.getJSONArray("homework");
+                    JSONArray info = o.getJSONArray("note");
                     JSONObject note = info.getJSONObject(0);
 
                     int id = note.getInt("id");
@@ -107,7 +107,7 @@ public class NoteActivity extends RestActivity {
                     e.printStackTrace();
                 }
             }
-        }.envoiRequete("getNoteById", "action=getNoteById&idUser=" + preferences.getInt(StringUtils.IDUSER.toString(), 0) + "&idNote=" + idNote);
+        }.envoiRequete("getNoteById", "action=getNoteById&idNote=" + idNote);
     }
 
     public void deleteNote() {

@@ -52,7 +52,7 @@ public class AddNoteActivity extends AppCompatActivity {
             @Override
             public void traiteReponse(JSONObject o, String action) {
                 try {
-                    JSONArray retour = o.getJSONArray("homework");
+                    JSONArray retour = o.getJSONArray("note");
                     JSONObject note = retour.getJSONObject(0);
 
                     mNoteView.getEditText().setText(note.getString("description").replace("<br />", ""));
