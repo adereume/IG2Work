@@ -26,7 +26,6 @@
             </intent-filter>
         </activity>
         <activity android:name=".LoginActivity" />
-        <activity android:name=".SignInActivity" />
         <activity
             android:name=".HomeActivity"
             android:label="@string/app_name"
@@ -42,8 +41,6 @@
         <activity android:name=".NoteActivity" />
         <activity android:name=".TacheQuestionActivity" />
         <activity android:name=".AnswerTeacherQuestion" />
-        <activity android:name=".TestCalendarActivity" />
-        <activity android:name=".TestDayViewActivity" />
         <activity android:name=".AddSeanceActivity" />
         <activity android:name=".AccountActivity"></activity>
     </application>

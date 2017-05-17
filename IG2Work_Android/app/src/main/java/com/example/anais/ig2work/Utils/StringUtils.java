@@ -1,8 +1,7 @@
 package com.example.anais.ig2work.Utils;
 
 /**
- * Enumeration des constantes
- * Created by Utilisateur on 24/11/2016.
+ * La classe StringUtils est une énumération des constantes
  */
 
 public enum StringUtils {
@@ -13,7 +12,7 @@ public enum StringUtils {
     PASSWORD("password"),
     ROLE("role"),
     
-    //Les différents rôles
+    // Les différents rôles
     ENSEIGNANT("teacher"),
     ETUDIANT("student"),
 	

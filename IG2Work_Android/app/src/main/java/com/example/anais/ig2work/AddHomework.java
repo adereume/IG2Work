@@ -5,7 +5,6 @@ import android.app.Dialog;
 import android.app.DialogFragment;
 import android.app.TimePickerDialog;
 import android.content.SharedPreferences;
-import android.graphics.drawable.ColorDrawable;
 import android.preference.PreferenceManager;
 import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -32,6 +31,9 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
+/**
+ * La classe AddHomework gère l'activité d'ajout & d'édition d'un devoir.
+ */
 public class AddHomework extends AppCompatActivity {
     private SharedPreferences preferences;
 
@@ -44,7 +46,7 @@ public class AddHomework extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_homework);
 
-        //Le bouton retour à gauche de la barre d'action
+        // Affichage de la flèche de retour
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         preferences = PreferenceManager.getDefaultSharedPreferences(this);
@@ -69,6 +71,7 @@ public class AddHomework extends AppCompatActivity {
         });
         mDescriptionView = (TextInputLayout) findViewById(R.id.description);
 
+        // Si on a un devoir en paramètre, on se place en mode Edition
         if(this.getIntent().getExtras() != null) {
             setTitle("Edit Devoir");
 
@@ -76,25 +79,39 @@ public class AddHomework extends AppCompatActivity {
 
             mTitleView.getEditText().setText(homeworkObject.getTitre());
             mDescriptionView.getEditText().setText(homeworkObject.getDescription());
-            //TODO Revoir la date...
             mDueDateView.getEditText().setText(String.valueOf(homeworkObject.getDueDate()));
         } else {
             setTitle("Ajout Devoir");
         }
     }
 
-    public void showTimePickerDialog(View v) {
-        DialogFragment newFragment = new TimePickerFragment();
-        newFragment.show(getFragmentManager(), "timePicker");
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_ajout, menu);
+        return true;
     }
 
-    public void showDatePickerDialog(View v) {
-        DialogFragment newFragment = new DatePickerFragment();
-        newFragment.show(getFragmentManager(), "datePicker");
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.menu_add:
+                Log.d("action", "Ajouter");
+                attemptAddHomework();
+                break;
+            case android.R.id.home: // Retour à la page de séance (ou à l'accueil)
+                this.finish();
+                break;
+
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 
+    /*
+    Tentative d'ajout/mise à jour du devoir
+     */
     private void attemptAddHomework() {
-        // Reset errors.
+        // Réinitialisation des erreurs
         mTitleView.setError(null);
         mDueDateView.setError(null);
         mDescriptionView.setError(null);
@@ -102,12 +119,12 @@ public class AddHomework extends AppCompatActivity {
         boolean cancel = false;
         View focusView = null;
 
-        // Store values at the time of the login attempt.
+        // Stockage des valeurs au moment de la tentative d'ajout/mise à jour
         String title = mTitleView.getEditText().getText().toString();
         String date = mDueDateView.getEditText().getText().toString();
         String description = mDescriptionView.getEditText().getText().toString();
 
-        // Vérifier si les champs sont remplie
+        // Vérification des champs
         if (TextUtils.isEmpty(title)) {
             mTitleView.setError(getString(R.string.error_field_required));
             focusView = mTitleView;
@@ -131,14 +148,14 @@ public class AddHomework extends AppCompatActivity {
             e.printStackTrace();
         }
 
-        //Vérifier si la date n'est pas dans le passè
+        // La date ne peut pas être dans le passé
         if(dueDate.before(new Date())) {
             mDueDateView.setError("La date ne doit pas être dans le passè");
             focusView = mDueDateView;
             cancel = true;
         }
 
-        //Ne pas mettre l'échéance le week-end
+        // La date ne peut pas être positionnée sur un week end
         String jour = new SimpleDateFormat("EEEE").format(dueDate);
         if (jour.equals("samedi") || jour.equals("dimanche")) {
             mDueDateView.setError("La date ne peux pas être durant le weekend");
@@ -153,28 +170,9 @@ public class AddHomework extends AppCompatActivity {
         }
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_ajout, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.menu_add:
-                Log.d("action", "Ajouter");
-                attemptAddHomework();
-                break;
-            case android.R.id.home:
-                this.finish();
-                break;
-
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
-
+    /*
+    Ajout/Mise à jour du devoir
+     */
     public void addHomework(final String title, final String description, final String dueDate) {
         new RequestActivity() {
             @Override
@@ -182,30 +180,24 @@ public class AddHomework extends AppCompatActivity {
                 try {
                     if(!json_data.isNull("retour")) {
                         json_data.getString("retour");
-                        AddHomework.this.finish();
+                        AddHomework.this.finish(); // Retour à la page précédente
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
-                    Toast.makeText(AddHomework.this, "Une erreur est survenu", Toast.LENGTH_LONG).show();
+                    Toast.makeText(AddHomework.this, "Une erreur est survenue", Toast.LENGTH_LONG).show();
                 }
             }
         }.envoiRequete("addHomeWork", "action=addHomeWork&idSeance="+preferences.getInt("idSeance", 0)+"&idUser="+preferences.getInt(StringUtils.IDUSER.toString(), 0)+"&titre="+title+"&description="+description+"&dueDate="+dueDate);
     }
 
-    public static class TimePickerFragment extends DialogFragment implements TimePickerDialog.OnTimeSetListener {
-        @Override
-        public Dialog onCreateDialog(Bundle savedInstanceState) {
-            final Calendar c = Calendar.getInstance();
-            int hour = c.get(Calendar.HOUR_OF_DAY);
-            int minute = c.get(Calendar.MINUTE);
+    public void showDatePickerDialog(View v) {
+        DialogFragment newFragment = new DatePickerFragment();
+        newFragment.show(getFragmentManager(), "datePicker");
+    }
 
-            return new TimePickerDialog(getActivity(), this, hour, minute,
-                    DateFormat.is24HourFormat(getActivity()));
-        }
-
-        public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-            mDueDateView.getEditText().setText(mDueDateView.getEditText().getText() + " - " + hourOfDay + ":" + minute);
-        }
+    public void showTimePickerDialog(View v) {
+        DialogFragment newFragment = new TimePickerFragment();
+        newFragment.show(getFragmentManager(), "timePicker");
     }
 
     public static class DatePickerFragment extends DialogFragment implements DatePickerDialog.OnDateSetListener {
@@ -222,6 +214,22 @@ public class AddHomework extends AppCompatActivity {
 
         public void onDateSet(DatePicker view, int year, int month, int day) {
             mDueDateView.getEditText().setText(day + "/" + (month + 1) + "/" + year);
+        }
+    }
+
+    public static class TimePickerFragment extends DialogFragment implements TimePickerDialog.OnTimeSetListener {
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+            final Calendar c = Calendar.getInstance();
+            int hour = c.get(Calendar.HOUR_OF_DAY);
+            int minute = c.get(Calendar.MINUTE);
+
+            return new TimePickerDialog(getActivity(), this, hour, minute,
+                    DateFormat.is24HourFormat(getActivity()));
+        }
+
+        public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+            mDueDateView.getEditText().setText(mDueDateView.getEditText().getText() + " - " + hourOfDay + ":" + minute);
         }
     }
 

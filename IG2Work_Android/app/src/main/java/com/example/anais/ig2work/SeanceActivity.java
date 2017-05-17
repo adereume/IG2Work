@@ -11,7 +11,6 @@ import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.AdapterView;
 import android.widget.Button;
@@ -40,11 +39,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+/**
+ * La classe SeanceActivity gère l'activité de visualisation d'une séance.
+ * Elle contient l'ensemble des tâches, questions, devoirs & notes de la séance pour l'utilisateur.
+ * S'il est enseignant, il a également accès au taux d'étudiants perdus.
+ */
 public class SeanceActivity extends RestActivity {
-
     private SharedPreferences preferences;
+
     private ProgressBar progressBar;
-    private ImageButton resetButton;
     private ListView listViewTasks;
     private ListView listViewHomeworks;
     private ListView listViewNotes;
@@ -56,16 +59,18 @@ public class SeanceActivity extends RestActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_seance);
 
+        // Affichage de la flèche de retour
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         preferences = PreferenceManager.getDefaultSharedPreferences(SeanceActivity.this);
 
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
-        resetButton = (ImageButton) findViewById(R.id.resetButton);
+        ImageButton resetButton = (ImageButton) findViewById(R.id.resetButton);
         listViewTasks = (ListView) findViewById(R.id.list_tasks);
         listViewHomeworks = (ListView) findViewById(R.id.list_homeworks);
         listViewNotes = (ListView) findViewById(R.id.list_notes);
 
+        // Récupération de l'ID de la séance courante
         idSeance = this.getIntent().getExtras().getInt("idSeance");
         SharedPreferences.Editor editor = preferences.edit();
         editor.putInt("idSeance", idSeance);
@@ -74,6 +79,8 @@ public class SeanceActivity extends RestActivity {
         resetButton.setOnClickListener(new Button.OnClickListener() {
             @Override
             public void onClick(View view) {
+                // Lorsque l'enseignant clique sur le bouton de réinitialisation de la barre
+                // de progression du taux d'étudiants perdus, le taux est réinitialisé.
                 SeanceActivity.this.resetLostStudents();
             }
         });
@@ -97,7 +104,7 @@ public class SeanceActivity extends RestActivity {
         int id = item.getItemId();
 
         switch (id) {
-            case R.id.menu_seance:
+            case R.id.menu_seance: // Ouverture de la popup d'ajout
                 Log.d("action", "Séance");
 
                 FragmentManager fragmentManager = getFragmentManager();
@@ -131,7 +138,7 @@ public class SeanceActivity extends RestActivity {
                         .setNegativeButton("non", null)
                         .show();
                 break;
-            case android.R.id.home:
+            case android.R.id.home: // Retour à l'accueil
                 this.finish();
                 break;
         }
@@ -161,6 +168,9 @@ public class SeanceActivity extends RestActivity {
         startActivity(intent);
     }
 
+    /*
+    Récupération du contenu de la séance
+     */
     public void getSeance() {
         new RequestActivity() {
             @Override
@@ -185,25 +195,25 @@ public class SeanceActivity extends RestActivity {
                             break;
                     }
 
-                    // ***** TÂCHES *****
-                    List<Task> listTasks = new ArrayList<Task>();
+                    // ***** TÂCHES & QUESTIONS *****
+                    List<Task> listTasks = new ArrayList<>();
                     JSONArray tasks = o.getJSONArray("seance");
 
                     for (int i = 0; i < tasks.length(); i++) {
                         JSONObject task = tasks.getJSONObject(i);
 
                         int id = task.getInt("id");
-                        String type = task.getString("type");
+                        String type = task.getString("type"); // Désigne une tâche ou une question
                         String title = task.getString("titre");
                         Boolean isVisible = true;
 
                         if (!task.isNull("isVisible")) {
-                            isVisible = task.getString("isVisible").equals("1") ? true : false;
+                            isVisible = task.getString("isVisible").equals("1");
                         }
 
                         Boolean isRealized = false;
                         if (!task.isNull("realized")) {
-                            isRealized = task.getString("realized").equals("1") ? true : false;
+                            isRealized = task.getString("realized").equals("1");
                         }
 
                         Task t = new Task(id, title, null, type, isVisible, isRealized);
@@ -214,6 +224,7 @@ public class SeanceActivity extends RestActivity {
                     TaskAdapter adapterSeanceObject = new TaskAdapter(SeanceActivity.this, listTasks);
                     listViewTasks.setAdapter(adapterSeanceObject);
 
+                    // Lorsque l'utilisateur clique sur une tâche/question, il accède à une vue détaillée
                     listViewTasks.setOnItemClickListener(new ListView.OnItemClickListener() {
 
                         @Override
@@ -236,7 +247,7 @@ public class SeanceActivity extends RestActivity {
 
                     // ***** DEVOIRS *****
 
-                    List<Homework> listHomeworks = new ArrayList<Homework>();
+                    List<Homework> listHomeworks = new ArrayList<>();
                     JSONArray homeworks = o.getJSONArray("homework");
 
                     for (int i = 0; i < homeworks.length(); i++) {
@@ -248,12 +259,12 @@ public class SeanceActivity extends RestActivity {
                         String dueDate = homework.getString("dueDate");
                         Boolean isVisible = true;
                         if (!homework.isNull("isVisible")) {
-                            isVisible = homework.getString("isVisible").equals("1") ? true : false;
+                            isVisible = homework.getString("isVisible").equals("1");
                         }
 
                         Boolean realized = false;
                         if (!homework.isNull("realized")) {
-                            realized = homework.getString("realized").equals("1") ? true : false;
+                            realized = homework.getString("realized").equals("1");
                         }
 
                         Log.e("Realized", realized+"");
@@ -267,6 +278,7 @@ public class SeanceActivity extends RestActivity {
                     listViewHomeworks.setAdapter(adapterHomeworks);
                     ListUtils.setDynamicHeight(listViewHomeworks);
 
+                    // Lorsque l'utilisateur clique sur un devoir, il accède à une vue détaillée
                     listViewHomeworks.setOnItemClickListener(new ListView.OnItemClickListener() {
 
                         @Override
@@ -282,7 +294,7 @@ public class SeanceActivity extends RestActivity {
                     });
 
                     // ***** NOTES *****
-                    List<Note> listNotes = new ArrayList<Note>();
+                    List<Note> listNotes = new ArrayList<>();
                     JSONArray notes = o.getJSONArray("note");
 
                     for (int i = 0; i < notes.length(); i++) {
@@ -294,7 +306,7 @@ public class SeanceActivity extends RestActivity {
                         boolean isPrivate = false;
 
                         if (!note.isNull("private")) {
-                            isPrivate = note.getString("private").equals("1") ? true : false;
+                            isPrivate = note.getString("private").equals("1");
                         }
 
                         Note n = new Note(id, description, isPrivate);
@@ -306,6 +318,7 @@ public class SeanceActivity extends RestActivity {
                     listViewNotes.setAdapter(adapterNotes);
                     ListUtils.setDynamicHeight(listViewNotes);
 
+                    // Lorsque l'utilisateur clique sur une note, il accède à une vue détaillée
                     listViewNotes.setOnItemClickListener(new ListView.OnItemClickListener() {
 
                         @Override
@@ -327,6 +340,9 @@ public class SeanceActivity extends RestActivity {
         }.requetePeriodique(this, 30, "getSeanceById", "action=getSeanceById&idUser=" + preferences.getInt(StringUtils.IDUSER.toString(), 0) + "&idSeance=" + idSeance);
     }
 
+    /*
+    Récupération du taux d'étudiants perdus
+     */
     public void getLostStudents() {
         new RequestActivity() {
             @Override
@@ -335,17 +351,17 @@ public class SeanceActivity extends RestActivity {
                     JSONArray retour = o.getJSONArray("retour");
                     JSONObject lost = retour.getJSONObject(0);
 
-                    //Recupére les résultats
+                    // Recupére les résultats (nombre d'étudiants perdus & nombre total)
                     int lostStudent = lost.getInt("Perdu");
                     int totalStudent = lost.getInt("Total");
 
-                    //Calcul le poucentage
+                    // Calcul du taux
                     int taux = 0;
                     if (lostStudent != 0 && totalStudent != 0) {
                         taux = (lostStudent * 100) / totalStudent;
                     }
 
-                    //Initialise la progressBar
+                    // Initialisation de la ProgressBar
                     ObjectAnimator animation = ObjectAnimator.ofInt(progressBar, "progress", taux);
                     animation.setDuration(500); // 0.5 second
                     animation.setInterpolator(new DecelerateInterpolator());
@@ -358,6 +374,9 @@ public class SeanceActivity extends RestActivity {
         }.requetePeriodique(this, 30, "getAllLostBySeance", "action=getAllLostBySeance&idSeance=" + idSeance);
     }
 
+    /*
+    Réinitialisation du taux d'étudiants perdus
+     */
     public void resetLostStudents() {
         new RequestActivity() {
             @Override

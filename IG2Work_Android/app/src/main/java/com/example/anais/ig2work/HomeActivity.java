@@ -13,7 +13,6 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -48,23 +47,20 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
-/*
-La classe HomeActivity gère la page d'accueil de l'application, une fois l'utilisateur connecté.
-Cette page comporte deux onglets : séances & devoirs (l'onglet devoirs n'est disponible que pour
-les étudiants).
-Dans chacun des onglets, on récupère et on affiche les données sous forme de liste.  L'utilisateur
-peut choisir de voir les séances/devoirs du jour courant, des 7 prochains jours ou du mois courant.
-Lorsque l'utilisateur clique sur une séance ou un devoir, il accède à la page détaillée.
+/**
+ * La classe HomeActivity gère la page d'accueil de l'application, une fois l'utilisateur connecté.
+ * Cette page comporte deux onglets : séances & devoirs (l'onglet devoirs n'est disponible que pour
+ * les étudiants).
+ * L'onglet Séances affiche un calendrier, dans lequel l'utilisateur peut retrouver l'ensemble de
+ * ses séances (passées et futures). Lorsqu'il sélectionne un jour, une liste des séances s'affiche
+ * sous le calendrier. Il peut cliquer sur l'une d'elles pour accéder à la vue détaillée.
+ * L'onglet Devoirs affiche les données sous forme de listes. L'utilisateur peut choisir de voir
+ * ses devoirs du jour courant, des 7 prochains jours ou du mois courant.
  */
 public class HomeActivity extends RestActivity {
-
-    private SectionsPagerAdapter mSectionsPagerAdapter;
-    private ViewPager mViewPager;
-
     private SharedPreferences preferences;
 
     int idUser;
-    Date dateNow;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,9 +73,6 @@ public class HomeActivity extends RestActivity {
         preferences = PreferenceManager.getDefaultSharedPreferences(HomeActivity.this);
 
         ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_CALENDAR},  1);
-
-        //addEvent();
-
     }
 
     @Override
@@ -87,10 +80,10 @@ public class HomeActivity extends RestActivity {
         super.onStart();
         // Create the adapter that will return a fragment for each of the three
         // primary sections of the activity.
-        mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
+        SectionsPagerAdapter mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
 
         // Set up the ViewPager with the sections adapter.
-        mViewPager = (ViewPager) findViewById(R.id.container);
+        ViewPager mViewPager = (ViewPager) findViewById(R.id.container);
         mViewPager.setAdapter(mSectionsPagerAdapter);
 
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
@@ -101,28 +94,6 @@ public class HomeActivity extends RestActivity {
 
         ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_CALENDAR},  1);
     }
-
-    /* private void addEvent() {
-        Log.e("addEvent", "ok");
-        ContentResolver cr = getApplicationContext().getContentResolver();
-        ContentValues values = new ContentValues();
-
-        values.put(CalendarContract.Events.DTSTART, new Date("05/02/2017 10:00:00").getTime());
-        values.put(CalendarContract.Events.TITLE, "Devoir");
-        values.put(CalendarContract.Events.DESCRIPTION, "Ceci est la description");
-        TimeZone timeZone = TimeZone.getDefault();
-        values.put(CalendarContract.Events.EVENT_TIMEZONE, timeZone.getID());
-        values.put(CalendarContract.Events.CALENDAR_ID, 1);
-        //values.put(CalendarContract.Events.RRULE, "FREQ=DAILY;UNTIL=");
-        values.put(CalendarContract.Events.DURATION, "+P1H");
-        values.put(CalendarContract.Events.HAS_ALARM, 1);
-
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_CALENDAR) != PackageManager.PERMISSION_GRANTED) {
-            Log.e("Check", "denied");
-            return;
-        }
-        Uri uri = cr.insert(CalendarContract.Events.CONTENT_URI, values);
-    }*/
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -208,8 +179,12 @@ public class HomeActivity extends RestActivity {
             return rootView;
         }
 
+        /*
+        Récupére les séances du jour courant
+        Active un listener au clic sur un jour du calendrier
+         */
         public void getSeances(final int idUser) {
-            getAllSeances(idUser, Calendar.getInstance().getTime());
+            getAllSeances(idUser, Calendar.getInstance().getTime()); // Récupération des séances du jour
 
             calendarView.setOnDateChangeListener(new CalendarView.OnDateChangeListener() {
                 @Override
@@ -223,6 +198,9 @@ public class HomeActivity extends RestActivity {
             });
         }
 
+        /*
+        Récupère les séances pour une date donné
+         */
         public void getAllSeances(final int idUser, final Date dateNow) {
             new RequestActivity() {
                 @Override
@@ -236,7 +214,7 @@ public class HomeActivity extends RestActivity {
                     try {
                         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.FRANCE);
 
-                        List<Seance> listSeances = new ArrayList<Seance>();
+                        List<Seance> listSeances = new ArrayList<>();
 
                         // Le rôle de l'utilisateur est utilisé pour instancier l'objet Seance
                         // On s'en sert dans la gestion de l'affichage (affichage du nom de l'enseignant ou de la promo)
@@ -259,10 +237,9 @@ public class HomeActivity extends RestActivity {
 
                             Seance s = new Seance(id, moduleName, teacherFName + " " + teacherLName, promoName, formatter.parse(dayTime), room, target);
 
-                            Calendar cal = Calendar.getInstance();
-
                             Date dateSeance = formatter.parse(dayTime);
 
+                            // On ne conserve que les séances du jour courant
                             if (dateNow.getYear() == dateSeance.getYear()
                                     && dateNow.getMonth() == dateSeance.getMonth()
                                     && dateNow.getDate() == dateSeance.getDate()) {
@@ -273,6 +250,7 @@ public class HomeActivity extends RestActivity {
                         SeanceAdapter adapter = new SeanceAdapter(getActivity(), listSeances);
                         seanceListView.setAdapter(adapter);
 
+                        // Lors du clic sur une séance, l'utilisateur accède à la vue détaillée
                         seanceListView.setOnItemClickListener(new ListView.OnItemClickListener() {
                             @Override
                             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
@@ -295,6 +273,9 @@ public class HomeActivity extends RestActivity {
             }.envoiRequete("getAllSeance", "action=getAllSeance&idUser=" + idUser);
         }
 
+        /*
+        Récupère les devoirs d'un utilisateur
+         */
         public void getAllHomeworks(final int idUser) {
             new RequestActivity() {
                 @Override
@@ -308,18 +289,18 @@ public class HomeActivity extends RestActivity {
                     try {
                         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.FRANCE);
 
-                        List<Homework> listHomeworksDay = new ArrayList<Homework>();
-                        List<Homework> listHomeworksWeek = new ArrayList<Homework>();
-                        List<Homework> listHomeworksMonth = new ArrayList<Homework>();
+                        List<Homework> listHomeworksDay = new ArrayList<>();
+                        List<Homework> listHomeworksWeek = new ArrayList<>();
+                        List<Homework> listHomeworksMonth = new ArrayList<>();
 
-                        // On crée 3 filtres sur la liste des séances
-                        // Ainsi l'utilisateur pourra choisir d'afficher les séances du jour, de la semaine ou du mois à venir
-                        List<String> listFilter = new ArrayList<String>();
+                        // On crée 3 filtres sur la liste des devoirs
+                        // Ainsi l'utilisateur pourra choisir d'afficher les devoirs du jour, de la semaine ou du mois à venir
+                        List<String> listFilter = new ArrayList<>();
                         listFilter.add("Aujourd'hui");
                         listFilter.add("7 prochains jours");
                         listFilter.add("Ce mois-ci");
 
-                        // Liste des séances
+                        // Liste des devoirs
                         JSONArray homeworks = o.getJSONArray("retour");
 
                         for (int i = 0; i < homeworks.length(); i++) {
@@ -334,12 +315,12 @@ public class HomeActivity extends RestActivity {
 
                             Boolean isVisible = false;
                             if (!homework.isNull("isVisible")) {
-                                isVisible = homework.getString("isVisible").equals("1") ? true : false;
+                                isVisible = homework.getString("isVisible").equals("1");
                             }
 
                             Boolean realized = false;
                             if (!homework.isNull("realized")) {
-                                realized = homework.getString("realized").equals("1") ? true : false;
+                                realized = homework.getString("realized").equals("1");
                             }
 
                             Homework h = new Homework(id, moduleName, title, description, formatter.parse(dueDate), realized, isVisible);
@@ -361,7 +342,7 @@ public class HomeActivity extends RestActivity {
                             }
                         }
 
-                        HashMap<String, List<Homework>> mapHomeworks = new HashMap<String, List<Homework>>();
+                        HashMap<String, List<Homework>> mapHomeworks = new HashMap<>();
                         mapHomeworks.put(listFilter.get(0), listHomeworksDay);
                         mapHomeworks.put(listFilter.get(1), listHomeworksWeek);
                         mapHomeworks.put(listFilter.get(2), listHomeworksMonth);
@@ -369,6 +350,7 @@ public class HomeActivity extends RestActivity {
                         HomeworkExpandableAdapter adapter = new HomeworkExpandableAdapter(getContext(), listView, listFilter, mapHomeworks);
                         listView.setAdapter(adapter);
 
+                        // Lors du clic sur un devoir, l'utilisateur accède à la vue détaillée
                         listView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
                             @Override
                             public boolean onChildClick(ExpandableListView expandableListView, View view, int i, int i1, long l) {
@@ -389,13 +371,13 @@ public class HomeActivity extends RestActivity {
                         e.printStackTrace();
                     }
                 }
-            }.envoiRequete("getHomeWorkByUser", "action=getHomeWorkByUser&idUser=" + idUser);//"action=getAllHomeworks&idUser=" + idUser);
+            }.envoiRequete("getHomeWorkByUser", "action=getHomeWorkByUser&idUser=" + idUser);
         }
     }
 
-    public class SectionsPagerAdapter extends FragmentPagerAdapter {
+    private class SectionsPagerAdapter extends FragmentPagerAdapter {
 
-        public SectionsPagerAdapter(FragmentManager fm) {
+        private SectionsPagerAdapter(FragmentManager fm) {
             super(fm);
         }
 

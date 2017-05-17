@@ -3,25 +3,21 @@ package com.example.anais.ig2work;
 import android.app.DialogFragment;
 import android.content.Intent;
 import android.graphics.Color;
-import android.graphics.PorterDuff;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 
 import com.example.anais.ig2work.DataBase.RequestActivity;
-import com.example.anais.ig2work.Utils.StringUtils;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 /**
- * PopUp d'ajout contenant les différents boutons
- * Created by Utilisateur on 31/01/2017.
+ * La classe AjoutFragment gère la popup d'ajout au sein d'une séance.
+ * Elle permet à un enseignant d'ajouter un élément de séance (tâche, question, devoir ou note).
+ * Elle permet à un étudiant de signaler qu'il est perdu ou d'ajouter une note personnelle.
  */
 
 public class AjoutFragment extends DialogFragment {
@@ -32,30 +28,19 @@ public class AjoutFragment extends DialogFragment {
 
     protected View v;
 
-    /*static AjoutFragment newInstance(String idSeance, String idUser, String role) {
-        AjoutFragment f = new AjoutFragment();
-
-        //Transforme idIngredient en argument
-        Bundle args = new Bundle();
-
-        args.putString("role", role);
-        args.putString("idUser", idUser);
-        args.putString("idSeance", idSeance);
-
-        f.setArguments(args);
-        return f;
-    }*/
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        // Récupération des paramètres
         idUser = getArguments().getString("idUser");
         idSeance = getArguments().getString("idSeance");
 
         callingActivity = (SeanceActivity) getActivity();
 
+        // Affichage d'une popup différente selon le type de l'utilisateur
         if(getArguments().getString("role").equals("teacher")) {
             v = inflater.inflate(R.layout.ajout_fragment_teacher, container, false);
 
+            // Ajouter un tâche
             v.findViewById(R.id.addtask).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -65,6 +50,7 @@ public class AjoutFragment extends DialogFragment {
                 }
             });
 
+            // Ajouter un devoir
             v.findViewById(R.id.addHomework).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -74,6 +60,7 @@ public class AjoutFragment extends DialogFragment {
                 }
             });
 
+            // Ajouter une question
             v.findViewById(R.id.addQuestion).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -87,6 +74,7 @@ public class AjoutFragment extends DialogFragment {
 
             isLost(idSeance, idUser);
 
+            // Signaler perdu
             v.findViewById(R.id.lost).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -95,6 +83,7 @@ public class AjoutFragment extends DialogFragment {
             });
         }
 
+        // Ajouter une note
         v.findViewById(R.id.addNote).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -107,15 +96,31 @@ public class AjoutFragment extends DialogFragment {
         return v;
     }
 
+    /*
+    Signale un étudiant comme perdu au sein de la séance
+     */
+    public void setLost(final String idSeance, final String idUser) {
+        new RequestActivity() {
+            @Override
+            public void traiteReponse(JSONObject o, String action) {
+                getDialog().dismiss(); // Fermeture de la popup
+            }
+        }.envoiRequete("login", "action=setLost&idSeance="+idSeance+"&idUser="+idUser);
+    }
+
+    /*
+    Vérifie que l'étudiant ne s'est pas déjà signalé perdu.
+    Tout le temps que l'enseignant n'a pas réinitialisé, l'étudiant ne peut renouveler le signalement.
+     */
     public void isLost(final String idSeance, final String idUser) {
-        final boolean isLost = false;
         new RequestActivity() {
             @Override
             public void traiteReponse(JSONObject o, String action) {
                 try {
                     JSONArray array = o.getJSONArray("retour");
                     if(array.getJSONObject(0) != null) {
-                        //L'étudiant est déjà perdu
+                        // L'étudiant est déjà perdu
+                        // Le bouton est grisé
                         v.findViewById(R.id.lost).setEnabled(false);
                         v.findViewById(R.id.lost).setBackgroundColor(Color.GRAY);
                     }
@@ -125,14 +130,5 @@ public class AjoutFragment extends DialogFragment {
                 }
             }
         }.envoiRequete("login", "action=isLost&idSeance="+idSeance+"&idUser="+idUser);
-    }
-
-    public void setLost(final String idSeance, final String idUser) {
-        new RequestActivity() {
-            @Override
-            public void traiteReponse(JSONObject o, String action) {
-                getDialog().dismiss();
-            }
-        }.envoiRequete("login", "action=setLost&idSeance="+idSeance+"&idUser="+idUser);
     }
 }

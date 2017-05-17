@@ -26,6 +26,9 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * La classe AddTaskActivity gère l'activité d'ajout & d'édition d'une tâche
+ */
 public class AddTaskActivity extends AppCompatActivity {
     private SharedPreferences preferences;
 
@@ -38,7 +41,8 @@ public class AddTaskActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_task);
-        //Le bouton retour à gauche de la barre d'action
+
+        // Affichage de la flèche de retour
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         preferences = PreferenceManager.getDefaultSharedPreferences(AddTaskActivity.this);
@@ -46,6 +50,7 @@ public class AddTaskActivity extends AppCompatActivity {
         mTitleView = (TextInputLayout) findViewById(R.id.titre);
         mDescriptionView = (TextInputLayout) findViewById(R.id.description);
 
+        // Si on a une tâche en paramètre, on se place en mode Edition
         if(this.getIntent().getExtras() != null) {
             setTitle("Edit Tache");
 
@@ -56,6 +61,31 @@ public class AddTaskActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_ajout, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.menu_add:
+                Log.d("action", "Ajouter");
+                attemptAddTask();
+                break;
+            case android.R.id.home: // Retour à la page de séance
+                this.finish();
+                break;
+
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    /*
+    Récupération d'une tâche
+     */
     public void getTache() {
         new RequestActivity() {
             @Override
@@ -73,19 +103,22 @@ public class AddTaskActivity extends AppCompatActivity {
         }.envoiRequete("getTacheById", "action=getTacheById&idTache=" + idTask);
     }
 
+    /*
+    Tentative d'ajout/mise à jour de la tâche
+     */
     private void attemptAddTask() {
-        // Reset errors.
+        // Réinitialisation des erreurs
         mTitleView.setError(null);
         mDescriptionView.setError(null);
 
-        // Store values at the time of the login attempt.
+        // Stockage des valeurs avant la tentative d'ajout/mise à jour
         String title = mTitleView.getEditText().getText().toString();
         String description = mDescriptionView.getEditText().getText().toString();
 
         boolean cancel = false;
         View focusView = null;
 
-        // Vérifier si les champs sont remplie
+        // Vérification des champs
         if (TextUtils.isEmpty(title)) {
             mTitleView.setError(getString(R.string.error_field_required));
             focusView = mTitleView;
@@ -107,47 +140,32 @@ public class AddTaskActivity extends AppCompatActivity {
         }
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_ajout, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.menu_add:
-                Log.d("action", "Ajouter");
-                attemptAddTask();
-                break;
-            case android.R.id.home:
-                this.finish();
-                break;
-
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
-
-    public void updateTask(final String title, final String description) {
-        new RequestActivity() {
-            @Override
-            public void traiteReponse(JSONObject json_data, String action) {
-                if(!json_data.isNull("retour")) {
-                    AddTaskActivity.this.finish();
-                }
-            }
-        }.envoiRequete("updateTache", "action=updateTache&idTache="+idTask+"&titre="+title+"&description="+description);
-    }
-
+    /*
+    Ajout de la tâche
+     */
     public void addTask(final String title, final String description) {
         new RequestActivity() {
             @Override
             public void traiteReponse(JSONObject json_data, String action) {
                 if(!json_data.isNull("retour")) {
-                    AddTaskActivity.this.finish();
+                    AddTaskActivity.this.finish(); // Retour à la page précédente
                 }
             }
         }.envoiRequete("addTache", "action=addTache&idSeance="+preferences.getInt("idSeance", 0)+"&titre="+title+"&description="+description);
     }
+
+    /*
+    Mise à jour de la tâche
+     */
+    public void updateTask(final String title, final String description) {
+        new RequestActivity() {
+            @Override
+            public void traiteReponse(JSONObject json_data, String action) {
+                if(!json_data.isNull("retour")) {
+                    AddTaskActivity.this.finish(); // Retour à la page précédente
+                }
+            }
+        }.envoiRequete("updateTache", "action=updateTache&idTache="+idTask+"&titre="+title+"&description="+description);
+    }
+
 }

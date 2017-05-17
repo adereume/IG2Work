@@ -6,37 +6,40 @@ import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Toast;
 
 import com.example.anais.ig2work.DataBase.RequestActivity;
-import com.example.anais.ig2work.Model.Note;
 import com.example.anais.ig2work.Utils.StringUtils;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+/**
+ * La classe AddNoteActivity gère l'activité d'ajout & d'édition d'une note.
+ */
 public class AddNoteActivity extends AppCompatActivity {
     private SharedPreferences preferences;
 
     private TextInputLayout mNoteView;
+
     private int idNote = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_note);
-        //Le bouton retour à gauche de la barre d'action
+
+        // Affichage de la flèche de retour
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         preferences = PreferenceManager.getDefaultSharedPreferences(this);
 
         mNoteView = (TextInputLayout) findViewById(R.id.note);
 
+        // Si on a une note en paramètre, on se place en mode Edition
         if(this.getIntent().getExtras() != null) {
             setTitle("Edit Note");
 
@@ -47,6 +50,30 @@ public class AddNoteActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_ajout, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.menu_add:
+                attemptAddNote();
+                break;
+            case android.R.id.home: // Retour à la page de séance
+                this.finish();
+                break;
+
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    /*
+    Récupération du contenu de la note
+     */
     public void getNote() {
         new RequestActivity() {
             @Override
@@ -63,16 +90,20 @@ public class AddNoteActivity extends AppCompatActivity {
         }.envoiRequete("getNoteById", "action=getNoteById&idNote=" + idNote);
     }
 
+    /*
+    Tentative d'ajout/mise à jour de la note
+     */
     private void attemptAddNote() {
+        // Réinitialisation des erreurs
         mNoteView.setError(null);
 
-        // Store values at the time of the login attempt.
+        // Stockage des valeurs au moment de la tentative d'ajout/mise à jour
         String note = mNoteView.getEditText().getText().toString();
 
         boolean cancel = false;
         View focusView = null;
 
-        // Vérifier si les champs sont remplie
+        // Vérification des champs
         if (TextUtils.isEmpty(note)) {
             mNoteView.setError(getString(R.string.error_field_required));
             focusView = mNoteView;
@@ -89,46 +120,31 @@ public class AddNoteActivity extends AppCompatActivity {
         }
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_ajout, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.menu_add:
-                attemptAddNote();
-                break;
-            case android.R.id.home:
-                this.finish();
-                break;
-
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
-
-    public void updateNote(final String description) {
-        new RequestActivity() {
-            @Override
-            public void traiteReponse(JSONObject json_data, String action) {
-                if(!json_data.isNull("retour")) {
-                    AddNoteActivity.this.finish();
-                }
-            }
-        }.envoiRequete("updateNote", "action=updateNote&idNote="+idNote+"&idUser="+preferences.getInt(StringUtils.IDUSER.toString(), 0)+"&description="+description);
-    }
-
+    /*
+    Ajout de la note
+     */
     public void addNote(final String description) {
         new RequestActivity() {
             @Override
             public void traiteReponse(JSONObject json_data, String action) {
                 if(!json_data.isNull("retour")) {
-                    AddNoteActivity.this.finish();
+                    AddNoteActivity.this.finish(); // Retour à la page précédente
                 }
             }
         }.envoiRequete("addNote", "action=addNote&idSeance="+preferences.getInt("idSeance", 0)+"&idUser="+preferences.getInt(StringUtils.IDUSER.toString(), 0)+"&description="+description);
+    }
+
+    /*
+    Mise à jour de la note
+     */
+    public void updateNote(final String description) {
+        new RequestActivity() {
+            @Override
+            public void traiteReponse(JSONObject json_data, String action) {
+                if(!json_data.isNull("retour")) {
+                    AddNoteActivity.this.finish(); // Retour à la page précédente
+                }
+            }
+        }.envoiRequete("updateNote", "action=updateNote&idNote="+idNote+"&idUser="+preferences.getInt(StringUtils.IDUSER.toString(), 0)+"&description="+description);
     }
 }
