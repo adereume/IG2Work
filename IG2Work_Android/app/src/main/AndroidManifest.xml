@@ -2,12 +2,11 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.anais.ig2work">
 
+    <uses-permission android:name="android.permission.GET_ACCOUNTS" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.GET_ACCOUNTS" />
-    <uses-permission android:name="android.permission.READ_CALENDAR" />
     <uses-permission android:name="android.permission.WRITE_CALENDAR" />
-    <uses-permission android:name="android.permission.GET_TASKS" />
+    <uses-permission android:name="android.permission.READ_CALENDAR" />
 
     <application
         android:name=".GlobalState"
@@ -42,8 +41,6 @@
         <activity android:name=".NoteActivity" />
         <activity android:name=".TacheQuestionActivity" />
         <activity android:name=".AnswerTeacherQuestion" />
-        <activity android:name=".TestCalendarActivity" />
-        <activity android:name=".TestDayViewActivity" />
         <activity android:name=".AddSeanceActivity"></activity>
     </application>
 

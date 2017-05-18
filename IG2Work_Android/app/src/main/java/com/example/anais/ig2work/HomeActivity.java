@@ -1,9 +1,21 @@
 package com.example.anais.ig2work;
 
 import android.Manifest;
+import android.accounts.Account;
+import android.app.Dialog;
+import android.content.ContentResolver;
+import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.database.Cursor;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.net.Uri;
+import android.os.Build;
 import android.preference.PreferenceManager;
+import android.provider.CalendarContract;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.widget.Toolbar;
@@ -34,19 +46,42 @@ import com.example.anais.ig2work.Model.SeanceAdapter;
 import com.example.anais.ig2work.Utils.ListUtils;
 import com.example.anais.ig2work.Utils.RestActivity;
 import com.example.anais.ig2work.Utils.StringUtils;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GoogleApiAvailability;
+import com.google.api.client.extensions.android.http.AndroidHttp;
+import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
+import com.google.api.client.http.HttpTransport;
+import com.google.api.client.json.JsonFactory;
+import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.api.client.util.DateTime;
+import com.google.api.client.util.ExponentialBackOff;
+import com.google.api.services.calendar.CalendarScopes;
+import com.google.api.services.calendar.model.Event;
+import com.google.api.services.calendar.model.EventAttendee;
+import com.google.api.services.calendar.model.EventDateTime;
+import com.google.api.services.calendar.model.EventReminder;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.TimeZone;
+
+import pub.devrel.easypermissions.AfterPermissionGranted;
+import pub.devrel.easypermissions.EasyPermissions;
 
 /*
 La classe HomeActivity gère la page d'accueil de l'application, une fois l'utilisateur connecté.
@@ -56,7 +91,8 @@ Dans chacun des onglets, on récupère et on affiche les données sous forme de 
 peut choisir de voir les séances/devoirs du jour courant, des 7 prochains jours ou du mois courant.
 Lorsque l'utilisateur clique sur une séance ou un devoir, il accède à la page détaillée.
  */
-public class HomeActivity extends RestActivity {
+public class HomeActivity extends RestActivity implements EasyPermissions.PermissionCallbacks {
+    private GoogleAccountCredential credential;
 
     private SectionsPagerAdapter mSectionsPagerAdapter;
     private ViewPager mViewPager;
@@ -64,7 +100,29 @@ public class HomeActivity extends RestActivity {
     private SharedPreferences preferences;
 
     int idUser;
-    Date dateNow;
+
+    public static final String[] CALENDAR_PROJECTION = new String[]{
+            CalendarContract.Calendars._ID,                           // 0
+            CalendarContract.Calendars.ACCOUNT_NAME,                  // 1
+            CalendarContract.Calendars.CALENDAR_DISPLAY_NAME,         // 2
+            CalendarContract.Calendars.OWNER_ACCOUNT                  // 3
+    };
+    public static final String[] EVENT_PROJECTION = new String[]{
+            CalendarContract.Events._ID,
+            CalendarContract.Events.TITLE,
+            CalendarContract.Events.DTSTART,
+            CalendarContract.Events.DTEND
+    };
+
+    // The indices for the projection array above.
+    private static final int PROJECTION_ID_INDEX = 0;
+    private static final int PROJECTION_ACCOUNT_NAME_INDEX = 1;
+    private static final int PROJECTION_DISPLAY_NAME_INDEX = 2;
+    private static final int PROJECTION_OWNER_ACCOUNT_INDEX = 3;
+
+    private static final String BUTTON_TEXT = "Call Google Calendar API";
+    private static final String PREF_ACCOUNT_NAME = "accountName";
+    private static final String[] SCOPES = {CalendarScopes.CALENDAR_READONLY};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,10 +134,24 @@ public class HomeActivity extends RestActivity {
 
         preferences = PreferenceManager.getDefaultSharedPreferences(HomeActivity.this);
 
-        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_CALENDAR},  1);
+        credential = GoogleAccountCredential.usingOAuth2(
+                getApplicationContext(), Arrays.asList(SCOPES))
+                .setBackOff(new ExponentialBackOff());
 
-        //addEvent();
+        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_CALENDAR, Manifest.permission.WRITE_CALENDAR, Manifest.permission.GET_ACCOUNTS}, 1);
 
+        /*com.google.api.services.calendar.Calendar newCalendar = new com.google.api.services.calendar.Calendar();
+        newCalendar.setSummary("Calendar Name");
+        //newCalendar.setTimeZone(TIME_ZONE); //assuming you have it as a constant somewhere
+        String newCalendarId = null;
+        try {
+            com.google.api.services.calendar.model.Calendar insertedCalendar = mService.calendars().insert(newCalendar).execute();
+            newCalendarId = insertedCalendar.getId();
+        } catch(Exception ignore){}*/
+        //chooseAccount();
+        //getCalendars();
+
+        //getResultsFromApi();
     }
 
     @Override
@@ -99,30 +171,8 @@ public class HomeActivity extends RestActivity {
         preferences = PreferenceManager.getDefaultSharedPreferences(HomeActivity.this);
         idUser = PreferenceManager.getDefaultSharedPreferences(HomeActivity.this.getApplicationContext()).getInt(StringUtils.IDUSER.toString(), 0);
 
-        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_CALENDAR},  1);
+
     }
-
-    /* private void addEvent() {
-        Log.e("addEvent", "ok");
-        ContentResolver cr = getApplicationContext().getContentResolver();
-        ContentValues values = new ContentValues();
-
-        values.put(CalendarContract.Events.DTSTART, new Date("05/02/2017 10:00:00").getTime());
-        values.put(CalendarContract.Events.TITLE, "Devoir");
-        values.put(CalendarContract.Events.DESCRIPTION, "Ceci est la description");
-        TimeZone timeZone = TimeZone.getDefault();
-        values.put(CalendarContract.Events.EVENT_TIMEZONE, timeZone.getID());
-        values.put(CalendarContract.Events.CALENDAR_ID, 1);
-        //values.put(CalendarContract.Events.RRULE, "FREQ=DAILY;UNTIL=");
-        values.put(CalendarContract.Events.DURATION, "+P1H");
-        values.put(CalendarContract.Events.HAS_ALARM, 1);
-
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_CALENDAR) != PackageManager.PERMISSION_GRANTED) {
-            Log.e("Check", "denied");
-            return;
-        }
-        Uri uri = cr.insert(CalendarContract.Events.CONTENT_URI, values);
-    }*/
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -152,6 +202,16 @@ public class HomeActivity extends RestActivity {
 
         intent.putExtras(data);
         startActivity(intent);
+    }
+
+    @Override
+    public void onPermissionsGranted(int requestCode, List<String> perms) {
+        Log.e("Calendar", "Permissions Granted");
+    }
+
+    @Override
+    public void onPermissionsDenied(int requestCode, List<String> perms) {
+        Log.e("Calendar", "Permissions Denied");
     }
 
     /**
@@ -295,6 +355,84 @@ public class HomeActivity extends RestActivity {
             }.envoiRequete("getAllSeance", "action=getAllSeance&idUser=" + idUser);
         }
 
+        private void addEvent(String title, String description, Date startDate, Date endDate) {
+            long calID = 0;
+            long startMillis;
+            long endMillis;
+            Boolean isFind = false;
+
+            Calendar beginTime = Calendar.getInstance();
+            beginTime.setTime(startDate);
+            startMillis = beginTime.getTimeInMillis();
+            Calendar endTime = Calendar.getInstance();
+            endTime.setTime(endDate);
+            endMillis = endTime.getTimeInMillis();
+
+            //On recherche le calendrier principale
+            Cursor cur;
+            ContentResolver cr = getContext().getContentResolver();
+            Uri findCal = CalendarContract.Calendars.CONTENT_URI;
+            cur = cr.query(findCal, CALENDAR_PROJECTION, null, null, null);
+            if (cur != null) {
+                if(cur.moveToFirst()) {
+                    int idCol = cur.getColumnIndex("_id");
+                    calID = cur.getLong(idCol);
+                }
+                cur.close();
+            }
+
+            //On recherche s'il l'événement existe déjà
+            Cursor curEvent;
+            ContentResolver crEvent = getContext().getContentResolver();
+            Uri uriEvent = CalendarContract.Events.CONTENT_URI ;
+            String selection = "((" + CalendarContract.Events.TITLE + " = ?) AND ("
+                    + CalendarContract.Events.DESCRIPTION + " = ?) AND ("
+                    + CalendarContract.Events.DELETED + " = 0) AND ("
+                    + CalendarContract.Events.DTSTART + " > 0) )";
+            String[] selectionArgs = new String[]{title, description};
+            if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.READ_CALENDAR) == PackageManager.PERMISSION_GRANTED) {
+                curEvent = crEvent.query(uriEvent, EVENT_PROJECTION, selection, selectionArgs, null);
+                if (curEvent != null) {
+                    curEvent.moveToFirst();
+                    if(curEvent.getCount() > 0) {
+                        do {
+                            Calendar calendarStart = Calendar.getInstance();
+                            calendarStart.setTimeInMillis(Long.parseLong(curEvent.getString(2)));
+
+                            Calendar calendarEnd = Calendar.getInstance();
+                            calendarEnd.setTimeInMillis(Long.parseLong(curEvent.getString(3)));
+
+                            //On regarde si la date est la même
+                            if (calendarStart.getTime().equals(startDate) && calendarEnd.getTime().equals(endDate)) {
+                                isFind = true;
+                            }
+                        } while (curEvent.moveToNext());
+                    }
+                    curEvent.close();
+                }
+
+                //Si rien a été trouvé, on ajoute l'évènement
+                if(!isFind) {
+                    cr = getContext().getContentResolver();
+                    ContentValues values = new ContentValues();
+
+                    values.put(CalendarContract.Events.DTSTART, startMillis);
+                    values.put(CalendarContract.Events.DTEND, endMillis);
+                    values.put(CalendarContract.Events.TITLE, title);
+                    values.put(CalendarContract.Events.DESCRIPTION, description);
+                    values.put(CalendarContract.Events.EVENT_TIMEZONE, "Europe/Paris");
+                    values.put(CalendarContract.Events.CALENDAR_ID, calID);
+                    //values.put(CalendarContract.Events.RRULE, "FREQ=DAILY;UNTIL=");
+                    values.put(CalendarContract.Events.HAS_ALARM, 1);
+
+                    if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.WRITE_CALENDAR) != PackageManager.PERMISSION_GRANTED) {
+                        return;
+                    }
+                    cr.insert(CalendarContract.Events.CONTENT_URI, values);
+                }
+            }
+        }
+
         public void getAllHomeworks(final int idUser) {
             new RequestActivity() {
                 @Override
@@ -343,6 +481,17 @@ public class HomeActivity extends RestActivity {
                             }
 
                             Homework h = new Homework(id, moduleName, title, description, formatter.parse(dueDate), realized, isVisible);
+
+                            //On ajout le devoir au calendrier
+                            try {
+                                Calendar calendar = Calendar.getInstance();
+                                calendar.setTime(formatter.parse(dueDate));
+                                calendar.add(Calendar.HOUR, 1);
+
+                                addEvent(title, description, formatter.parse(dueDate), calendar.getTime());
+                            } catch (ParseException e) {
+                                e.printStackTrace();
+                            }
 
                             Date dateHomework = formatter.parse(dueDate);
                             Date dateNow = new Date();
