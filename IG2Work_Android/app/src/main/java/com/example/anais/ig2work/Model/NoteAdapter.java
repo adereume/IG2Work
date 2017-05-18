@@ -5,7 +5,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -14,7 +13,8 @@ import com.example.anais.ig2work.R;
 import java.util.List;
 
 /**
- * Created by clementruffin on 07/02/2017.
+ * La classe NoteAdapter permet de personnaliser les éléments d'une liste de notes.
+ * Pour chaque note, on affiche la description.
  */
 
 public class NoteAdapter extends ArrayAdapter<Note> {
@@ -43,6 +43,7 @@ public class NoteAdapter extends ArrayAdapter<Note> {
             convertView.setTag(viewHolder);
         }
 
+        // Affichage des informations relatives à la note
         Note note = getItem(position);
         viewHolder.description.setText(note.getDescription().replace("<br />", ""));
         ((ImageView)convertView.findViewById(R.id.logo)).setImageResource(R.drawable.logo_note_list);

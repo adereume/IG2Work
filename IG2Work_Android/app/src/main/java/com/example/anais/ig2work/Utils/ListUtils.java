@@ -6,15 +6,18 @@ import android.widget.ListAdapter;
 import android.widget.ListView;
 
 /**
- * Created by Utilisateur on 30/03/2017.
+ * La classe ListUtils fournit des outils de gestion des ListView
  */
 public class ListUtils {
+
+    /*
+    Permet de définir une hauteur dynamiue
+     */
     public static void setDynamicHeight(ListView mListView) {
 
         ListAdapter mListAdapter = mListView.getAdapter();
         if (mListAdapter == null) {
-            // when adapter is null
-            return;
+            return; // Liste vide
         }
 
         int height = 0;

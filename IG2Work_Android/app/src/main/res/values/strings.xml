@@ -63,4 +63,10 @@
         <item>TD</item>
         <item>TP</item>
     </string-array>
+
+    <string name="account">Mon Compte</string>
+    <string name="ok">OK</string>
+    <string name="oldPassword">Ancien mot de passe</string>
+    <string name="newPassword">Nouveau mot de passe</string>
+    <string name="newPassword2">Confirmer mot de passe</string>
 </resources>

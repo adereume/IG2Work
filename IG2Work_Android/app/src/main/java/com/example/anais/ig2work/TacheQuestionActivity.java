@@ -1,8 +1,6 @@
 package com.example.anais.ig2work;
 
-import android.content.Intent;
 import android.support.design.widget.TextInputLayout;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.MenuItem;
@@ -11,7 +9,6 @@ import android.view.View;
 import com.example.anais.ig2work.DataBase.RequestActivity;
 import com.example.anais.ig2work.Utils.RestActivity;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 
 public class TacheQuestionActivity extends RestActivity {

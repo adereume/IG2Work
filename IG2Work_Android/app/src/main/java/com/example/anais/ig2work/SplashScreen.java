@@ -6,11 +6,6 @@ import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.KeyEvent;
-import android.view.inputmethod.EditorInfo;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.anais.ig2work.DataBase.RequestActivity;
 import com.example.anais.ig2work.Utils.StringUtils;
@@ -19,6 +14,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+/**
+ * La classe SplashScreen gère l'activité d'introduction à l'ouverture de l'application
+ */
 public class SplashScreen extends AppCompatActivity {
     private SharedPreferences preferences;
 
@@ -32,7 +30,8 @@ public class SplashScreen extends AppCompatActivity {
             public void run() {
                 Looper.prepare();
                 try {
-                    Thread.sleep(3000);
+                    Thread.sleep(3000); // Affichage 3 secondes
+
                     SplashScreen.this.preferences = PreferenceManager.getDefaultSharedPreferences(SplashScreen.this);
 
                     String firstname = SplashScreen.this.preferences.getString(StringUtils.FIRSTNAME.toString(), null);
@@ -40,9 +39,11 @@ public class SplashScreen extends AppCompatActivity {
                     String lastPwd = SplashScreen.this.preferences.getString(StringUtils.PASSWORD.toString(), null);
                     String attempt = SplashScreen.this.preferences.getString(StringUtils.ATTEMPT_CONNEXION.toString(), null);
 
+                    // Si des identifiants sont sauvegardés, on lance une tentative de connexion
                     if(firstname != null && lastname != null && lastPwd != null && attempt == null) {
                         SplashScreen.this.userLogin(firstname, lastname, lastPwd);
                     } else {
+                        // Sinon l'utilisateur est redirigé vers l'écran de connexion
                         Intent intent = new Intent(SplashScreen.this, LoginActivity.class);
                         SplashScreen.this.startActivity(intent);
                         SplashScreen.this.finish();
@@ -63,6 +64,9 @@ public class SplashScreen extends AppCompatActivity {
         super.onStart();
     }
 
+    /*
+    Connexion de l'utilisateur
+     */
     protected void userLogin(final String firstname, final String lastname, final String password) {
         new RequestActivity() {
             @Override
@@ -72,7 +76,7 @@ public class SplashScreen extends AppCompatActivity {
                     if(o.isNull("retour")) {
                         Intent intent = new Intent(SplashScreen.this, LoginActivity.class);
                         SplashScreen.this.startActivity(intent);
-                        SplashScreen.this.finish();
+                        SplashScreen.this.finish(); // Redirection vers l'écran de login
                         return;
                     }
 
@@ -82,6 +86,7 @@ public class SplashScreen extends AppCompatActivity {
                     String role = retour.getString("role");
                     int idUser = retour.getInt("id");
 
+                    // Enregistrement des identifiants dans les préférences
                     SharedPreferences.Editor editor = SplashScreen.this.preferences.edit();
                     editor.putInt(StringUtils.IDUSER.toString(), idUser);
                     editor.putString(StringUtils.FIRSTNAME.toString(), firstname);

@@ -21,6 +21,9 @@ import org.json.JSONObject;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 
+/**
+ * La classe AddQuestionActivity gère l'activité d'ajout & d'édition d'une question.
+ */
 public class AddQuestionActivity extends AppCompatActivity {
     private SharedPreferences preferences;
 
@@ -33,7 +36,8 @@ public class AddQuestionActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_question);
-        //Le bouton retour à gauche de la barre d'action
+
+        // Affichage de la flèche de retour
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         preferences = PreferenceManager.getDefaultSharedPreferences(AddQuestionActivity.this);
@@ -41,6 +45,7 @@ public class AddQuestionActivity extends AppCompatActivity {
         mDescriptionView = (TextInputLayout) findViewById(R.id.description);
         mCorrectionView = (TextInputLayout) findViewById(R.id.correction);
 
+        // Si on a une question en paramètre, on se place en mode Edition
         if(this.getIntent().getExtras() != null) {
             setTitle("Edit Question");
 
@@ -51,6 +56,31 @@ public class AddQuestionActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_ajout, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.menu_add:
+                Log.d("action", "Ajouter");
+                attemptAddQuestion();
+                break;
+            case android.R.id.home: // Retour à la page de séance
+                this.finish();
+                break;
+
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    /*
+    Récupération du contenu de la question
+     */
     public void getQuestion() {
         new RequestActivity() {
             @Override
@@ -68,19 +98,22 @@ public class AddQuestionActivity extends AppCompatActivity {
         }.envoiRequete("getQuestionById", "action=getQuestionById&idQuestion=" + idQuestion);
     }
 
+    /*
+    Tentative d'ajout/mise à jour de la question
+     */
     private void attemptAddQuestion() {
-        // Reset errors.
+        // Réinitialisation des erreurs
         mDescriptionView.setError(null);
         mCorrectionView.setError(null);
 
-        // Store values at the time of the login attempt.
+        // Stockage des valeurs au moment de la tentative d'ajout/mise à jour
         String description = mDescriptionView.getEditText().getText().toString();
         String correct = mCorrectionView.getEditText().getText().toString();
 
         boolean cancel = false;
         View focusView = null;
 
-        // Vérifier si les champs sont remplie
+        // Vérification des champs
         if (TextUtils.isEmpty(description)) {
             mDescriptionView.setError(getString(R.string.error_field_required));
             focusView = mDescriptionView;
@@ -102,28 +135,9 @@ public class AddQuestionActivity extends AppCompatActivity {
         }
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_ajout, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.menu_add:
-                Log.d("action", "Ajouter");
-                attemptAddQuestion();
-                break;
-            case android.R.id.home:
-                this.finish();
-                break;
-
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
-
+    /*
+    Ajout de la question
+     */
     public void addQuestion(String description, String correct) {
         try {
             description = URLEncoder.encode(description, "utf-8");
@@ -137,16 +151,19 @@ public class AddQuestionActivity extends AppCompatActivity {
                 try {
                     if(!json_data.isNull("retour")) {
                         json_data.getString("retour");
-                        AddQuestionActivity.this.finish();
+                        AddQuestionActivity.this.finish(); // Retour à la page précédente
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
-                    Toast.makeText(AddQuestionActivity.this, "Une erreur est survenu", Toast.LENGTH_LONG).show();
+                    Toast.makeText(AddQuestionActivity.this, "Une erreur est survenue", Toast.LENGTH_LONG).show();
                 }
             }
         }.envoiRequete("addQuestion", "action=addQuestion&idSeance="+preferences.getInt("idSeance", 0)+"&description="+description+"&correct="+correct);
     }
 
+    /*
+    Mise à jour de la question
+     */
     public void updateQuestion(String description, String correct) {
 
         new RequestActivity() {

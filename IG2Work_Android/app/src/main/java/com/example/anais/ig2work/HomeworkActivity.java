@@ -3,18 +3,12 @@ package com.example.anais.ig2work;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.os.Parcelable;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
-import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -29,14 +23,14 @@ import org.json.JSONObject;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 import java.util.Locale;
 
+/**
+ * La classe HomeworkActivity gère l'activité de visualisation d'un devoir
+ */
 public class HomeworkActivity extends RestActivity {
-
     private SharedPreferences preferences;
+
     private TextView moduleTextView;
     private TextView titleTextView;
     private TextView descriptionTextView;
@@ -52,16 +46,20 @@ public class HomeworkActivity extends RestActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_homework);
 
-        setTitle("Devoir");
+        // Affichage de la flèche de retour
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         preferences = PreferenceManager.getDefaultSharedPreferences(HomeworkActivity.this);
         idUser = preferences.getInt(StringUtils.IDUSER.toString(), 0);
 
+        setTitle("Devoir");
+
         moduleTextView = (TextView) findViewById(R.id.module);
         titleTextView = (TextView) findViewById(R.id.title);
         descriptionTextView = (TextView) findViewById(R.id.description);
         dueDateTextView = (TextView) findViewById(R.id.dueDate);
+
+        // La case state affiche l'état de réalisation du devoir (pour un étudiant)
         state = (CheckBox) findViewById(R.id.state);
         state.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -76,6 +74,7 @@ public class HomeworkActivity extends RestActivity {
                 }.envoiRequete("realizedHomeWork", "action=realizedHomeWork&idHomeWork=" + idHomework+"&idUser="+idUser+"&realized="+(state.isChecked() ? 1 : 0));
             }
         });
+
         if (preferences.getString(StringUtils.ROLE.toString(), "").equals("teacher")) {
             state.setVisibility(View.GONE);
         }
@@ -87,7 +86,7 @@ public class HomeworkActivity extends RestActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        //Initialisation de la question
+
         if (StringUtils.ETUDIANT.toString().equals(preferences.getString(StringUtils.ROLE.toString(), ""))) {
             getHomeworkForStudent();
         } else {
@@ -101,8 +100,7 @@ public class HomeworkActivity extends RestActivity {
 
         switch (id) {
             case R.id.menu_edit_homework:
-                Intent intent = new Intent();
-                intent = new Intent(HomeworkActivity.this, AddHomework.class);
+                Intent intent = new Intent(HomeworkActivity.this, AddHomework.class);
                 intent.putExtra("homeworkObject", homeworkObject);
                 startActivity(intent);
                 return true;
@@ -111,7 +109,7 @@ public class HomeworkActivity extends RestActivity {
                 deleteHomework();
                 return true;
 
-            case android.R.id.home:
+            case android.R.id.home: // Retour à l'accueil (ou à la page de séance)
                 this.finish();
                 break;
         }
@@ -119,6 +117,9 @@ public class HomeworkActivity extends RestActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    /*
+    Récupération de devoir (côté enseignant)
+     */
     public void getHomework() {
         new RequestActivity() {
             @Override
@@ -160,6 +161,9 @@ public class HomeworkActivity extends RestActivity {
         }.envoiRequete("getHomeworkById", "action=getHomeworkById&idHomeWork=" + idHomework);
     }
 
+    /*
+    Récupération du devoir (côté étudiant)
+     */
     public void getHomeworkForStudent() {
         new RequestActivity() {
             @Override
@@ -201,6 +205,9 @@ public class HomeworkActivity extends RestActivity {
         }.envoiRequete("getHomeworkByIdForStudent", "action=getHomeworkByIdForStudent&idUser=" + preferences.getInt(StringUtils.IDUSER.toString(), 0) + "&idHomeWork=" + idHomework);
     }
 
+    /*
+    Suppression du devoir
+     */
     public void deleteHomework() {
         new AlertDialog.Builder(this)
                 .setTitle("Supprimer le devoir")
@@ -209,7 +216,7 @@ public class HomeworkActivity extends RestActivity {
                 .setPositiveButton("Oui", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        //Supprimer le devoir
+                        // Supprimer le devoir
                         new RequestActivity() {
                             @Override
                             public void traiteReponse(JSONObject o, String action) {

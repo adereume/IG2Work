@@ -14,20 +14,21 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 /**
- * Created by Anais on 24/01/2016.
+ * La classe RequestActivity gère l'exécution des requêtes en base de données
  */
 
 public abstract class RequestActivity extends AppCompatActivity {
 
     public void envoiRequete(String action, String paramPost) {
-
         ExecuteRequest req = new ExecuteRequest(this);
         req.execute(paramPost, action);
     }
 
     public abstract void traiteReponse(JSONObject o, String action);
-    // devra être implémenté dans la classe fille
 
+    /*
+    Permet de lancer une requête périodique
+     */
     public void requetePeriodique(final Activity act, int periode, final String action, final String url) {
 
         TimerTask doAsynchronousTask;

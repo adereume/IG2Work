@@ -17,7 +17,6 @@ import android.provider.ContactsContract;
 import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
@@ -25,28 +24,21 @@ import android.view.View.OnClickListener;
 import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.anais.ig2work.DataBase.RequestActivity;
-import com.example.anais.ig2work.Utils.RestActivity;
 import com.example.anais.ig2work.Utils.StringUtils;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.HashMap;
-
 
 /**
- * A login screen that offers login via pseudo/password.
+ * La classe LoginActivity gère l'activité de connexion à l'application.
  */
 public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<Cursor> {
-   // private UserLoginTask mAuthTask = null;
-
-    // UI references.
     private TextInputLayout mFirstnameView;
     private TextInputLayout mLastnameView;
     private TextInputLayout mPasswordView;
@@ -59,15 +51,14 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         setContentView(R.layout.activity_login);
 
         GlobalState gs = (GlobalState) getApplication();
-        if(! gs.verifReseau()) {
+        // Vérification du réseau
+        if(!gs.verifReseau()) {
             Toast.makeText(this, "Aucun réseau disponible", Toast.LENGTH_LONG).show();
             this.finish();
         }
 
-        //Keyboard don't resize view
+        // Cache le clavier (le clavier ne redimensionne pas la vue)
         this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
-
-        //Hidden the keyboard
         this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 
         mLoginFormView = findViewById(R.id.login_form);
@@ -81,6 +72,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 return false;
             }
         });
+
         mLastnameView = (TextInputLayout) findViewById(R.id.lastname);
         mLastnameView.setOnTouchListener(new View.OnTouchListener() {
             public boolean onTouch(View v, MotionEvent event) {
@@ -103,7 +95,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         mEmailSignInButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
-                attemptLogin();
+                attemptLogin(); // Lorsque l'utilisateur clique sur le bouton, on tente de le connecter
             }
         });
     }
@@ -113,6 +105,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         super.onStart();
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+
         String firstname = preferences.getString(StringUtils.FIRSTNAME.toString(), null);
         if(firstname != null)
             mFirstnameView.getEditText().setText(firstname);
@@ -124,32 +117,32 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         String lastPwd = preferences.getString(StringUtils.PASSWORD.toString(), null);
         if(lastPwd != null)
             mPasswordView.getEditText().setText(lastPwd);
+
         mPasswordView.getEditText().setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
-                if (id == R.id.login || id == EditorInfo.IME_NULL) {
-                    attemptLogin();
-                    return true;
-                }
-                return false;
+                return true;
             }
         });
 
         String attempt = preferences.getString(StringUtils.ATTEMPT_CONNEXION.toString(), null);
 
         if(firstname != null && lastname != null && lastPwd != null && attempt == null) {
-            showProgress(true);
+            showProgress(true); // Affiche une roue de progression
             userLogin(firstname, lastname, lastPwd);
         }
     }
 
+    /*
+    Tentative de connexion
+     */
     private void attemptLogin() {
-        // Reset errors.
+        // Réinitialisation des erreurs
         mFirstnameView.setError(null);
         mLastnameView.setError(null);
         mPasswordView.setError(null);
 
-        // Store values at the time of the login attempt.
+        // Stockage des valeurs avant la tentative de connexion
         String firstName = mFirstnameView.getEditText().getText().toString();
         String lastName = mLastnameView.getEditText().getText().toString();
         String password = mPasswordView.getEditText().getText().toString();
@@ -157,7 +150,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         boolean cancel = false;
         View focusView = null;
 
-        // Vérifier si les champs sont remplie
+        // Vérification des champs
         if (TextUtils.isEmpty(firstName)) {
             mFirstnameView.setError(getString(R.string.error_field_required));
             focusView = mFirstnameView;
@@ -179,7 +172,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         if (cancel) {
             focusView.requestFocus();
         } else {
-            showProgress(true);
+            showProgress(true); // Affiche une roue de progression
             userLogin(firstName, lastName, password);
         }
     }
@@ -239,11 +232,14 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
     @Override
     public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor) {
-
     }
 
     @Override
     public void onLoaderReset(Loader<Cursor> cursorLoader) {
+    }
+
+    @Override
+    public void onBackPressed() {
     }
 
     private interface ProfileQuery {
@@ -253,12 +249,9 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         };
     }
 
-    @Override
-    public void onBackPressed() {
-        Log.e("Retour", "pressed");
-    }
-
-
+    /*
+    Connexion de l'utilisateur
+     */
     public void userLogin(final String firstname, final String lastname, final String password) {
         new RequestActivity() {
             @Override
@@ -267,7 +260,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
                 try {
                     if(o.isNull("retour")) {
-                        Toast.makeText(LoginActivity.this, "Erreur: le pseudo ou le mot de passe est incorrecte", Toast.LENGTH_LONG).show();
+                        Toast.makeText(LoginActivity.this, "Erreur: le pseudo ou le mot de passe est incorrect", Toast.LENGTH_LONG).show();
                         mFirstnameView.setError(StringUtils.error_champ.toString());
                         mLastnameView.setError(StringUtils.error_champ.toString());
                         mPasswordView.setError(StringUtils.error_champ.toString());
@@ -281,6 +274,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                     String role = retour.getString("role");
                     int idUser = retour.getInt("id");
 
+                    // Mise à jour des préférences sauvegardées
                     SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(LoginActivity.this);
                     SharedPreferences.Editor editor = preferences.edit();
                     editor.putInt(StringUtils.IDUSER.toString(), idUser);
@@ -300,7 +294,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 } catch (JSONException e) {
                     e.printStackTrace();
 
-                    Toast.makeText(LoginActivity.this, "Erreur: le pseudo ou le mot de passe est incorrecte", Toast.LENGTH_LONG).show();
+                    Toast.makeText(LoginActivity.this, "Erreur: le pseudo ou le mot de passe est incorrect", Toast.LENGTH_LONG).show();
                     mFirstnameView.setError(StringUtils.error_champ.toString());
                     mLastnameView.setError(StringUtils.error_champ.toString());
                     mPasswordView.setError(StringUtils.error_champ.toString());

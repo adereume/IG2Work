@@ -18,7 +18,9 @@ import java.util.List;
 import java.util.Locale;
 
 /**
- * Created by clementruffin on 26/01/2017.
+ * La classe HomeworkExpandableAdapter permet de personnaliser les éléments d'une liste de listes de devoirs.
+ * Pour chaque devoir, on affiche le titre, la date d'échéance et l'état (case à cocher)
+ * Les devoirs sont répartis au sein de plusieurs groupes
  */
 
 public class HomeworkExpandableAdapter extends BaseExpandableListAdapter {
@@ -76,6 +78,7 @@ public class HomeworkExpandableAdapter extends BaseExpandableListAdapter {
             convertView.setTag(viewHolder);
         }
 
+        // Affichage des informations relatives au devoir
         Homework homework = getChild(groupPosition, childPosition);
 
         viewHolder.title.setText(homework.getModule() + " - " + homework.getTitre());

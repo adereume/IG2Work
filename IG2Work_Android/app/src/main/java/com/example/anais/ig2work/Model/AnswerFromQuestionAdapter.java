@@ -1,8 +1,6 @@
 package com.example.anais.ig2work.Model;
 
 import android.content.Context;
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,12 +9,13 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.example.anais.ig2work.R;
-import com.example.anais.ig2work.Utils.StringUtils;
 
 import java.util.List;
 
 /**
- * Created by clementruffin on 26/01/2017.
+ * La classe AnswerFromQuestionAdapter permet de personnaliser les éléments d'une liste de réponses
+ * faites par les étudiants à une question au sein d'une séance
+ * Pour chaque réponse, on affiche l'intitulé et le pourcentage (barre de progression)
  */
 
 public class AnswerFromQuestionAdapter extends ArrayAdapter<AnswerFromQuestionStat> {
@@ -38,9 +37,6 @@ public class AnswerFromQuestionAdapter extends ArrayAdapter<AnswerFromQuestionSt
             convertView = LayoutInflater.from(getContext()).inflate(R.layout.row_answer_question_layout,parent, false);
         }
 
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(convertView.getContext());
-        final int idUser = preferences.getInt(StringUtils.IDUSER.toString(), 0);
-
         AnswersViewHolder viewHolder = (AnswersViewHolder) convertView.getTag();
         if(viewHolder == null){
             viewHolder = new AnswersViewHolder();
@@ -50,27 +46,14 @@ public class AnswerFromQuestionAdapter extends ArrayAdapter<AnswerFromQuestionSt
             convertView.setTag(viewHolder);
         }
 
+        // Affichage des informations relatives à la réponse
         final AnswerFromQuestionStat answerStat = getItem(position);
         viewHolder.answer.setText(answerStat.getAnswer());
         viewHolder.textPourcentage.setText(answerStat.getPourcentage()+"%");
 
-        //Initalisation de la progressBar
+        // Initalisation de la ProgressBar
         viewHolder.pourcentage.setMax(100);
         viewHolder.pourcentage.setProgress(answerStat.getPourcentage());
-
-        //Affichage en fonction du rôle
-        /*if(StringUtils.ENSEIGNANT.toString().equals(preferences.getString(StringUtils.ROLE.toString(), ""))) {
-            ((ImageButton) convertView.findViewById(R.id.btnAnswer)).setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    //Vue pour répondre
-                    DialogFragment newFragment = FragmentAnswerQuesFromStudent.newInstance(question.getId(), question.getAnwser());
-                    newFragment.show(((TaskActivity) parent.getContext()).getFragmentManager(), "dialog");
-                }
-            });
-        } else {
-            convertView.findViewById(R.id.btnAnswer).setVisibility(View.GONE);
-        }*/
 
         return convertView;
     }

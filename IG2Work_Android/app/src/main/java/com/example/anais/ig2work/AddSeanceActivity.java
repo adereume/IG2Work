@@ -5,8 +5,6 @@ import android.app.Dialog;
 import android.app.DialogFragment;
 import android.app.TimePickerDialog;
 import android.content.SharedPreferences;
-import android.graphics.Color;
-import android.graphics.PorterDuff;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -18,7 +16,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.CheckedTextView;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.Spinner;
@@ -40,6 +37,9 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+/**
+ * La classe AddSeanceActivity gère l'activité d'ajout d'une séance
+ */
 public class AddSeanceActivity extends AppCompatActivity {
 
     private SharedPreferences preferences;
@@ -64,7 +64,7 @@ public class AddSeanceActivity extends AppCompatActivity {
 
         setTitle("Ajout Séance");
 
-        //Le bouton retour à gauche de la barre d'action
+        // Affichage de la flèche de retour
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         preferences = PreferenceManager.getDefaultSharedPreferences(this);
@@ -76,6 +76,8 @@ public class AddSeanceActivity extends AppCompatActivity {
         startDate = (EditText) findViewById(R.id.startDate);
         endDate = (EditText) findViewById(R.id.endDate);
 
+        // Lorsque l'utilisateur change la sélection du type de séance, la liste des groupes
+        // est modifiée en conséquence
         selectType.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
@@ -130,13 +132,16 @@ public class AddSeanceActivity extends AppCompatActivity {
             }
         });
 
+        // Pour l'ensemble des modules et groupes, on stocke les ID et les noms.
+        // La liste des noms est utilisée pour l'affichage au sein du Spinner
+        // La liste des ID est utilisée lors de l'ajout, dans la requête.
         listModuleId = new ArrayList<>();
         listModuleNames = new ArrayList<>();
         listPromoId = new ArrayList<>();
         listPromoNames = new ArrayList<>();
 
         getListModules();
-        getListPromos();
+        getListPromos(); // Par défaut au lancement on affiche la liste des promotions
     }
 
     @Override
@@ -152,7 +157,7 @@ public class AddSeanceActivity extends AppCompatActivity {
                 Log.d("action", "Ajouter");
                 attemptAddSeance();
                 break;
-            case android.R.id.home:
+            case android.R.id.home: // Retour à l'accueil
                 this.finish();
                 break;
 
@@ -161,6 +166,9 @@ public class AddSeanceActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    /*
+    Récupération de la liste des modules
+     */
     public void getListModules() {
         new RequestActivity() {
             @Override
@@ -171,7 +179,7 @@ public class AddSeanceActivity extends AppCompatActivity {
                         JSONArray modules = json_data.getJSONArray("retour");
 
                         listModuleId.add(0);
-                        listModuleNames.add("Sélectionner le module ...");
+                        listModuleNames.add("Sélectionner le module ..."); // Sélection par défaut
                         for (int i = 0; i < modules.length(); i++) {
                             JSONObject o = modules.getJSONObject(i);
 
@@ -186,12 +194,15 @@ public class AddSeanceActivity extends AppCompatActivity {
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
-                    Toast.makeText(AddSeanceActivity.this, "Une erreur est survenu", Toast.LENGTH_LONG).show();
+                    Toast.makeText(AddSeanceActivity.this, "Une erreur est survenue", Toast.LENGTH_LONG).show();
                 }
             }
         }.envoiRequete("getModules", "action=getModule");
     }
 
+    /*
+    Récupération de la liste des promotions
+     */
     public void getListPromos() {
         new RequestActivity() {
             @Override
@@ -204,7 +215,7 @@ public class AddSeanceActivity extends AppCompatActivity {
                         listPromoNames = new ArrayList<>();
 
                         listPromoId.add(0);
-                        listPromoNames.add("Sélectionner la promo ...");
+                        listPromoNames.add("Sélectionner la promo ..."); // Sélection par défaut
                         for (int i = 0; i < promotions.length(); i++) {
                             JSONObject o = promotions.getJSONObject(i);
 
@@ -219,12 +230,15 @@ public class AddSeanceActivity extends AppCompatActivity {
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
-                    Toast.makeText(AddSeanceActivity.this, "Une erreur est survenu", Toast.LENGTH_LONG).show();
+                    Toast.makeText(AddSeanceActivity.this, "Une erreur est survenue", Toast.LENGTH_LONG).show();
                 }
             }
         }.envoiRequete("getPromo", "action=getPromo");
     }
 
+    /*
+    Récupération de la liste des groupes TD
+     */
     public void getListTDs() {
         new RequestActivity() {
             @Override
@@ -237,7 +251,7 @@ public class AddSeanceActivity extends AppCompatActivity {
                         listPromoNames = new ArrayList<>();
 
                         listPromoId.add(0);
-                        listPromoNames.add("Sélectionner le groupe TD ...");
+                        listPromoNames.add("Sélectionner le groupe TD ..."); // Sélection par défaut
                         for (int i = 0; i < tds.length(); i++) {
                             JSONObject o = tds.getJSONObject(i);
 
@@ -252,12 +266,15 @@ public class AddSeanceActivity extends AppCompatActivity {
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
-                    Toast.makeText(AddSeanceActivity.this, "Une erreur est survenu", Toast.LENGTH_LONG).show();
+                    Toast.makeText(AddSeanceActivity.this, "Une erreur est survenue", Toast.LENGTH_LONG).show();
                 }
             }
         }.envoiRequete("getAllTD", "action=getAllTD");
     }
 
+    /*
+    Récupération de la liste des groupes TP
+     */
     public void getListTPs() {
         new RequestActivity() {
             @Override
@@ -270,7 +287,7 @@ public class AddSeanceActivity extends AppCompatActivity {
                         listPromoNames = new ArrayList<>();
 
                         listPromoId.add(0);
-                        listPromoNames.add("Sélectionner le groupe TP ...");
+                        listPromoNames.add("Sélectionner le groupe TP ..."); // Sélection par défaut
                         for (int i = 0; i < tps.length(); i++) {
                             JSONObject o = tps.getJSONObject(i);
 
@@ -285,65 +302,17 @@ public class AddSeanceActivity extends AppCompatActivity {
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
-                    Toast.makeText(AddSeanceActivity.this, "Une erreur est survenu", Toast.LENGTH_LONG).show();
+                    Toast.makeText(AddSeanceActivity.this, "Une erreur est survenue", Toast.LENGTH_LONG).show();
                 }
             }
         }.envoiRequete("getAllTP", "action=getAllTP");
     }
 
-    public void showTimePickerDialog(View v) {
-        DialogFragment newFragment = new AddSeanceActivity.TimePickerFragment();
-        newFragment.show(getFragmentManager(), "timePicker");
-    }
-
-    public void showDatePickerDialog(View v) {
-        DialogFragment newFragment = new AddSeanceActivity.DatePickerFragment();
-        newFragment.show(getFragmentManager(), "datePicker");
-    }
-
-    public static class TimePickerFragment extends DialogFragment implements TimePickerDialog.OnTimeSetListener {
-        @Override
-        public Dialog onCreateDialog(Bundle savedInstanceState) {
-            final Calendar c = Calendar.getInstance();
-            int hour = c.get(Calendar.HOUR_OF_DAY);
-            int minute = c.get(Calendar.MINUTE);
-
-            return new TimePickerDialog(getActivity(), this, hour, minute,
-                    DateFormat.is24HourFormat(getActivity()));
-        }
-
-        public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-            if (start) {
-                startDate.setText(startDate.getText() + " - " + hourOfDay + ":" + minute);
-            } else {
-                endDate.setText(endDate.getText() + " - " + hourOfDay + ":" + minute);
-            }
-        }
-    }
-
-    public static class DatePickerFragment extends DialogFragment implements DatePickerDialog.OnDateSetListener {
-
-        @Override
-        public Dialog onCreateDialog(Bundle savedInstanceState) {
-            final Calendar c = Calendar.getInstance();
-            int year = c.get(Calendar.YEAR);
-            int month = c.get(Calendar.MONTH);
-            int day = c.get(Calendar.DAY_OF_MONTH);
-
-            return new DatePickerDialog(getActivity(), this, year, month, day);
-        }
-
-        public void onDateSet(DatePicker view, int year, int month, int day) {
-            if (start) {
-                startDate.setText(day + "/" + (month + 1) + "/" + year);
-            } else {
-                endDate.setText(day + "/" + (month + 1) + "/" + year);
-            }
-        }
-    }
-
+    /*
+    Tentative d'ajout de la séance
+    */
     private void attemptAddSeance() {
-        // Reset errors.
+        // Réinitialisation des erreurs
         ((TextView)selectModule.getSelectedView()).setError(null);
         ((TextView)selectGroupe.getSelectedView()).setError(null);
         room.setError(null);
@@ -356,13 +325,14 @@ public class AddSeanceActivity extends AppCompatActivity {
         Date startDateTmp = null;
         Date endDateTmp = null;
 
+        // Stockage des valeurs au moment de la tentative d'ajout
         int moduleId = listModuleId.get(selectModule.getSelectedItemPosition());
         int promoId = listPromoId.get(selectGroupe.getSelectedItemPosition());
         String roomTxt = room.getText().toString();
         String startDateTxt = startDate.getText().toString();
         String endDateTxt = endDate.getText().toString();
 
-        // Vérifier si les champs sont remplie
+        // Vérification des champs
         if(selectModule.getSelectedItemPosition() == 0) {
             ((TextView) selectModule.getSelectedView()).setError(getString(R.string.error_field_required));
             focusView = selectModule;
@@ -383,14 +353,14 @@ public class AddSeanceActivity extends AppCompatActivity {
             try {
                 startDateTmp = new SimpleDateFormat("d/MM/yyyy - h:m").parse(startDateTxt);
 
-                //Vérifier si la date n'est pas dans le passè
+                // La date ne peut pas être dans le passé
                 if(startDateTmp.before(new Date())) {
                     startDate.setError("La date ne doit pas être dans le passè");
                     focusView = startDate;
                     cancel = true;
                 }
 
-                //Ne pas mettre l'échéance le week-end
+                // La date ne peut pas être positionnée sur un week end
                 String startJour = new SimpleDateFormat("EEEE").format(startDateTmp);
                 if (startJour.equals("samedi") || startJour.equals("dimanche")) {
                     startDate.setError("La date ne peux pas être durant le weekend");
@@ -409,15 +379,15 @@ public class AddSeanceActivity extends AppCompatActivity {
         } else {
             try {
                 endDateTmp = new SimpleDateFormat("d/MM/yyyy - h:m").parse(endDateTxt);
-                Log.e("Error", endDateTmp.toString());
-                //Vérifier si la date n'est pas dans le passè
+
+                // La date ne peut pas être dans le passé
                 if(endDateTmp.before(new Date())) {
                     endDate.setError("La date ne doit pas être dans le passè");
                     focusView = endDate;
                     cancel = true;
                 }
 
-                //Ne pas mettre l'échéance le week-end
+                // La date ne peut pas être positionnée sur un week end
                 String endJour = new SimpleDateFormat("EEEE").format(endDateTmp);
                 if (endJour.equals("samedi") || endJour.equals("dimanche")) {
                     endDate.setError("La date ne peux pas être durant le weekend");
@@ -446,6 +416,9 @@ public class AddSeanceActivity extends AppCompatActivity {
         }
     }
 
+    /*
+    Ajout de la séance
+     */
     public void addSeance(final int idModule, final int idPromo, final String room, final String startDate, final String endDate) {
         new RequestActivity() {
             @Override
@@ -453,7 +426,7 @@ public class AddSeanceActivity extends AppCompatActivity {
                 try {
                     if(!json_data.isNull("retour")) {
                         json_data.getString("retour");
-                        AddSeanceActivity.this.finish();
+                        AddSeanceActivity.this.finish(); // Retour à l'accueil
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -462,4 +435,56 @@ public class AddSeanceActivity extends AppCompatActivity {
             }
         }.envoiRequete("addSeance", "action=addSeance&idTeacher=" + preferences.getInt(StringUtils.IDUSER.toString(), 0) + "&idModule=" + idModule + "&idPromo=" + idPromo + "&dayTime=" + startDate + "&dayTimeEnd=" + endDate + "&room=" + room);
     }
+
+    public void showDatePickerDialog(View v) {
+        DialogFragment newFragment = new AddSeanceActivity.DatePickerFragment();
+        newFragment.show(getFragmentManager(), "datePicker");
+    }
+
+    public void showTimePickerDialog(View v) {
+        DialogFragment newFragment = new AddSeanceActivity.TimePickerFragment();
+        newFragment.show(getFragmentManager(), "timePicker");
+    }
+
+    public static class DatePickerFragment extends DialogFragment implements DatePickerDialog.OnDateSetListener {
+
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+            final Calendar c = Calendar.getInstance();
+            int year = c.get(Calendar.YEAR);
+            int month = c.get(Calendar.MONTH);
+            int day = c.get(Calendar.DAY_OF_MONTH);
+
+            return new DatePickerDialog(getActivity(), this, year, month, day);
+        }
+
+        public void onDateSet(DatePicker view, int year, int month, int day) {
+            if (start) {
+                startDate.setText(day + "/" + (month + 1) + "/" + year);
+            } else {
+                endDate.setText(day + "/" + (month + 1) + "/" + year);
+            }
+        }
+    }
+
+    public static class TimePickerFragment extends DialogFragment implements TimePickerDialog.OnTimeSetListener {
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+            final Calendar c = Calendar.getInstance();
+            int hour = c.get(Calendar.HOUR_OF_DAY);
+            int minute = c.get(Calendar.MINUTE);
+
+            return new TimePickerDialog(getActivity(), this, hour, minute,
+                    DateFormat.is24HourFormat(getActivity()));
+        }
+
+        public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+            if (start) {
+                startDate.setText(startDate.getText() + " - " + hourOfDay + ":" + minute);
+            } else {
+                endDate.setText(endDate.getText() + " - " + hourOfDay + ":" + minute);
+            }
+        }
+    }
+
 }

@@ -1,21 +1,16 @@
 package com.example.anais.ig2work;
 
 import android.Manifest;
-import android.accounts.Account;
-import android.app.Dialog;
 import android.content.ContentResolver;
 import android.content.ContentValues;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.net.Uri;
-import android.os.Build;
 import android.preference.PreferenceManager;
 import android.provider.CalendarContract;
+import android.support.annotation.NonNull;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.widget.Toolbar;
@@ -25,7 +20,6 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -46,54 +40,31 @@ import com.example.anais.ig2work.Model.SeanceAdapter;
 import com.example.anais.ig2work.Utils.ListUtils;
 import com.example.anais.ig2work.Utils.RestActivity;
 import com.example.anais.ig2work.Utils.StringUtils;
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GoogleApiAvailability;
-import com.google.api.client.extensions.android.http.AndroidHttp;
-import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
-import com.google.api.client.http.HttpTransport;
-import com.google.api.client.json.JsonFactory;
-import com.google.api.client.json.jackson2.JacksonFactory;
-import com.google.api.client.util.DateTime;
-import com.google.api.client.util.ExponentialBackOff;
-import com.google.api.services.calendar.CalendarScopes;
-import com.google.api.services.calendar.model.Event;
-import com.google.api.services.calendar.model.EventAttendee;
-import com.google.api.services.calendar.model.EventDateTime;
-import com.google.api.services.calendar.model.EventReminder;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.IOException;
-import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.TimeZone;
 
-import pub.devrel.easypermissions.AfterPermissionGranted;
-import pub.devrel.easypermissions.EasyPermissions;
-
-/*
-La classe HomeActivity gère la page d'accueil de l'application, une fois l'utilisateur connecté.
-Cette page comporte deux onglets : séances & devoirs (l'onglet devoirs n'est disponible que pour
-les étudiants).
-Dans chacun des onglets, on récupère et on affiche les données sous forme de liste.  L'utilisateur
-peut choisir de voir les séances/devoirs du jour courant, des 7 prochains jours ou du mois courant.
-Lorsque l'utilisateur clique sur une séance ou un devoir, il accède à la page détaillée.
+/**
+ * La classe HomeActivity gère la page d'accueil de l'application, une fois l'utilisateur connecté.
+ * Cette page comporte deux onglets : séances & devoirs (l'onglet devoirs n'est disponible que pour
+ * les étudiants).
+ * L'onglet Séances affiche un calendrier, dans lequel l'utilisateur peut retrouver l'ensemble de
+ * ses séances (passées et futures). Lorsqu'il sélectionne un jour, une liste des séances s'affiche
+ * sous le calendrier. Il peut cliquer sur l'une d'elles pour accéder à la vue détaillée.
+ * L'onglet Devoirs affiche les données sous forme de listes. L'utilisateur peut choisir de voir
+ * ses devoirs du jour courant, des 7 prochains jours ou du mois courant.
  */
-public class HomeActivity extends RestActivity implements EasyPermissions.PermissionCallbacks {
-    private GoogleAccountCredential credential;
-
+public class HomeActivity extends RestActivity {
     private SectionsPagerAdapter mSectionsPagerAdapter;
     private ViewPager mViewPager;
 
@@ -102,10 +73,10 @@ public class HomeActivity extends RestActivity implements EasyPermissions.Permis
     int idUser;
 
     public static final String[] CALENDAR_PROJECTION = new String[]{
-            CalendarContract.Calendars._ID,                           // 0
-            CalendarContract.Calendars.ACCOUNT_NAME,                  // 1
-            CalendarContract.Calendars.CALENDAR_DISPLAY_NAME,         // 2
-            CalendarContract.Calendars.OWNER_ACCOUNT                  // 3
+            CalendarContract.Calendars._ID,
+            CalendarContract.Calendars.ACCOUNT_NAME,
+            CalendarContract.Calendars.CALENDAR_DISPLAY_NAME,
+            CalendarContract.Calendars.OWNER_ACCOUNT
     };
     public static final String[] EVENT_PROJECTION = new String[]{
             CalendarContract.Events._ID,
@@ -113,16 +84,6 @@ public class HomeActivity extends RestActivity implements EasyPermissions.Permis
             CalendarContract.Events.DTSTART,
             CalendarContract.Events.DTEND
     };
-
-    // The indices for the projection array above.
-    private static final int PROJECTION_ID_INDEX = 0;
-    private static final int PROJECTION_ACCOUNT_NAME_INDEX = 1;
-    private static final int PROJECTION_DISPLAY_NAME_INDEX = 2;
-    private static final int PROJECTION_OWNER_ACCOUNT_INDEX = 3;
-
-    private static final String BUTTON_TEXT = "Call Google Calendar API";
-    private static final String PREF_ACCOUNT_NAME = "accountName";
-    private static final String[] SCOPES = {CalendarScopes.CALENDAR_READONLY};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -134,24 +95,7 @@ public class HomeActivity extends RestActivity implements EasyPermissions.Permis
 
         preferences = PreferenceManager.getDefaultSharedPreferences(HomeActivity.this);
 
-        credential = GoogleAccountCredential.usingOAuth2(
-                getApplicationContext(), Arrays.asList(SCOPES))
-                .setBackOff(new ExponentialBackOff());
-
         ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_CALENDAR, Manifest.permission.WRITE_CALENDAR, Manifest.permission.GET_ACCOUNTS}, 1);
-
-        /*com.google.api.services.calendar.Calendar newCalendar = new com.google.api.services.calendar.Calendar();
-        newCalendar.setSummary("Calendar Name");
-        //newCalendar.setTimeZone(TIME_ZONE); //assuming you have it as a constant somewhere
-        String newCalendarId = null;
-        try {
-            com.google.api.services.calendar.model.Calendar insertedCalendar = mService.calendars().insert(newCalendar).execute();
-            newCalendarId = insertedCalendar.getId();
-        } catch(Exception ignore){}*/
-        //chooseAccount();
-        //getCalendars();
-
-        //getResultsFromApi();
     }
 
     @Override
@@ -159,10 +103,10 @@ public class HomeActivity extends RestActivity implements EasyPermissions.Permis
         super.onStart();
         // Create the adapter that will return a fragment for each of the three
         // primary sections of the activity.
-        mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
+        SectionsPagerAdapter mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
 
         // Set up the ViewPager with the sections adapter.
-        mViewPager = (ViewPager) findViewById(R.id.container);
+        ViewPager mViewPager = (ViewPager) findViewById(R.id.container);
         mViewPager.setAdapter(mSectionsPagerAdapter);
 
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
@@ -170,8 +114,6 @@ public class HomeActivity extends RestActivity implements EasyPermissions.Permis
 
         preferences = PreferenceManager.getDefaultSharedPreferences(HomeActivity.this);
         idUser = PreferenceManager.getDefaultSharedPreferences(HomeActivity.this.getApplicationContext()).getInt(StringUtils.IDUSER.toString(), 0);
-
-
     }
 
     @Override
@@ -202,16 +144,6 @@ public class HomeActivity extends RestActivity implements EasyPermissions.Permis
 
         intent.putExtras(data);
         startActivity(intent);
-    }
-
-    @Override
-    public void onPermissionsGranted(int requestCode, List<String> perms) {
-        Log.e("Calendar", "Permissions Granted");
-    }
-
-    @Override
-    public void onPermissionsDenied(int requestCode, List<String> perms) {
-        Log.e("Calendar", "Permissions Denied");
     }
 
     /**
@@ -268,12 +200,16 @@ public class HomeActivity extends RestActivity implements EasyPermissions.Permis
             return rootView;
         }
 
+        /*
+        Récupére les séances du jour courant
+        Active un listener au clic sur un jour du calendrier
+         */
         public void getSeances(final int idUser) {
-            getAllSeances(idUser, Calendar.getInstance().getTime());
+            getAllSeances(idUser, Calendar.getInstance().getTime()); // Récupération des séances du jour
 
             calendarView.setOnDateChangeListener(new CalendarView.OnDateChangeListener() {
                 @Override
-                public void onSelectedDayChange(CalendarView view, int year, int month, final int dayOfMonth) {
+                public void onSelectedDayChange(@NonNull CalendarView view, int year, int month, final int dayOfMonth) {
                     Calendar cal = Calendar.getInstance();
                     cal.set(year, month, dayOfMonth);
                     dateNow = cal.getTime();
@@ -283,6 +219,9 @@ public class HomeActivity extends RestActivity implements EasyPermissions.Permis
             });
         }
 
+        /*
+        Récupère les séances pour une date donné
+         */
         public void getAllSeances(final int idUser, final Date dateNow) {
             new RequestActivity() {
                 @Override
@@ -296,7 +235,7 @@ public class HomeActivity extends RestActivity implements EasyPermissions.Permis
                     try {
                         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.FRANCE);
 
-                        List<Seance> listSeances = new ArrayList<Seance>();
+                        List<Seance> listSeances = new ArrayList<>();
 
                         // Le rôle de l'utilisateur est utilisé pour instancier l'objet Seance
                         // On s'en sert dans la gestion de l'affichage (affichage du nom de l'enseignant ou de la promo)
@@ -319,10 +258,9 @@ public class HomeActivity extends RestActivity implements EasyPermissions.Permis
 
                             Seance s = new Seance(id, moduleName, teacherFName + " " + teacherLName, promoName, formatter.parse(dayTime), room, target);
 
-                            Calendar cal = Calendar.getInstance();
-
                             Date dateSeance = formatter.parse(dayTime);
 
+                            // On ne conserve que les séances du jour courant
                             if (dateNow.getYear() == dateSeance.getYear()
                                     && dateNow.getMonth() == dateSeance.getMonth()
                                     && dateNow.getDate() == dateSeance.getDate()) {
@@ -333,6 +271,7 @@ public class HomeActivity extends RestActivity implements EasyPermissions.Permis
                         SeanceAdapter adapter = new SeanceAdapter(getActivity(), listSeances);
                         seanceListView.setAdapter(adapter);
 
+                        // Lors du clic sur une séance, l'utilisateur accède à la vue détaillée
                         seanceListView.setOnItemClickListener(new ListView.OnItemClickListener() {
                             @Override
                             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
@@ -355,6 +294,10 @@ public class HomeActivity extends RestActivity implements EasyPermissions.Permis
             }.envoiRequete("getAllSeance", "action=getAllSeance&idUser=" + idUser);
         }
 
+        /*
+        Permet de créer un événement en fonction des paramétres
+        On vérifie au préalable que l'évènement n'est pas existant
+         */
         private void addEvent(String title, String description, Date startDate, Date endDate) {
             long calID = 0;
             long startMillis;
@@ -433,6 +376,9 @@ public class HomeActivity extends RestActivity implements EasyPermissions.Permis
             }
         }
 
+        /*
+         Récupère les devoirs d'un utilisateur
+         */
         public void getAllHomeworks(final int idUser) {
             new RequestActivity() {
                 @Override
@@ -446,18 +392,18 @@ public class HomeActivity extends RestActivity implements EasyPermissions.Permis
                     try {
                         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.FRANCE);
 
-                        List<Homework> listHomeworksDay = new ArrayList<Homework>();
-                        List<Homework> listHomeworksWeek = new ArrayList<Homework>();
-                        List<Homework> listHomeworksMonth = new ArrayList<Homework>();
+                        List<Homework> listHomeworksDay = new ArrayList<>();
+                        List<Homework> listHomeworksWeek = new ArrayList<>();
+                        List<Homework> listHomeworksMonth = new ArrayList<>();
 
-                        // On crée 3 filtres sur la liste des séances
-                        // Ainsi l'utilisateur pourra choisir d'afficher les séances du jour, de la semaine ou du mois à venir
-                        List<String> listFilter = new ArrayList<String>();
+                        // On crée 3 filtres sur la liste des devoirs
+                        // Ainsi l'utilisateur pourra choisir d'afficher les devoirs du jour, de la semaine ou du mois à venir
+                        List<String> listFilter = new ArrayList<>();
                         listFilter.add("Aujourd'hui");
                         listFilter.add("7 prochains jours");
                         listFilter.add("Ce mois-ci");
 
-                        // Liste des séances
+                        // Liste des devoirs
                         JSONArray homeworks = o.getJSONArray("retour");
 
                         for (int i = 0; i < homeworks.length(); i++) {
@@ -472,12 +418,12 @@ public class HomeActivity extends RestActivity implements EasyPermissions.Permis
 
                             Boolean isVisible = false;
                             if (!homework.isNull("isVisible")) {
-                                isVisible = homework.getString("isVisible").equals("1") ? true : false;
+                                isVisible = homework.getString("isVisible").equals("1");
                             }
 
                             Boolean realized = false;
                             if (!homework.isNull("realized")) {
-                                realized = homework.getString("realized").equals("1") ? true : false;
+                                realized = homework.getString("realized").equals("1");
                             }
 
                             Homework h = new Homework(id, moduleName, title, description, formatter.parse(dueDate), realized, isVisible);
@@ -510,7 +456,7 @@ public class HomeActivity extends RestActivity implements EasyPermissions.Permis
                             }
                         }
 
-                        HashMap<String, List<Homework>> mapHomeworks = new HashMap<String, List<Homework>>();
+                        HashMap<String, List<Homework>> mapHomeworks = new HashMap<>();
                         mapHomeworks.put(listFilter.get(0), listHomeworksDay);
                         mapHomeworks.put(listFilter.get(1), listHomeworksWeek);
                         mapHomeworks.put(listFilter.get(2), listHomeworksMonth);
@@ -518,6 +464,7 @@ public class HomeActivity extends RestActivity implements EasyPermissions.Permis
                         HomeworkExpandableAdapter adapter = new HomeworkExpandableAdapter(getContext(), listView, listFilter, mapHomeworks);
                         listView.setAdapter(adapter);
 
+                        // Lors du clic sur un devoir, l'utilisateur accède à la vue détaillée
                         listView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
                             @Override
                             public boolean onChildClick(ExpandableListView expandableListView, View view, int i, int i1, long l) {
@@ -538,13 +485,13 @@ public class HomeActivity extends RestActivity implements EasyPermissions.Permis
                         e.printStackTrace();
                     }
                 }
-            }.envoiRequete("getHomeWorkByUser", "action=getHomeWorkByUser&idUser=" + idUser);//"action=getAllHomeworks&idUser=" + idUser);
+            }.envoiRequete("getHomeWorkByUser", "action=getHomeWorkByUser&idUser=" + idUser);
         }
     }
 
-    public class SectionsPagerAdapter extends FragmentPagerAdapter {
+    private class SectionsPagerAdapter extends FragmentPagerAdapter {
 
-        public SectionsPagerAdapter(FragmentManager fm) {
+        private SectionsPagerAdapter(FragmentManager fm) {
             super(fm);
         }
 

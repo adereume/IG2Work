@@ -27,7 +27,8 @@ import java.util.List;
 import java.util.Locale;
 
 /**
- * Created by clementruffin on 26/01/2017.
+ * La classe HomeworkAdapter permet de personnaliser les éléments d'une liste de devoirs.
+ * Pour chaque devoir, on affiche le titre, la date d'échéance et l'état (case à cocher)
  */
 
 public class HomeworkAdapter extends ArrayAdapter<Homework> {
@@ -63,6 +64,7 @@ public class HomeworkAdapter extends ArrayAdapter<Homework> {
             convertView.setTag(viewHolder);
         }
 
+        // Affichage des informations relatives au devoir
         final Homework homework = getItem(position);
         viewHolder.title.setText(homework.getTitre().replace("<br />", ""));
         viewHolder.dueDate.setText(new SimpleDateFormat("dd MMMM yyyy à HH:mm", Locale.FRANCE).format(homework.getDueDate()));
@@ -77,12 +79,12 @@ public class HomeworkAdapter extends ArrayAdapter<Homework> {
 
         ((ImageView)convertView.findViewById(R.id.logo)).setImageResource(R.drawable.logo_homework);
 
-        //Affichage en fonction du rôle
+        // Affichage en fonction du rôle
         if(StringUtils.ENSEIGNANT.toString().equals(preferences.getString(StringUtils.ROLE.toString(), ""))) {
             final ImageView img = (ImageView) convertView.findViewById(R.id.visible);
 
             viewHolder.realized.setVisibility(View.GONE);
-            //Reduit la zone de texte
+            // Réduit la zone de texte
             ViewGroup.MarginLayoutParams p = (ViewGroup.MarginLayoutParams) viewHolder.title.getLayoutParams();
             p.setMarginEnd(170);
             viewHolder.title.setLayoutParams(p);
@@ -102,7 +104,10 @@ public class HomeworkAdapter extends ArrayAdapter<Homework> {
         return convertView;
     }
 
-    public void setVisible(final ImageView img, final int idHomeWork, final boolean isVisible, final int idUser) {
+    /*
+    Modification de la visibilité d'un devoir
+     */
+    private void setVisible(final ImageView img, final int idHomeWork, final boolean isVisible, final int idUser) {
         new RequestActivity() {
             @Override
             public void traiteReponse(JSONObject o, String action) {
@@ -123,7 +128,10 @@ public class HomeworkAdapter extends ArrayAdapter<Homework> {
         }.envoiRequete("setVisibleHomework", "action=setHomeWorkVisible&idHomeWork="+idHomeWork+"&isVisible="+isVisible+"&idUser="+idUser);
     }
 
-    public void setChecked(final CheckBox cb, final int idHomeWork, final int idUser, final boolean realized) {
+    /*
+    Modification de l'état d'un devoir
+     */
+    private void setChecked(final CheckBox cb, final int idHomeWork, final int idUser, final boolean realized) {
         new RequestActivity() {
             @Override
             public void traiteReponse(JSONObject o, String action) {

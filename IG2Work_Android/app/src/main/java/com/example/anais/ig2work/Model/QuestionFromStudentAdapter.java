@@ -18,7 +18,9 @@ import com.example.anais.ig2work.Utils.StringUtils;
 import java.util.List;
 
 /**
- * Created by clementruffin on 26/01/2017.
+ * La classe QuestionFromStudentAdapter permet de personnaliser les éléments d'une liste de questions
+ * d'étudiants au sein d'une tâche.
+ * Pour chaque question, on affiche l'intitulé et la réponse.
  */
 
 public class QuestionFromStudentAdapter extends ArrayAdapter<QuestionFromStudent> {
@@ -40,8 +42,8 @@ public class QuestionFromStudentAdapter extends ArrayAdapter<QuestionFromStudent
         }
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(convertView.getContext());
-        final int idUser = preferences.getInt(StringUtils.IDUSER.toString(), 0);
 
+        // Affichage des informations relatives à la question
         QuestionViewHolder viewHolder = (QuestionViewHolder) convertView.getTag();
         if(viewHolder == null){
             viewHolder = new QuestionViewHolder();
@@ -54,12 +56,12 @@ public class QuestionFromStudentAdapter extends ArrayAdapter<QuestionFromStudent
         viewHolder.question.setText(question.getQuestion());
         viewHolder.answer.setText(question.getAnwser());
 
-        //Affichage en fonction du rôle
+        // Affichage en fonction du rôle
         if(StringUtils.ENSEIGNANT.toString().equals(preferences.getString(StringUtils.ROLE.toString(), ""))) {
             ((ImageButton) convertView.findViewById(R.id.btnAnswer)).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    //Vue pour répondre
+                    // Vue pour répondre
                     DialogFragment newFragment = FragmentAnswerQuesFromStudent.newInstance(question.getId(), question.getAnwser());
                     newFragment.show(((TaskActivity) parent.getContext()).getFragmentManager(), "dialog");
                 }
@@ -67,8 +69,6 @@ public class QuestionFromStudentAdapter extends ArrayAdapter<QuestionFromStudent
         } else {
             convertView.findViewById(R.id.btnAnswer).setVisibility(View.GONE);
         }
-
-
 
         return convertView;
     }

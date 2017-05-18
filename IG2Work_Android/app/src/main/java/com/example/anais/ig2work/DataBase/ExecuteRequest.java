@@ -10,7 +10,6 @@ import org.json.JSONObject;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
-import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -19,13 +18,12 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 
 /**
- * Created by Anais on 24/01/2016.
+ * La classe ExecuteRequest gère le traitement des requêtes en base de données
  */
 
 public class ExecuteRequest extends AsyncTask<String, Void, JSONObject> {
     private RequestActivity mAct;
     private String action = null;
-    // Une tâche ne peut être exécutée qu'une seule fois
 
     public ExecuteRequest( RequestActivity act) {
         mAct = act;
@@ -33,7 +31,6 @@ public class ExecuteRequest extends AsyncTask<String, Void, JSONObject> {
 
     @Override
     protected void onPreExecute() {
-        // S'exécute dans l'UI Thread
         super.onPreExecute();
     }
 
@@ -67,13 +64,11 @@ public class ExecuteRequest extends AsyncTask<String, Void, JSONObject> {
             result = convertStreamToString(in);
             urlConnection.disconnect();
 
-        } catch (EOFException e) {
-            Log.e("ExecuteRequest", "Une erreur est survenu : " + e);
         } catch (Exception e) {
             Log.e("ExecuteRequest", "Une erreur est survenu : " + e);
         }
 
-        //Convertion en JSON
+        // Convertion en JSON
         JSONObject json;
         try {
             json = new JSONObject(result);
@@ -94,7 +89,7 @@ public class ExecuteRequest extends AsyncTask<String, Void, JSONObject> {
         try {
             BufferedReader reader = new BufferedReader(new InputStreamReader(in));
             StringBuilder sb = new StringBuilder();
-            String line = null;
+            String line;
             while ((line = reader.readLine()) != null) {
                 sb.append(line + "\n");
             }

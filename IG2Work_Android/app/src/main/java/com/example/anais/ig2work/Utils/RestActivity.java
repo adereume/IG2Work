@@ -1,20 +1,16 @@
 package com.example.anais.ig2work.Utils;
 
-import android.app.FragmentManager;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import com.example.anais.ig2work.AddHomework;
-import com.example.anais.ig2work.AjoutFragment;
+import com.example.anais.ig2work.AccountActivity;
 import com.example.anais.ig2work.DataBase.RequestActivity;
 import com.example.anais.ig2work.GlobalState;
-import com.example.anais.ig2work.HomeActivity;
 import com.example.anais.ig2work.LoginActivity;
 import com.example.anais.ig2work.R;
 
@@ -22,7 +18,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 /**
- * Created by clementruffin on 27/01/2017.
+ * La classe RestActivity gère les interactions globales (menus, arrêts d'activités, déconnexion)
  */
 
 public abstract class RestActivity extends AppCompatActivity {
@@ -39,21 +35,12 @@ public abstract class RestActivity extends AppCompatActivity {
         // Instanciation de la classe GlobalState
         gs = (GlobalState) getApplication();
 
+        // Récupération des préférences
         preferences = PreferenceManager.getDefaultSharedPreferences(RestActivity.this);
 
         // Instanciation de la classe FinishAllReceiver
         fa = new FinishAllReceiver(this);
     }
-
-   /* @Override
-    protected void onStart() {
-        super.onStart();//Vérifie que l'utilisateur est connecté
-        String attempt_connexion = preferences.getString(StringUtils.ATTEMPT_CONNEXION.toString(), "false");
-        if(attempt_connexion == "false" && this.getClass().getSimpleName() != "LoginActivity") {
-            Intent intent = new Intent(this, LoginActivity.class);
-            startActivity(intent);
-        }
-    }*/
 
     @Override
     protected void onDestroy() {
@@ -69,6 +56,8 @@ public abstract class RestActivity extends AppCompatActivity {
         activeMenu = menu;
 
         String role = preferences.getString(StringUtils.ROLE.toString(), "");
+
+        // Affichage du menu en fonction de l'utilisateur et de la vue courante
 
         switch (this.getClass().getSimpleName()) {
             case "HomeActivity" :
@@ -130,6 +119,12 @@ public abstract class RestActivity extends AppCompatActivity {
         int id = item.getItemId();
 
         switch (id) {
+            // Menu 'Mon compte'
+            case R.id.action_account:
+                Intent intent = new Intent(RestActivity.this, AccountActivity.class);
+                startActivity(intent);
+                return true;
+
             // Menu 'Se déconnecter'
             case R.id.action_logout:
                 logoutUser();
@@ -148,6 +143,9 @@ public abstract class RestActivity extends AppCompatActivity {
         return activeMenu;
     }
 
+    /*
+    Déconnexion de l'utilisateur
+     */
     public void logoutUser() {
         new RequestActivity() {
             @Override
@@ -155,15 +153,15 @@ public abstract class RestActivity extends AppCompatActivity {
                 try {
                     String connecte = o.getString("connecte");
 
-                    if (connecte == "false") {
-                        // Lors de la déconnexion, pour éviter que la page de Login ne relance une authentification,
-                        // on modifie la valeur de ATTEMPT_CONNEXION à 'false'
+                    if (connecte.equals("false")) {
+                        // Lors de la déconnexion, pour éviter que la page de login ne relance
+                        // une authentification, on modifie la valeur de ATTEMPT_CONNEXION à 'false'
                         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(RestActivity.this);
                         SharedPreferences.Editor editor = preferences.edit();
                         editor.putString(StringUtils.ATTEMPT_CONNEXION.toString(), "false");
                         editor.apply();
 
-                        // Lancement de la page Login
+                        // Retour vers la page de login
                         Intent intent = new Intent(RestActivity.this, LoginActivity.class);
                         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                         RestActivity.this.startActivity(intent);
