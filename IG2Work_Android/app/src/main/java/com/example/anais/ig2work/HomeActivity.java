@@ -413,7 +413,7 @@ public class HomeActivity extends RestActivity {
                             int id = homework.getInt("id");
                             String moduleName = homework.getString("moduleName");
                             String title = homework.getString("titre");
-                            String description = homework.getString("description");
+                            String description = homework.getString("description").replace("<br />", "");
                             String dueDate = homework.getString("dueDate");
 
                             Boolean isVisible = false;
@@ -434,7 +434,7 @@ public class HomeActivity extends RestActivity {
                                 calendar.setTime(formatter.parse(dueDate));
                                 calendar.add(Calendar.HOUR, 1);
 
-                                addEvent(title, description, formatter.parse(dueDate), calendar.getTime());
+                                addEvent(h.getTitre(), h.getDescription(), h.getDueDate(), calendar.getTime());
                             } catch (ParseException e) {
                                 e.printStackTrace();
                             }
